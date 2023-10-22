@@ -5,17 +5,31 @@ from django.contrib.auth.models import User
 class Azienda(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
     nome = models.CharField(max_length=255, verbose_name="Nome Azienda")
+    staff_users = models.ManyToManyField('CustomUser', related_name='aziende', blank=True)
 
     def __str__(self):
         return self.nome
+    
+    class Meta:
+        verbose_name = "Azienda"
+        verbose_name_plural = "Aziende"
 
 class CustomUser(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
     azienda = models.ForeignKey(Azienda, on_delete=models.CASCADE, related_name="utenti", verbose_name="Azienda", null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    
 
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name
+    
+    @property
+    def is_only_student(self):
+        return not any([self.user.is_superuser, self.user.is_staff])
+
+    class Meta:
+        verbose_name = "Profilo"
+        verbose_name_plural = "Profili"
 
 class VideoCorso(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")

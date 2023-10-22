@@ -1,11 +1,77 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Aziende {% endblock %} 
+{% block title %} Aziende {% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <h2 class="h4">Lista aziende</h2>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button type="button" class="btn btn-block btn-gray-800 mb-3" data-bs-toggle="modal" data-bs-target="#modal-default">Aggiungi azienda</button>
+    </div>
+</div>
+
+<div class="card card-body border-0 shadow table-wrapper table-responsive">
+    <table class="table table-hover align-items-center">
+        <thead class="align-items-center">
+            <th class="border-gray-200">ID</th>
+            <th class="border-gray-200">Nome</th>
+            <th class="border-gray-200">Utenti</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for azienda in aziende %}
+            <tr>
+                <td>{{azienda.id}}</td>
+                <td><b>{{azienda.nome}}</b></td>
+                <td>
+                    {% for utente in azienda.utenti.all %}
+                        <button class="btn btn-info" type="button">{{utente}}</button>
+                    {% endfor%}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="modal-default" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="h6 modal-title">Aggiungi azienda</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'aziende' %}" method="post">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_nome_azienda" class="form-label">Nome Azienda:</label>
+                        <input type="text" name="nome_azienda" id="id_nome_azienda" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_elementi_selezionabili" class="form-label">Elementi selezionabili:</label>
+                        <select name="elementi_selezionabili" id="id_elementi_selezionabili" class="form-control" multiple required>
+                            <option value="valore1">Opzione 1</option>
+                            <option value="valore2">Opzione 2</option>
+                            <!-- Aggiungi altre opzioni, se necessario -->
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-secondary">Salva</button>
+                    <button type="button" class="btn btn-link text-gray-600 ms-auto" data-bs-dismiss="modal">Chiudi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 {% endblock content %}
 

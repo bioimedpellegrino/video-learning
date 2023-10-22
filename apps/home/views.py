@@ -80,7 +80,10 @@ class AziendeView(View):
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'amministrazione-aziende'}
-        #TODO
+        profile = CustomUser.objects.get(user=request.user)
+        aziende = profile.aziende.all()
+        context["aziende"] = aziende
+        
         return render(request, self.template_name, context)
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
