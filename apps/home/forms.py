@@ -47,7 +47,7 @@ class AziendaForm(forms.ModelForm):
 class UtenteForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['username', 'password', 'nome', 'cognome', 'azienda', 'email']
+        fields = ['azienda']
         widgets = {
             'azienda': forms.CheckboxSelectMultiple()
         }
