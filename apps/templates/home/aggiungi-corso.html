@@ -1,0 +1,31 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Aggiungi corso {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="py-4">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="{{ form.titolo.id_for_label }}" class="form-label">Titolo</label>
+            {{ form.titolo }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.aziende.id_for_label }}" class="form-label">Aziende</label>
+            {{ form.aziende }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.video_file.id_for_label }}" class="form-label">File Video</label>
+            {{ form.video_file }}
+        </div>
+        <div class="d-flex justify-content-start">
+            <button class="btn btn-primary me-2" type="submit">Salva</button>
+            <a href="{% url 'amministrazione' %}" class="btn btn-secondary me-2">Indietro</a>
+        </div>
+    </form>
+</div>
+
+{% endblock content %}
