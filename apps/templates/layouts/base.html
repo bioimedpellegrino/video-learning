@@ -1,20 +1,6 @@
-<!--
 
-=========================================================
-* Volt Free - Bootstrap 5 Dashboard
-=========================================================
+{% load static %}
 
-* Product Page: https://themesberg.com/product/admin-dashboard/volt-bootstrap-5-dashboard
-* Copyright 2021 Themesberg (https://www.themesberg.com)
-* License (https://themesberg.com/licensing)
-
-* Designed and coded by https://themesberg.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. Please contact us to request a removal.
-
--->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -61,8 +47,18 @@
 <link type="text/css" href="/static/assets/vendor/notyf/notyf.min.css" rel="stylesheet">
 <link type="text/css" href="/static/assets/css/volt.css" rel="stylesheet">
 
-<!-- Specific Page JS goes HERE  -->    
-{% block stylesheets %}{% endblock stylesheets %}
+<!-- Video js-->
+<link href="https://vjs.zencdn.net/8.6.0/video-js.css" rel="stylesheet" />
+<script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+<script src="https://vjs.zencdn.net/8.6.0/video.min.js"></script>
+
+<!-- Our project just needs Font Awesome Free's Solid and Brand files -->
+<link href="{% static 'fontawesomefree/css/fontawesome.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'fontawesomefree/css/solid.css' %}" rel="stylesheet" type="text/css">
+
+{% block stylesheets %}
+{% endblock stylesheets %}
 
 </head>
 <body>
@@ -74,8 +70,6 @@
       {% include 'includes/navigation.html' %}
 
       {% block content %}{% endblock content %} 
-
-      {% include 'includes/settings-box.html' %}
 
       {% include 'includes/footer.html' %}
 

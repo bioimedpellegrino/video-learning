@@ -6,6 +6,28 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
+<video
+id="my-video"
+class="video-js"
+preload="auto"
+width="640"
+height="264"
+poster="https://www.ptsclas.com/wp-content/uploads/2020/06/What-is-eLearning.jpg"
+data-setup="{}"
+>
+
+
+<source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+<p class="vjs-no-js">
+  To view this video please enable JavaScript, and consider upgrading to a
+  web browser that
+  <a href="https://videojs.com/html5-video-support/" target="_blank"
+    >supports HTML5 video</a
+  >
+</p>
+</video>
+
+<button id="backButton">Torna indietro di 10 secondi</button>
 
     <div class="py-4">
         <div class="dropdown">
@@ -578,4 +600,8 @@
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+
+<script src="/static/assets/js/video_controller.js"></script>
+
+{% endblock javascripts %}
