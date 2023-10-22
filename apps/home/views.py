@@ -1,11 +1,13 @@
 from django import template
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from .models import *
 from django.shortcuts import render
 from django.views.generic import View
+from django.db import IntegrityError
 from .forms import *
 
 @login_required(login_url="/login/")
@@ -109,6 +111,96 @@ class AggiungiCorsoView(View):
             else:
                 context = {
                     'form': form,
+                }
+                return render(request, self.template_name, context)
+        else:
+            return HttpResponseRedirect(reverse('home'))
+        
+class AggiungiAziendaView(View):
+    template_name = 'home/aggiungi-azienda.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            form = AziendaForm()
+            context = {
+                'form': form,
+            }
+            return render(request, self.template_name, context)
+        else:
+            return HttpResponseRedirect(reverse('home'))
+        
+    def post(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            form = AziendaForm(request.POST)
+            if form.is_valid():
+                azienda = form.save()
+                return HttpResponseRedirect(reverse('amministrazione'))
+            else:
+                context = {
+                    'form': form,
+                }
+                return render(request, self.template_name, context)
+        else:
+            return HttpResponseRedirect(reverse('home'))
+
+class AggiungiUtenteView(View):
+    template_name = 'home/aggiungi-utente.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            form = UtenteForm()
+            context = {
+                'form': form,
+            }
+            return render(request, self.template_name, context)
+        else:
+            return HttpResponseRedirect(reverse('home'))
+        
+    def post(self, request, *args, **kwargs):
+        if request.user.is_superuser:
+            form = UtenteForm(request.POST)
+            if form.is_valid():
+                utente = form.save()
+                username = form.cleaned_data.get('username')
+                password = form.cleaned_data.get('password')
+                email = form.cleaned_data.get('email')
+                try:
+                # Creo l'oggetto User associato
+                    user = User.objects.create_user(username=username, email=email, password=password)
+                except IntegrityError:
+                    message = "Username già esistente!"
+                    context = {
+                        'form': form,
+                        'message': message,
+                    }
+                    return render(request, self.template_name, context)
+
+                utente.user = user
+                utente.save()
+
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    login(request, user)
+                    message = "Utente aggiunto con successo!"
+                    context = {
+                        'form': form,
+                        'message': message,
+                    }
+                    return render(request, self.template_name, context)
+                else:
+                    message = "Errore durante la creazione dell'utente!"
+                    context = {
+                        'form': form,
+                        'message': message,
+                    }
+                    return render(request, self.template_name, context)
+            else:
+                errors = form.errors
+                message = "Errore durante la creazione dell'utente!"
+                context = {
+                    'form': form,
+                    'message': message,
+                    'errors': errors,
                 }
                 return render(request, self.template_name, context)
         else:

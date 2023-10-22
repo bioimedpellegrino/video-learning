@@ -13,8 +13,8 @@ urlpatterns = [
     path('', views.index, name='home'),
     path("amministrazione/", AmministrazioneView.as_view(), name="amministrazione"),
     path("aggiungi_corso/", AggiungiCorsoView.as_view(), name="aggiungi_corso"),
-
-
+    path("aggiungi_azienda/", AggiungiAziendaView.as_view(), name="aggiungi_azienda"),
+    path("aggiungi_utente/", AggiungiUtenteView.as_view(), name="aggiungi_utente"),
 
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),

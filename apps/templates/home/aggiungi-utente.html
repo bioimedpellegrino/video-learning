@@ -1,0 +1,53 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Aggiungi utente {% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="py-4">
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="{{ form.nome.id_for_label }}" class="form-label">Username</label>
+            {{ form.username }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+            {{ form.password }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.nome.id_for_label }}" class="form-label">Nome</label>
+            {{ form.nome }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.cognome.id_for_label }}" class="form-label">Cognome</label>
+            {{ form.cognome }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.azienda.id_for_label }}" class="form-label">Azienda</label>
+            {{ form.azienda }}
+        </div>
+        <div class="mb-3">
+            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+            {{ form.email }}
+        </div>
+        <div class="d-flex justify-content-start">
+            <button class="btn btn-primary me-2" type="submit">Salva</button>
+            <a href="{% url 'amministrazione' %}" class="btn btn-secondary me-2">Indietro</a>
+        </div>
+    </form>
+    {% if message %}
+    <div class="alert alert-danger mt-3" role="alert">
+        {{ message }}
+    </div>
+    {% endif %}
+    {% if form.errors %}
+    <div class="alert alert-danger mt-3" role="alert">
+        {{ form.errors }}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock content %}
