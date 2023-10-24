@@ -265,9 +265,8 @@ class AggiungiUtenteView(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_superuser:
-            form = UtenteForm()
             context = {
-                'form': form,
+                'aziende': Azienda.objects.all(),
             }
             return render(request, self.template_name, context)
         else:
@@ -275,50 +274,40 @@ class AggiungiUtenteView(View):
         
     def post(self, request, *args, **kwargs):
         if request.user.is_superuser:
-            form = UtenteForm(request.POST)
-            if form.is_valid():
-                utente = form.save()
-                username = form.cleaned_data.get('username')
-                password = form.cleaned_data.get('password')
-                email = form.cleaned_data.get('email')
-                try:
-                # Creo l'oggetto User associato
-                    user = User.objects.create_user(username=username, email=email, password=password)
-                except IntegrityError:
-                    message = "Username già esistente!"
-                    context = {
-                        'form': form,
-                        'message': message,
-                    }
-                    return render(request, self.template_name, context)
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            nome = request.POST.get('nome')
+            cognome = request.POST.get('cognome')
+            azienda_id = request.POST.get('azienda')
+            email = request.POST.get('email')
+            # is_staff = request.POST.get('is_staff')
+            is_superuser = request.POST.get('is_superuser')
 
-                utente.user = user
-                utente.save()
-
-                user = authenticate(username=username, password=password)
-                if user is not None:
-                    login(request, user)
-                    message = "Utente aggiunto con successo!"
-                    context = {
-                        'form': form,
-                        'message': message,
-                    }
-                    return render(request, self.template_name, context)
-                else:
-                    message = "Errore durante la creazione dell'utente!"
-                    context = {
-                        'form': form,
-                        'message': message,
-                    }
-                    return render(request, self.template_name, context)
-            else:
-                errors = form.errors
-                message = "Errore durante la creazione dell'utente!"
+            try:
+                # Creo l'oggetto User associato usando nome per first name e cognome per last name e se is_superuser è True lo rendo superuser
+                user = User.objects.create_user(username=username, password=password, first_name=nome, last_name=cognome, email=email, is_superuser=is_superuser)
+            except IntegrityError:
+                message = "Username già esistente!"
                 context = {
-                    'form': form,
+                    'aziende': Azienda.objects.all(),
+                    'username': username,
+                    'password': password,
+                    'nome': nome,
+                    'cognome': cognome,
+                    'email': email,
                     'message': message,
-                    'errors': errors,
                 }
                 return render(request, self.template_name, context)
+            
+            azienda = Azienda.objects.get(id=azienda_id)
+            utente = CustomUser.objects.create(user=user, azienda=azienda)
+            utente.save()            
+
+            message = "Utente aggiunto con successo!"
+            context = {
+                'aziende': Azienda.objects.all(),
+                'message': message,
+            }
+            return render(request, self.template_name, context)
         else:
             return HttpResponseRedirect(reverse('home'))

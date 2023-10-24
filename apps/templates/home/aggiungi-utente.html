@@ -9,29 +9,45 @@
 <div class="py-4">
     <form method="post">
         {% csrf_token %}
-        <div class="mb-3">
-            <label for="{{ form.nome.id_for_label }}" class="form-label">Username</label>
-            {{ form.username }}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" id="username" class="form-control form-control-sm" required>
+            </div>
+            <div class="col-md-6">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" id="password" class="form-control form-control-sm" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
-            {{ form.password }}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" name="nome" id="nome" class="form-control form-control-sm" required>
+            </div>
+            <div class="col-md-6">
+                <label for="cognome" class="form-label">Cognome</label>
+                <input type="text" name="cognome" id="cognome" class="form-control form-control-sm" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="{{ form.nome.id_for_label }}" class="form-label">Nome</label>
-            {{ form.nome }}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="azienda" class="form-label">Azienda</label>
+                <select name="azienda" id="azienda" class="form-control form-control-sm" required>
+                    {% for azienda in aziende %}
+                    <option value="{{azienda.id}}">{{azienda.nome}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" id="email" class="form-control form-control-sm" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="{{ form.cognome.id_for_label }}" class="form-label">Cognome</label>
-            {{ form.cognome }}
-        </div>
-        <div class="mb-3">
-            <label for="{{ form.azienda.id_for_label }}" class="form-label">Azienda</label>
-            {{ form.azienda }}
-        </div>
-        <div class="mb-3">
-            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-            {{ form.email }}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="is_superuser" class="form-label">Is Superuser</label>
+                <input type="checkbox" name="is_superuser" id="is_superuser" class="form-check-input form-control-sm" value="True">
+            </div>
         </div>
         <div class="d-flex justify-content-start">
             <button class="btn btn-primary me-2" type="submit">Salva</button>
