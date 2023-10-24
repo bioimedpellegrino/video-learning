@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from .models import *
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.generic import View
 from django.db import IntegrityError
 from .forms import *
@@ -82,7 +82,7 @@ class AziendeView(View):
     def get(self, request, *args, **kwargs):
         profile = CustomUser.objects.get(user=request.user)
         aziende = profile.aziende.all()
-        utenti = CustomUser.objects.filter(azienda__in=aziende)
+        utenti = CustomUser.objects.all()
         self.context["aziende"] = aziende
         self.context["utenti"] = utenti
         
@@ -102,24 +102,24 @@ class AziendeView(View):
                 utenti = CustomUser.objects.filter(pk__in=utenti_selezionati)
                 utenti.update(azienda=new_azienda)
 
-            self.context["aziende"] = profile.aziende.all()
-            self.context["utenti"] = CustomUser.objects.filter(azienda__in=self.context["aziende"])
-
         except Exception as e:
             import traceback
             traceback.print_exc()
             self.context["error"] = "Ops! Si è verificato un'errore."
-            return render(request, self.template_name, self.context)
         
-        return render(request, self.template_name, self.context)
+        return redirect('aziende')
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def delete(self, request, *args, **kwargs):
         
+        profile = CustomUser.objects.get(user=request.user)
         azienda = Azienda.objects.get(pk=kwargs.get("id_azienda"))
-        azienda.delete()
+        if profile in azienda.staff_users.all():
+            azienda.delete()
+            return HttpResponse({"message": "ok", "status": 200})
+        else:
+            return HttpResponse({"message": "ko", "status": 403})
         
-        return HttpResponse({"message": "ok"})
 
 class UtentiView(View):
     template_name = 'home/utenti.html'

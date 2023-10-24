@@ -56,7 +56,7 @@
                 <h2 class="h6 modal-title">Aggiungi azienda</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{% url 'aziende' %}" method="post">
+            <form id="nuovaAzienda" action="{% url 'aziende' %}" method="post">
                 <div class="modal-body">
                     {% csrf_token %}
                     <div class="mb-3">
@@ -171,13 +171,7 @@
             console.log(response);
         })
         .then(data => {
-            // Gestisci la risposta del server (se necessario)
-            Swal.fire({
-                title: 'Cancellata!',
-                text: `Azienda ${aziendaId} eliminata.`,
-                icon: 'success',
-                confirmButtonColor: "#161D27"
-            });
+            location.reload();
         })
         .catch(error => {
             console.error('Errore durante la richiesta di eliminazione:', error);
