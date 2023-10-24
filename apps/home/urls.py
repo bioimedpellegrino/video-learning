@@ -13,6 +13,7 @@ urlpatterns = [
     path('', views.index, name='home'),
     path("amministrazione/dashboard/", AmministrazioneView.as_view(), name="amministrazione"),
     path("amministrazione/aziende/", AziendeView.as_view(), name="aziende"),
+    path("amministrazione/azienda/<int:id_azienda>/", AziendeView.as_view(), name="aziende"),
     path("amministrazione/utenti/", UtentiView.as_view(), name="utenti"),
     path("amministrazione/videocorsi/", VideoCorsiView.as_view(), name="videocorsi"),
     path("amministrazione/caricavideocorsi/", UploadVideoCorsiView.as_view(), name="caricavideocorsi"),

@@ -10,14 +10,25 @@ class Azienda(models.Model):
     def __str__(self):
         return self.nome
     
+    def get_utenti_serialized(self):
+        return [{
+            "id": utente.pk, 
+            "first_name": utente.user.first_name if utente.user.first_name else "",
+            "last_name": utente.user.last_name if utente.user.last_name else "",
+            "email": utente.user.email if utente.user.email else "",
+            "phone": utente.phone_number if utente.phone_number else ""
+            } 
+        for utente in self.utenti.all()]
+    
     class Meta:
         verbose_name = "Azienda"
         verbose_name_plural = "Aziende"
 
 class CustomUser(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    azienda = models.ForeignKey(Azienda, on_delete=models.CASCADE, related_name="utenti", verbose_name="Azienda", null=True, blank=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    azienda = models.ForeignKey(Azienda, on_delete=models.SET_NULL, related_name="utenti", verbose_name="Azienda", null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
+    phone_number = models.CharField(max_length=255, blank=True, null=True)
     
 
     def __str__(self):
@@ -52,7 +63,7 @@ class VideoCorso(models.Model):
 
 class StatoVideo(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    utente = models.ForeignKey(User, on_delete=models.CASCADE, related_name="stati_video", verbose_name="Utente")
+    utente = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="stati_video", verbose_name="Utente")
     video_corso = models.ForeignKey(VideoCorso, on_delete=models.CASCADE, related_name="stati_video", verbose_name="Video Corso")
     visualizzato = models.BooleanField(default=False, verbose_name="Visualizzato")
     completato = models.BooleanField(default=False, verbose_name="Completato")
@@ -69,8 +80,8 @@ class StatoVideo(models.Model):
 
 class AttestatiVideo(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    utente = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Utente")
-    video_corso = models.ForeignKey(VideoCorso, on_delete=models.CASCADE, verbose_name="Video Corso")
+    utente = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, verbose_name="Utente")
+    video_corso = models.ForeignKey(VideoCorso, null=True, on_delete=models.SET_NULL, verbose_name="Video Corso")
     data_conseguimento = models.DateTimeField(blank=True, null=True, verbose_name="Data conseguimento")
     data_download = models.DateTimeField(blank=True, null=True, verbose_name="Data download")
     pdf = models.FileField(blank=True, null=True, upload_to="attestati/")

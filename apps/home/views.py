@@ -76,21 +76,50 @@ class HomePageView(View):
 
 class AziendeView(View):
     template_name = 'home/aziende.html'
+    context = {'segment': 'amministrazione-aziende'}
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
-        context = { 'segment' : 'amministrazione-aziende'}
         profile = CustomUser.objects.get(user=request.user)
         aziende = profile.aziende.all()
-        context["aziende"] = aziende
+        utenti = CustomUser.objects.filter(azienda__in=aziende)
+        self.context["aziende"] = aziende
+        self.context["utenti"] = utenti
         
-        return render(request, self.template_name, context)
+        return render(request, self.template_name, self.context)
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
-        context = { 'segment' : 'amministrazione-aziende'}
-        #TODO
-        return render(request, self.template_name, context)
+        profile = CustomUser.objects.get(user=request.user)
+
+        try:
+            nome_azienda = request.POST.get('nome_azienda')
+            utenti_selezionati = request.POST.getlist('utenti_selezionabili')
+
+            if nome_azienda and utenti_selezionati:
+                new_azienda, _ = Azienda.objects.get_or_create(nome=nome_azienda)
+                new_azienda.staff_users.add(profile)
+                utenti = CustomUser.objects.filter(pk__in=utenti_selezionati)
+                utenti.update(azienda=new_azienda)
+
+            self.context["aziende"] = profile.aziende.all()
+            self.context["utenti"] = CustomUser.objects.filter(azienda__in=self.context["aziende"])
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            self.context["error"] = "Ops! Si è verificato un'errore."
+            return render(request, self.template_name, self.context)
+        
+        return render(request, self.template_name, self.context)
+
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def delete(self, request, *args, **kwargs):
+        
+        azienda = Azienda.objects.get(pk=kwargs.get("id_azienda"))
+        azienda.delete()
+        
+        return HttpResponse({"message": "ok"})
 
 class UtentiView(View):
     template_name = 'home/utenti.html'

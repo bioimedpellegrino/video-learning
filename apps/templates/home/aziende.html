@@ -13,16 +13,18 @@
         <h2 class="h4">Lista aziende</h2>
     </div>
     <div class="btn-toolbar mb-2 mb-md-0">
-        <button type="button" class="btn btn-block btn-gray-800 mb-3" data-bs-toggle="modal" data-bs-target="#modal-default">Aggiungi azienda</button>
+        <button type="button" class="btn btn-block btn-gray-800 mb-3" data-bs-toggle="modal" data-bs-target="#aggiungiAzienda">Aggiungi azienda</button>
     </div>
 </div>
 
-<div class="card card-body border-0 shadow table-wrapper table-responsive">
+<div class="card card-body border-0 shadow table-wrapper table-responsive table-responsive-md">
     <table class="table table-hover align-items-center">
         <thead class="align-items-center">
             <th class="border-gray-200">ID</th>
             <th class="border-gray-200">Nome</th>
-            <th class="border-gray-200">Utenti</th>
+            <th class="border-gray-200 w-25">Utenti associati</th>
+            <th class="border-gray-200 w-25"></th>
+            <th class="border-gray-200 w-25"></th>
             </tr>
         </thead>
         <tbody>
@@ -30,18 +32,24 @@
             <tr>
                 <td>{{azienda.id}}</td>
                 <td><b>{{azienda.nome}}</b></td>
-                <td>
-                    {% for utente in azienda.utenti.all %}
-                        <button class="btn btn-info" type="button">{{utente}}</button>
-                    {% endfor%}
+                <td>{{azienda.utenti.all.count}}</td>
+                <td><button 
+                        type="button" 
+                        class="btn btn-block btn-info mb-3" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#listaUtenti"
+                        onclick="setUtenti({{azienda.get_utenti_serialized|safe}})">
+                        Vedi utenti</button>
                 </td>
+                <td><button class="btn btn-danger elimina-btn" data-id="{{azienda.id}}" data-name="{{azienda.nome}}">Elimina</button>
+            </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
 
-<div class="modal fade" id="modal-default" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+<div class="modal fade" id="aggiungiAzienda" tabindex="-1" role="dialog" aria-labelledby="aggiungiAzienda" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -53,14 +61,14 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="id_nome_azienda" class="form-label">Nome Azienda:</label>
-                        <input type="text" name="nome_azienda" id="id_nome_azienda" class="form-control" required>
+                        <input type="text" name="nome_azienda" id="id_nome_azienda" class="form-control" autocomplete="off" required>
                     </div>
                     <div class="mb-3">
-                        <label for="id_elementi_selezionabili" class="form-label">Elementi selezionabili:</label>
-                        <select name="elementi_selezionabili" id="id_elementi_selezionabili" class="form-control" multiple required>
-                            <option value="valore1">Opzione 1</option>
-                            <option value="valore2">Opzione 2</option>
-                            <!-- Aggiungi altre opzioni, se necessario -->
+                        <label for="id_utenti_selezionabili" class="form-label">Utenti:</label>
+                        <select name="utenti_selezionabili" id="id_utenti_selezionabili" class="form-control" autocomplete="off" multiple required>
+                            {% for utente in utenti %}
+                                <option value="{{utente.pk}}">{{utente}}</option>
+                            {% endfor%}
                         </select>
                     </div>
                 </div>
@@ -73,9 +81,135 @@
     </div>
 </div>
 
+<div class="modal fade" id="listaUtenti" tabindex="-1" role="dialog" aria-labelledby="listaUtenti" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="h6 modal-title">Lista utenti associati all'azienda</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="tabellaUtenti" class="table table-hover align-items-center">
+                    <thead class="align-items-center">
+                        <th class="border-gray-200">ID</th>
+                        <th class="border-gray-200">Nome</th>
+                        <th class="border-gray-200">Cognome</th>
+                        <th class="border-gray-200">Email</th>
+                        <th class="border-gray-200">Telefono</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-items-center">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link text-gray-600 ms-auto" data-bs-dismiss="modal">Chiudi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+<script>
 
+    var modalUtenti = [];
+
+    $(document).ready(function() {
+        $('#id_nome_azienda').on('input', function() {
+            if ($(this).val().trim() !== '') {
+                $(this).addClass('is-valid');
+            } else {
+                $(this).removeClass('is-valid');
+            }
+        });
+    });
+
+    function setUtenti(utenti){
+        modalUtenti = utenti;
+        var table = $('#tabellaUtenti');
+        table.find('tbody').empty();
+        modalUtenti.forEach(utente => {
+            var row = $('<tr>');
+            row.append($('<td>').text(utente.id));
+            row.append($('<td>').text(utente.first_name));
+            row.append($('<td>').text(utente.last_name));
+            row.append($('<td>').text(utente.email));
+            row.append($('<td>').text(utente.phone));
+                
+            table.find('tbody').append(row);
+        })
+        console.log(modalUtenti)
+    }
+
+    function getCSRFToken() {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                if (cookie.substring(0, 10) == ('csrftoken' + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function eliminaAzienda(aziendaId) {
+        fetch(`/amministrazione/azienda/${aziendaId}/`, {
+            method: 'delete',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+            },
+        })
+        .then(response => {
+            console.log(response);
+        })
+        .then(data => {
+            // Gestisci la risposta del server (se necessario)
+            Swal.fire({
+                title: 'Cancellata!',
+                text: `Azienda ${aziendaId} eliminata.`,
+                icon: 'success',
+                confirmButtonColor: "#161D27"
+            });
+        })
+        .catch(error => {
+            console.error('Errore durante la richiesta di eliminazione:', error);
+        });
+    }
+
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn btn-danger m-3',
+            cancelButton: 'btn btn-primary m-3'
+        },
+        buttonsStyling: false
+    });
+
+    const eliminaButtons = document.querySelectorAll('.elimina-btn');
+    eliminaButtons.forEach((button) => {
+        button.addEventListener('click', function () {
+            const aziendaId = this.getAttribute('data-id');
+            const nomeAzienda = this.getAttribute('data-name');
+            swalWithBootstrapButtons.fire({
+                title: "Vuoi eliminare l'azienda?",
+                text: "Quest'azione è irreversibile!",
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Annulla',
+                confirmButtonText: 'Si, confermo'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    eliminaAzienda(aziendaId);
+                }
+            })
+        })
+    });
+</script>
 {% endblock javascripts %}
