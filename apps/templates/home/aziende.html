@@ -17,6 +17,12 @@
     </div>
 </div>
 
+{% if alert %}
+    <div class="alert {{alert_class}}" role="alert">
+        {{alert_message}}
+    </div>
+{% endif %}
+
 <div class="card card-body border-0 shadow table-wrapper table-responsive table-responsive-md">
     <table class="table table-hover align-items-center">
         <thead class="align-items-center">
@@ -88,7 +94,7 @@
                 <h2 class="h6 modal-title">Lista utenti associati all'azienda</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body table-wrapper table-responsive table-responsive-md">
                 <table id="tabellaUtenti" class="table table-hover align-items-center">
                     <thead class="align-items-center">
                         <th class="border-gray-200">ID</th>
@@ -141,7 +147,6 @@
                 
             table.find('tbody').append(row);
         })
-        console.log(modalUtenti)
     }
 
     function getCSRFToken() {

@@ -19,7 +19,7 @@ def index(request):
     if request.user.is_staff or request.user.is_superuser:
         html_template = loader.get_template('home/admin-dashboard.html')
     else:
-        html_template = loader.get_template('home/corsi.html')
+        html_template = loader.get_template('home/utente_corsi.html')
     return HttpResponse(html_template.render(context, request))
 
 
