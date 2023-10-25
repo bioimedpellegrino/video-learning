@@ -76,13 +76,13 @@ class HomePageView(View):
 
 class AziendeView(View):
     template_name = 'home/aziende.html'
-    context = {'segment': 'amministrazione-aziende'}
+    context = {'segment': 'amministrazione-aziende', 'breadcrumb_level_1': 'Amministrazione', 'breadcrumb_level_2': 'Aziende'}
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         profile = CustomUser.objects.get(user=request.user)
         aziende = profile.aziende.all()
-        utenti = CustomUser.objects.all()
+        utenti = CustomUser.objects.filter(azienda__isnull=True)
         self.context["aziende"] = aziende
         self.context["utenti"] = utenti
         

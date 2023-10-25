@@ -20,6 +20,12 @@ class Azienda(models.Model):
             } 
         for utente in self.utenti.all()]
     
+    def to_json(self):
+        return {
+            "nome": self.nome,
+            "utenti": [utente.pk for utente in self.utenti.all()]
+        }
+    
     class Meta:
         verbose_name = "Azienda"
         verbose_name_plural = "Aziende"

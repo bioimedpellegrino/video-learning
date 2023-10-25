@@ -17,21 +17,14 @@
     </div>
 </div>
 
-{% if alert %}
-    <div class="alert {{alert_class}}" role="alert">
-        {{alert_message}}
-    </div>
-{% endif %}
-
 <div class="card card-body border-0 shadow table-wrapper table-responsive table-responsive-md">
-    <table class="table table-hover align-items-center">
+    <table style="min-height: 20vh;" class="table table-hover align-items-center">
         <thead class="align-items-center">
             <th class="border-gray-200">ID</th>
             <th class="border-gray-200">Nome</th>
             <th class="border-gray-200 w-25">Utenti associati</th>
-            <th class="border-gray-200 w-25"></th>
-            <th class="border-gray-200 w-25"></th>
-            </tr>
+            <th class="border-gray-200 w-25">Video corsi</th>
+            <th class="border-gray-200 w-25">Azioni</th>
         </thead>
         <tbody>
             {% for azienda in aziende %}
@@ -39,16 +32,21 @@
                 <td>{{azienda.id}}</td>
                 <td><b>{{azienda.nome}}</b></td>
                 <td>{{azienda.utenti.all.count}}</td>
-                <td><button 
-                        type="button" 
-                        class="btn btn-block btn-info mb-3" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#listaUtenti"
-                        onclick="setUtenti({{azienda.get_utenti_serialized|safe}})">
-                        Vedi utenti</button>
+                <td>{{azienda.video_corsi.all.count}}</td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="icon icon-sm">
+                                <span class="fas fa-ellipsis-h icon-dark"></span>
+                            </span>
+                            <span class="visually-hidden">Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu py-0">
+                            <a class="dropdown-item rounded-top" data-bs-toggle="modal" data-bs-target="#listaUtenti" onclick="setUtenti({{azienda.get_utenti_serialized|safe}})" href="#"><span class="fas fa-eye me-2"></span>Vedi utenti</a>
+                            <a class="dropdown-item text-danger rounded-bottom elimina-btn" data-id="{{azienda.id}}" data-name="{{azienda.nome}}" href="#"><span class="fas fa-trash-alt me-2"></span>Elimina</a>
+                        </div>
+                    </div>
                 </td>
-                <td><button class="btn btn-danger elimina-btn" data-id="{{azienda.id}}" data-name="{{azienda.nome}}">Elimina</button>
-            </td>
             </tr>
             {% endfor %}
         </tbody>
