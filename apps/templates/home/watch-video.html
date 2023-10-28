@@ -1,0 +1,41 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Video corsi {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<div class="d-flex justify-content-center mt-5">
+    <video
+    id="my-video"
+    class="video-js"
+    preload="auto"
+    width="1080"
+    height="520"
+    poster="{% if video_corso.poster_file %}{{video_corso.poster_file.url}}{% else %}https://www.ptsclas.com/wp-content/uploads/2020/06/What-is-eLearning.jpg {% endif %}"
+    data-setup="{}"
+    >
+
+<source src="{{video_corso.external_url}}" type="video/mp4" />
+<p class="vjs-no-js">
+  To view this video please enable JavaScript, and consider upgrading to a
+  web browser that
+  <a href="https://videojs.com/html5-video-support/" target="_blank"
+    >supports HTML5 video</a
+  >
+</p>
+</video>
+
+</div>
+
+
+<button id="backButton">Torna indietro di 10 secondi</button>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script src="/static/assets/js/video_controller.js"></script>
+
+{% endblock javascripts %}

@@ -25,10 +25,13 @@ urlpatterns = [
     path("utente/corsi/", CorsiView.as_view(), name="utente_corsi"),
     path("utente/attestati/", AttestatiView.as_view(), name="utente_attestati"),
     
+    # Pagine videocorso
+    path("utente/videocorso/<int:id_video>/", WatchVideoCorsoView.as_view(), name="video_corso_utente"),
+    
     # Pagine di servizio
     path("supporto/", SupportoView.as_view(), name="supporto"),
     
     # Qualunque altro path non valido viene gestito dalla vista error_pages
-    re_path(r'^.*\.*', views.error_pages, name='error_pages'),
+    #re_path(r'^.*\.*', views.error_pages, name='error_pages'),
 
 ]

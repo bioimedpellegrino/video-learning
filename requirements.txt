@@ -12,3 +12,4 @@ toml
 whitenoise
 ipython
 fontawesomefree
+Pillow

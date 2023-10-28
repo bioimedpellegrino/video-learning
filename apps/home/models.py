@@ -59,6 +59,12 @@ class VideoCorso(models.Model):
         verbose_name="File Video",
         blank=True,
     )
+    poster_file = models.ImageField(
+        upload_to='posters/', 
+        verbose_name="Miniature foto",
+        blank=True,
+    )
+    external_url = models.CharField(max_length=2000, blank=True, null=True, verbose_name="Url CDN")
 
     def __str__(self):
         return self.titolo
@@ -69,8 +75,8 @@ class VideoCorso(models.Model):
 
 class StatoVideo(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
-    utente = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="stati_video", verbose_name="Utente")
-    video_corso = models.ForeignKey(VideoCorso, on_delete=models.CASCADE, related_name="stati_video", verbose_name="Video Corso")
+    utente = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name="stati_video", verbose_name="Utente")
+    video_corso = models.ForeignKey(VideoCorso, on_delete=models.SET_NULL, null=True, related_name="stati_video", verbose_name="Video Corso")
     visualizzato = models.BooleanField(default=False, verbose_name="Visualizzato")
     completato = models.BooleanField(default=False, verbose_name="Completato")
     data_prima_visual = models.DateTimeField(blank=True, null=True, verbose_name="Data prima apertura del video")

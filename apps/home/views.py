@@ -197,6 +197,28 @@ class CorsiView(View):
         #TODO
         return render(request, self.template_name, context)
 
+class WatchVideoCorsoView(View):
+    template_name = 'home/watch-video.html'
+
+    @method_decorator(login_required(login_url="/login/"))
+    def get(self, request, *args, **kwargs):
+        context = { 'segment' : 'miei_corsi'}
+        id_video = kwargs.get('id_video')
+        custom_user = CustomUser.objects.get(user=request.user)
+        try:
+            video_corso = VideoCorso.objects.get(pk=id_video)
+        except VideoCorso.DoesNotExist:
+            return render(request, 'home/page-404.html')
+        
+        if not custom_user.azienda in video_corso.aziende.all():
+            return render(request, 'home/page-403.html')
+        else:
+            stato_video, _ = StatoVideo.objects.get_or_create(utente=custom_user, video_corso=video_corso)
+            context["video_corso"] = video_corso
+            context["custom_user"] = custom_user
+            context["stato_video"] = stato_video
+            return render(request, self.template_name, context)
+
 class AttestatiView(View):
     template_name = 'home/utente_attestati.html'
 
