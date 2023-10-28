@@ -15,7 +15,7 @@ from .forms import *
 @login_required(login_url="/login/")
 def index(request):
     
-    context = {'segment': 'index'}
+    context = {'segment': 'index','breadcrumb_level_1': 'Home'}
     if request.user.is_staff or request.user.is_superuser:
         html_template = loader.get_template('home/admin-dashboard.html')
     else:
@@ -126,15 +126,16 @@ class UtentiView(View):
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
-        context = { 'segment' : 'amministrazione-utenti'}
+        context = {
+                'segment': 'amministrazione-utenti-lista',
+                'breadcrumb_level_1': 'Amministrazione', 
+                'breadcrumb_level_2': 'Utenti', 
+                'breadcrumb_level_3': 'Lista utenti'
+                
+            }
         #TODO
         return render(request, self.template_name, context)
 
-    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
-    def post(self, request, *args, **kwargs):
-        context = { 'segment' : 'amministrazione-utenti'}
-        #TODO
-        return render(request, self.template_name, context)
 
 class VideoCorsiView(View):
     template_name = 'home/video-corsi.html'
@@ -296,6 +297,11 @@ class AggiungiUtenteView(View):
         if request.user.is_superuser:
             context = {
                 'aziende': Azienda.objects.all(),
+                'segment': 'amministrazione-utenti-aggiungi',
+                'breadcrumb_level_1': 'Amministrazione', 
+                'breadcrumb_level_2': 'Utenti', 
+                'breadcrumb_level_3': 'Aggiungi utente'
+                
             }
             return render(request, self.template_name, context)
         else:
