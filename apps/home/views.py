@@ -262,87 +262,61 @@ class AggiungiCorsoView(View):
                 return render(request, self.template_name, context)
         else:
             return HttpResponseRedirect(reverse('home'))
-        
-class AggiungiAziendaView(View):
-    template_name = 'home/aggiungi-azienda.html'
-
-    def get(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            form = AziendaForm()
-            context = {
-                'form': form,
-            }
-            return render(request, self.template_name, context)
-        else:
-            return HttpResponseRedirect(reverse('home'))
-        
-    def post(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            form = AziendaForm(request.POST)
-            if form.is_valid():
-                azienda = form.save()
-                return HttpResponseRedirect(reverse('amministrazione'))
-            else:
-                context = {
-                    'form': form,
-                }
-                return render(request, self.template_name, context)
-        else:
-            return HttpResponseRedirect(reverse('home'))
 
 class AggiungiUtenteView(View):
     template_name = 'home/aggiungi-utente.html'
-
+    
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            context = {
-                'aziende': Azienda.objects.all(),
-                'segment': 'amministrazione-utenti-aggiungi',
-                'breadcrumb_level_1': 'Amministrazione', 
-                'breadcrumb_level_2': 'Utenti', 
-                'breadcrumb_level_3': 'Aggiungi utente'
-                
-            }
-            return render(request, self.template_name, context)
-        else:
-            return HttpResponseRedirect(reverse('home'))
-        
-    def post(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            nome = request.POST.get('nome')
-            cognome = request.POST.get('cognome')
-            azienda_id = request.POST.get('azienda')
-            email = request.POST.get('email')
-            # is_staff = request.POST.get('is_staff')
-            is_superuser = request.POST.get('is_superuser')
-
-            try:
-                # Creo l'oggetto User associato usando nome per first name e cognome per last name e se is_superuser è True lo rendo superuser
-                user = User.objects.create_user(username=username, password=password, first_name=nome, last_name=cognome, email=email, is_superuser=is_superuser)
-            except IntegrityError:
-                message = "Username già esistente!"
-                context = {
-                    'aziende': Azienda.objects.all(),
-                    'username': username,
-                    'password': password,
-                    'nome': nome,
-                    'cognome': cognome,
-                    'email': email,
-                    'message': message,
-                }
-                return render(request, self.template_name, context)
+        context = {
+            'aziende': Azienda.objects.all(),
+            'segment': 'amministrazione-utenti-aggiungi',
+            'breadcrumb_level_1': 'Amministrazione', 
+            'breadcrumb_level_2': 'Utenti', 
+            'breadcrumb_level_3': 'Aggiungi utente'
             
-            azienda = Azienda.objects.get(id=azienda_id)
-            utente = CustomUser.objects.create(user=user, azienda=azienda)
-            utente.save()            
+        }
+        return render(request, self.template_name, context)
 
-            message = "Utente aggiunto con successo!"
-            context = {
-                'aziende': Azienda.objects.all(),
-                'message': message,
-            }
-            return render(request, self.template_name, context)
-        else:
-            return HttpResponseRedirect(reverse('home'))
+    
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def post(self, request, *args, **kwargs):
+        
+        context = {
+            'aziende': Azienda.objects.all(),
+            'segment': 'amministrazione-utenti-aggiungi',
+            'breadcrumb_level_1': 'Amministrazione', 
+            'breadcrumb_level_2': 'Utenti', 
+            'breadcrumb_level_3': 'Aggiungi utente'
+        }
+        
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        nome = request.POST.get('nome')
+        cognome = request.POST.get('cognome')
+        azienda_id = request.POST.get('azienda')
+        email = request.POST.get('email')
+        phone_number = request.POST.get('phone_number')
+        is_staff = request.POST.get('is_staff', False)
+        is_valid = True
+
+        if User.objects.filter(username=username).exists():
+            context['message'] = "Username già esistente!"
+            context['message_class'] =  'alert-danger'
+            is_valid = False
+            
+        if User.objects.filter(email=email).exists():
+            context['message'] = "L'email utilizzata risulta già associata ad un altro utente"
+            context['message_class'] =  'alert-danger'
+            is_valid = False
+            
+        if is_valid:
+            
+            user = User.objects.create_user(username=username, password=password, first_name=nome, last_name=cognome, email=email, is_staff=is_staff, is_superuser=False)
+            azienda = Azienda.objects.get(id=azienda_id)
+            utente = CustomUser.objects.create(user=user, azienda=azienda, phone_number=phone_number)
+            context['message'] =  'Utente aggiunto con successo!'
+            context['message_class'] =  'alert-success'  
+            utente.save()    
+        
+        return render(request, self.template_name, context)

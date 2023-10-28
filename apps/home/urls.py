@@ -18,7 +18,6 @@ urlpatterns = [
     path("amministrazione/videocorsi/", VideoCorsiView.as_view(), name="videocorsi"),
     path("amministrazione/caricavideocorsi/", UploadVideoCorsiView.as_view(), name="caricavideocorsi"),
     path("amministrazione/aggiungi_corso/", AggiungiCorsoView.as_view(), name="aggiungi_corso"),
-    path("amministrazione/aggiungi_azienda/", AggiungiAziendaView.as_view(), name="aggiungi_azienda"),
     path("amministrazione/aggiungi_utente/", AggiungiUtenteView.as_view(), name="aggiungi_utente"),
 
     # Pagine utente
