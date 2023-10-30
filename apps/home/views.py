@@ -12,6 +12,8 @@ from django.views.generic import View
 from django.db import IntegrityError
 from .forms import *
 
+import datetime
+
 @login_required(login_url="/login/")
 def index(request):
     
@@ -207,6 +209,7 @@ class WatchVideoCorsoView(View):
         custom_user = CustomUser.objects.get(user=request.user)
         try:
             video_corso = VideoCorso.objects.get(pk=id_video)
+            context['breadcrumb_level_1'] = video_corso.titolo
         except VideoCorso.DoesNotExist:
             return render(request, 'home/page-404.html')
         
@@ -218,6 +221,55 @@ class WatchVideoCorsoView(View):
             context["custom_user"] = custom_user
             context["stato_video"] = stato_video
             return render(request, self.template_name, context)
+    
+    def post(self, request, *args, **kwargs):
+        
+        id_video = kwargs.get('id_video')
+        custom_user = CustomUser.objects.get(user=request.user)
+        
+        try:
+            video_corso = VideoCorso.objects.get(pk=id_video)
+        except VideoCorso.DoesNotExist:
+            return HttpResponse({"message": "Video non trovato", "status": 404})
+        
+        if not custom_user.azienda in video_corso.aziende.all():
+            return HttpResponse({"message": "Non autorizzato", "status": 403})
+        
+        try:
+            stato_video = StatoVideo.objects.get(utente=custom_user, video_corso=video_corso)
+        except StatoVideo.DoesNotExist:
+            return HttpResponse({"message": "ko", "status": 404})
+        
+        if 'video_duration' in request.POST:
+            try:
+                video_duration = int(request.POST.get('video_duration'))
+                video_corso.durata_video = video_duration
+                video_corso.save()
+            except:
+                print(f"Non è stato possibile parsare la durata del video: {video_duration}")
+        
+        if 'watched_seconds' in request.POST:
+            try:
+                watched_seconds = int(request.POST.get('watched_seconds'))
+                stato_video.totale_secondi_visualizzati = watched_seconds
+                stato_video.save()
+            except:
+                print(f"Non è stato possibile parsare i secondi visualizzati: {watched_seconds}")
+                
+        if 'is_started' in request.POST and request.POST.get('is_started').lower() == 'true':
+            stato_video.iniziato = True
+            stato_video.data_prima_visual = datetime.datetime.now()
+        
+        if 'update_visual_date' in request.POST and request.POST.get('update_visual_date').lower() == 'true':
+            stato_video.data_ultima_visual = datetime.datetime.now()
+        
+        if 'is_completed' in request.POST and request.POST.get('is_completed').lower() == 'true':
+            stato_video.completato = True
+            stato_video.data_completamento = datetime.datetime.now()
+        
+        stato_video.save()
+            
+        return HttpResponse({"message": "ok", "status": 200})
 
 class AttestatiView(View):
     template_name = 'home/utente_attestati.html'

@@ -3,7 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-from django.urls import path, re_path
+from django.urls import path
 from apps.home import views
 from .views import *
 
@@ -30,8 +30,5 @@ urlpatterns = [
     
     # Pagine di servizio
     path("supporto/", SupportoView.as_view(), name="supporto"),
-    
-    # Qualunque altro path non valido viene gestito dalla vista error_pages
-    #re_path(r'^.*\.*', views.error_pages, name='error_pages'),
 
 ]
