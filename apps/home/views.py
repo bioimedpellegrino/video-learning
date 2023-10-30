@@ -78,33 +78,21 @@ class HomePageView(View):
 
 class AziendeView(View):
     template_name = 'home/aziende.html'
-<<<<<<< HEAD
-=======
     context = {'segment': 'amministrazione-aziende', 'breadcrumb_level_1': 'Amministrazione', 'breadcrumb_level_2': 'Aziende'}
->>>>>>> a181818dfe6d5d11757e9cf3b3ff6f5242903479
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'amministrazione-aziende'}
         profile = CustomUser.objects.get(user=request.user)
         aziende = profile.aziende.all()
-<<<<<<< HEAD
-        context["aziende"] = aziende
-=======
         utenti = CustomUser.objects.filter(azienda__isnull=True)
         self.context["aziende"] = aziende
         self.context["utenti"] = utenti
->>>>>>> a181818dfe6d5d11757e9cf3b3ff6f5242903479
         
         return render(request, self.template_name, context)
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
-<<<<<<< HEAD
-        context = { 'segment' : 'amministrazione-aziende'}
-        #TODO
-        return render(request, self.template_name, context)
-=======
         profile = CustomUser.objects.get(user=request.user)
 
         try:
@@ -135,7 +123,6 @@ class AziendeView(View):
         else:
             return HttpResponse({"message": "ko", "status": 403})
         
->>>>>>> a181818dfe6d5d11757e9cf3b3ff6f5242903479
 
 class UtentiView(View):
     template_name = 'home/utenti.html'
