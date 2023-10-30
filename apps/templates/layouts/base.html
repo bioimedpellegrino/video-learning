@@ -72,10 +72,15 @@
 
       {% include 'includes/navigation.html' %}
 
-      {% block content %}{% endblock content %} 
-
-      {% include 'includes/footer.html' %}
-
+      <div class="d-flex flex-column justify-content-between" style="min-height: 100vh;">
+        <div>
+          {% block content %}{% endblock content %} 
+        </div>
+        <div>
+          {% include 'includes/footer.html' %}
+        </div>
+      </div>
+      
     </main>
 
   {% include 'includes/scripts.html' %}

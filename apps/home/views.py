@@ -7,19 +7,21 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from .models import *
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.generic import View
 from django.db import IntegrityError
 from .forms import *
 
+import datetime
+
 @login_required(login_url="/login/")
 def index(request):
     
-    context = {'segment': 'index'}
+    context = {'segment': 'index','breadcrumb_level_1': 'Home'}
     if request.user.is_staff or request.user.is_superuser:
         html_template = loader.get_template('home/admin-dashboard.html')
     else:
-        html_template = loader.get_template('home/corsi.html')
+        html_template = loader.get_template('home/utente_corsi.html')
     return HttpResponse(html_template.render(context, request))
 
 
@@ -76,36 +78,80 @@ class HomePageView(View):
 
 class AziendeView(View):
     template_name = 'home/aziende.html'
+<<<<<<< HEAD
+=======
+    context = {'segment': 'amministrazione-aziende', 'breadcrumb_level_1': 'Amministrazione', 'breadcrumb_level_2': 'Aziende'}
+>>>>>>> a181818dfe6d5d11757e9cf3b3ff6f5242903479
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'amministrazione-aziende'}
         profile = CustomUser.objects.get(user=request.user)
         aziende = profile.aziende.all()
+<<<<<<< HEAD
         context["aziende"] = aziende
+=======
+        utenti = CustomUser.objects.filter(azienda__isnull=True)
+        self.context["aziende"] = aziende
+        self.context["utenti"] = utenti
+>>>>>>> a181818dfe6d5d11757e9cf3b3ff6f5242903479
         
         return render(request, self.template_name, context)
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
+<<<<<<< HEAD
         context = { 'segment' : 'amministrazione-aziende'}
         #TODO
         return render(request, self.template_name, context)
+=======
+        profile = CustomUser.objects.get(user=request.user)
+
+        try:
+            nome_azienda = request.POST.get('nome_azienda')
+            utenti_selezionati = request.POST.getlist('utenti_selezionabili')
+
+            if nome_azienda and utenti_selezionati:
+                new_azienda, _ = Azienda.objects.get_or_create(nome=nome_azienda)
+                new_azienda.staff_users.add(profile)
+                utenti = CustomUser.objects.filter(pk__in=utenti_selezionati)
+                utenti.update(azienda=new_azienda)
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            self.context["error"] = "Ops! Si è verificato un'errore."
+        
+        return redirect('aziende')
+
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def delete(self, request, *args, **kwargs):
+        
+        profile = CustomUser.objects.get(user=request.user)
+        azienda = Azienda.objects.get(pk=kwargs.get("id_azienda"))
+        if profile in azienda.staff_users.all():
+            azienda.delete()
+            return HttpResponse({"message": "ok", "status": 200})
+        else:
+            return HttpResponse({"message": "ko", "status": 403})
+        
+>>>>>>> a181818dfe6d5d11757e9cf3b3ff6f5242903479
 
 class UtentiView(View):
     template_name = 'home/utenti.html'
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
-        context = { 'segment' : 'amministrazione-utenti'}
+        context = {
+                'segment': 'amministrazione-utenti-lista',
+                'breadcrumb_level_1': 'Amministrazione', 
+                'breadcrumb_level_2': 'Utenti', 
+                'breadcrumb_level_3': 'Lista utenti'
+                
+            }
         #TODO
         return render(request, self.template_name, context)
 
-    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
-    def post(self, request, *args, **kwargs):
-        context = { 'segment' : 'amministrazione-utenti'}
-        #TODO
-        return render(request, self.template_name, context)
 
 class VideoCorsiView(View):
     template_name = 'home/video-corsi.html'
@@ -166,6 +212,79 @@ class CorsiView(View):
         context = { 'segment' : 'utente_corsi'}
         #TODO
         return render(request, self.template_name, context)
+
+class WatchVideoCorsoView(View):
+    template_name = 'home/watch-video.html'
+
+    @method_decorator(login_required(login_url="/login/"))
+    def get(self, request, *args, **kwargs):
+        context = { 'segment' : 'miei_corsi'}
+        id_video = kwargs.get('id_video')
+        custom_user = CustomUser.objects.get(user=request.user)
+        try:
+            video_corso = VideoCorso.objects.get(pk=id_video)
+            context['breadcrumb_level_1'] = video_corso.titolo
+        except VideoCorso.DoesNotExist:
+            return render(request, 'home/page-404.html')
+        
+        if not custom_user.azienda in video_corso.aziende.all():
+            return render(request, 'home/page-403.html')
+        else:
+            stato_video, _ = StatoVideo.objects.get_or_create(utente=custom_user, video_corso=video_corso)
+            context["video_corso"] = video_corso
+            context["custom_user"] = custom_user
+            context["stato_video"] = stato_video
+            return render(request, self.template_name, context)
+    
+    def post(self, request, *args, **kwargs):
+        
+        id_video = kwargs.get('id_video')
+        custom_user = CustomUser.objects.get(user=request.user)
+        
+        try:
+            video_corso = VideoCorso.objects.get(pk=id_video)
+        except VideoCorso.DoesNotExist:
+            return HttpResponse({"message": "Video non trovato", "status": 404})
+        
+        if not custom_user.azienda in video_corso.aziende.all():
+            return HttpResponse({"message": "Non autorizzato", "status": 403})
+        
+        try:
+            stato_video = StatoVideo.objects.get(utente=custom_user, video_corso=video_corso)
+        except StatoVideo.DoesNotExist:
+            return HttpResponse({"message": "ko", "status": 404})
+        
+        if 'video_duration' in request.POST:
+            try:
+                video_duration = int(request.POST.get('video_duration'))
+                video_corso.durata_video = video_duration
+                video_corso.save()
+            except:
+                print(f"Non è stato possibile parsare la durata del video: {video_duration}")
+        
+        if 'watched_seconds' in request.POST:
+            try:
+                watched_seconds = int(request.POST.get('watched_seconds'))
+                if watched_seconds > stato_video.totale_secondi_visualizzati: #evito di tornare indietro
+                    stato_video.totale_secondi_visualizzati = watched_seconds
+                    stato_video.save()
+            except:
+                print(f"Non è stato possibile parsare i secondi visualizzati: {watched_seconds}")
+                
+        if 'is_started' in request.POST and request.POST.get('is_started').lower() == 'true':
+            stato_video.iniziato = True
+            stato_video.data_prima_visual = datetime.datetime.now()
+        
+        if 'update_visual_date' in request.POST and request.POST.get('update_visual_date').lower() == 'true':
+            stato_video.data_ultima_visual = datetime.datetime.now()
+        
+        if 'is_completed' in request.POST and request.POST.get('is_completed').lower() == 'true':
+            stato_video.completato = True
+            stato_video.data_completamento = datetime.datetime.now()
+        
+        stato_video.save()
+            
+        return HttpResponse({"message": "ok", "status": 200})
 
 class AttestatiView(View):
     template_name = 'home/utente_attestati.html'
@@ -232,82 +351,61 @@ class AggiungiCorsoView(View):
             return HttpResponseRedirect(reverse('amministrazione'))
         else:
             return HttpResponseRedirect(reverse('home'))
-        
-class AggiungiAziendaView(View):
-    template_name = 'home/aggiungi-azienda.html'
-
-    def get(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            form = AziendaForm()
-            context = {
-                'form': form,
-            }
-            return render(request, self.template_name, context)
-        else:
-            return HttpResponseRedirect(reverse('home'))
-        
-    def post(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            form = AziendaForm(request.POST)
-            if form.is_valid():
-                azienda = form.save()
-                return HttpResponseRedirect(reverse('amministrazione'))
-            else:
-                context = {
-                    'form': form,
-                }
-                return render(request, self.template_name, context)
-        else:
-            return HttpResponseRedirect(reverse('home'))
 
 class AggiungiUtenteView(View):
     template_name = 'home/aggiungi-utente.html'
-
+    
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            context = {
-                'aziende': Azienda.objects.all(),
-            }
-            return render(request, self.template_name, context)
-        else:
-            return HttpResponseRedirect(reverse('home'))
-        
-    def post(self, request, *args, **kwargs):
-        if request.user.is_superuser:
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            nome = request.POST.get('nome')
-            cognome = request.POST.get('cognome')
-            azienda_id = request.POST.get('azienda')
-            email = request.POST.get('email')
-            # is_staff = request.POST.get('is_staff')
-            is_superuser = request.POST.get('is_superuser')
-
-            try:
-                # Creo l'oggetto User associato usando nome per first name e cognome per last name e se is_superuser è True lo rendo superuser
-                user = User.objects.create_user(username=username, password=password, first_name=nome, last_name=cognome, email=email, is_superuser=is_superuser)
-            except IntegrityError:
-                message = "Username già esistente!"
-                context = {
-                    'aziende': Azienda.objects.all(),
-                    'username': username,
-                    'password': password,
-                    'nome': nome,
-                    'cognome': cognome,
-                    'email': email,
-                    'message': message,
-                }
-                return render(request, self.template_name, context)
+        context = {
+            'aziende': Azienda.objects.all(),
+            'segment': 'amministrazione-utenti-aggiungi',
+            'breadcrumb_level_1': 'Amministrazione', 
+            'breadcrumb_level_2': 'Utenti', 
+            'breadcrumb_level_3': 'Aggiungi utente'
             
-            azienda = Azienda.objects.get(id=azienda_id)
-            utente = CustomUser.objects.create(user=user, azienda=azienda)
-            utente.save()            
+        }
+        return render(request, self.template_name, context)
 
-            message = "Utente aggiunto con successo!"
-            context = {
-                'aziende': Azienda.objects.all(),
-                'message': message,
-            }
-            return render(request, self.template_name, context)
-        else:
-            return HttpResponseRedirect(reverse('home'))
+    
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def post(self, request, *args, **kwargs):
+        
+        context = {
+            'aziende': Azienda.objects.all(),
+            'segment': 'amministrazione-utenti-aggiungi',
+            'breadcrumb_level_1': 'Amministrazione', 
+            'breadcrumb_level_2': 'Utenti', 
+            'breadcrumb_level_3': 'Aggiungi utente'
+        }
+        
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        nome = request.POST.get('nome')
+        cognome = request.POST.get('cognome')
+        azienda_id = request.POST.get('azienda')
+        email = request.POST.get('email')
+        phone_number = request.POST.get('phone_number')
+        is_staff = request.POST.get('is_staff', False)
+        is_valid = True
+
+        if User.objects.filter(username=username).exists():
+            context['message'] = "Username già esistente!"
+            context['message_class'] =  'alert-danger'
+            is_valid = False
+            
+        if User.objects.filter(email=email).exists():
+            context['message'] = "L'email utilizzata risulta già associata ad un altro utente"
+            context['message_class'] =  'alert-danger'
+            is_valid = False
+            
+        if is_valid:
+            
+            user = User.objects.create_user(username=username, password=password, first_name=nome, last_name=cognome, email=email, is_staff=is_staff, is_superuser=False)
+            azienda = Azienda.objects.get(id=azienda_id)
+            utente = CustomUser.objects.create(user=user, azienda=azienda, phone_number=phone_number)
+            context['message'] =  'Utente aggiunto con successo!'
+            context['message_class'] =  'alert-success'  
+            utente.save()    
+        
+        return render(request, self.template_name, context)

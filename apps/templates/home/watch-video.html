@@ -1,0 +1,55 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Video corsi {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+  
+  <div class="d-flex justify-content-center mt-5">
+    <video
+    id="my-video"
+    class="video-js"
+    preload="auto"
+    width="1280"
+    height="720"
+    poster="{% if video_corso.poster_file %}{{video_corso.poster_file.url}}{% else %}https://www.ptsclas.com/wp-content/uploads/2020/06/What-is-eLearning.jpg {% endif %}"
+    data-setup="{}"
+    >
+    <source src="{{video_corso.external_url}}" type="video/mp4" />
+    <p class="vjs-no-js">
+      Devi abilitare javascript per vedere questo video
+      <a href="https://videojs.com/html5-video-support/" target="_blank"
+        >supports HTML5 video</a
+      >
+    </p>
+    </video>
+  </div>
+
+  <div class="d-flex justify-content-center mt-5">
+    <span id="tempoTrascorso">--:--</span> / <span id="tempoTotale">--:--</span>
+  </div>
+
+  <div class="d-flex justify-content-around mt-5">
+    <button class="btn btn-secondary" id="backButton">Torna indietro di 10 secondi</button>
+    <button class="btn btn-primary" id="playButton" type="button">
+      <i class="fa-solid fa-play" style="color: #ffffff;"></i> <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Riproduci / Interrompi
+    </button>
+  </div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+  const VIDEO_ID = {{video_corso.pk|safe}};
+  var isStarted = '{{stato_video.iniziato}}' == 'True' ? true : false;
+  var isCompleted = '{{stato_video.completato}}' == 'True' ? true : false;
+  var videoDuration = '{{video_corso.durata_video}}';
+  var lastVisualDateSaved = false;
+  var csrftoken = '{{csrf_token}}';
+</script>
+
+<script src="/static/assets/js/video_controller.js"></script>
+
+{% endblock javascripts %}

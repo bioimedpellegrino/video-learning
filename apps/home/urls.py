@@ -3,7 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-from django.urls import path, re_path
+from django.urls import path
 from apps.home import views
 from .views import *
 
@@ -14,11 +14,10 @@ urlpatterns = [
     path("amministrazione/dashboard/", AmministrazioneView.as_view(), name="amministrazione"),
     path("amministrazione/aziende/", AziendeView.as_view(), name="aziende"),
     path("amministrazione/azienda/<int:id_azienda>/", AziendeView.as_view(), name="aziende"),
-    path("amministrazione/utenti/", UtentiView.as_view(), name="utenti"),
+    path("amministrazione/lista_utenti/", UtentiView.as_view(), name="lista_utenti"),
     path("amministrazione/videocorsi/", VideoCorsiView.as_view(), name="videocorsi"),
     path("amministrazione/caricavideocorsi/", UploadVideoCorsiView.as_view(), name="caricavideocorsi"),
     path("amministrazione/aggiungi_corso/", AggiungiCorsoView.as_view(), name="aggiungi_corso"),
-    path("amministrazione/aggiungi_azienda/", AggiungiAziendaView.as_view(), name="aggiungi_azienda"),
     path("amministrazione/aggiungi_utente/", AggiungiUtenteView.as_view(), name="aggiungi_utente"),
 
     # Pagine utente
@@ -26,10 +25,10 @@ urlpatterns = [
     path("utente/corsi/", CorsiView.as_view(), name="utente_corsi"),
     path("utente/attestati/", AttestatiView.as_view(), name="utente_attestati"),
     
+    # Pagine videocorso
+    path("utente/videocorso/<int:id_video>/", WatchVideoCorsoView.as_view(), name="video_corso_utente"),
+    
     # Pagine di servizio
     path("supporto/", SupportoView.as_view(), name="supporto"),
-    
-    # Qualunque altro path non valido viene gestito dalla vista error_pages
-    re_path(r'^.*\.*', views.error_pages, name='error_pages'),
 
 ]
