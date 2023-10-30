@@ -251,8 +251,9 @@ class WatchVideoCorsoView(View):
         if 'watched_seconds' in request.POST:
             try:
                 watched_seconds = int(request.POST.get('watched_seconds'))
-                stato_video.totale_secondi_visualizzati = watched_seconds
-                stato_video.save()
+                if watched_seconds > stato_video.totale_secondi_visualizzati: #evito di tornare indietro
+                    stato_video.totale_secondi_visualizzati = watched_seconds
+                    stato_video.save()
             except:
                 print(f"Non è stato possibile parsare i secondi visualizzati: {watched_seconds}")
                 

@@ -83,7 +83,7 @@ class StatoVideo(models.Model):
     data_prima_visual = models.DateTimeField(blank=True, null=True, verbose_name="Data prima apertura del video")
     data_ultima_visual = models.DateTimeField(blank=True, null=True, verbose_name="Data ultima apertura del video")
     data_completamento = models.DateTimeField(blank=True, null=True, verbose_name="Data completamento video")
-    totale_secondi_visualizzati = models.IntegerField(blank=True, null=True, verbose_name="Totale secondi visualizzati")
+    totale_secondi_visualizzati = models.IntegerField(blank=True, null=True, default=0, verbose_name="Totale secondi visualizzati")
 
     def __str__(self):
         return f"{self.utente.user.username} - {self.video_corso.titolo}"   
