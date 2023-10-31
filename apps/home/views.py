@@ -82,13 +82,14 @@ class AziendeView(View):
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
+        context = { 'segment' : 'amministrazione-aziende'}
         profile = CustomUser.objects.get(user=request.user)
         aziende = profile.aziende.all()
         utenti = CustomUser.objects.filter(azienda__isnull=True)
         self.context["aziende"] = aziende
         self.context["utenti"] = utenti
         
-        return render(request, self.template_name, self.context)
+        return render(request, self.template_name, context)
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
@@ -316,9 +317,9 @@ class AggiungiCorsoView(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_superuser:
-            form = VideoCorsoForm()
+            aziende = Azienda.objects.all()
             context = {
-                'form': form,
+                'aziende': aziende,
             }
             return render(request, self.template_name, context)
         else:
@@ -326,15 +327,15 @@ class AggiungiCorsoView(View):
         
     def post(self, request, *args, **kwargs):
         if request.user.is_superuser:
-            form = VideoCorsoForm(request.POST, request.FILES)
-            if form.is_valid():
-                video_corso = form.save()
-                return HttpResponseRedirect(reverse('amministrazione'))
-            else:
-                context = {
-                    'form': form,
-                }
-                return render(request, self.template_name, context)
+            titolo = request.POST.get('titolo')
+            aziende = request.POST.getlist('aziende')
+            video_file = request.FILES.get('video_file')
+            
+            aziende = Azienda.objects.filter(id__in=aziende)
+            video_corso = VideoCorso.objects.create(titolo=titolo, video_file=video_file)
+            video_corso.aziende.set(aziende)
+            video_corso.save()
+            return HttpResponseRedirect(reverse('amministrazione'))
         else:
             return HttpResponseRedirect(reverse('home'))
 
