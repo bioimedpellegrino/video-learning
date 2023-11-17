@@ -15,7 +15,7 @@
             <label class="form-label">Aziende</label>
             {% for azienda in aziende %}
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="aziende[]" id="azienda{{azienda.id}}" value="{{azienda.id}}">
+                <input class="form-check-input" type="checkbox" name="aziende" id="azienda{{azienda.id}}" value="{{azienda.id}}">
                 <label class="form-check-label" for="azienda{{azienda.id}}">
                     {{azienda.nome}}
                 </label>

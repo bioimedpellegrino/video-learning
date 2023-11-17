@@ -328,10 +328,10 @@ class AggiungiCorsoView(View):
     def post(self, request, *args, **kwargs):
         if request.user.is_superuser:
             titolo = request.POST.get('titolo')
-            aziende = request.POST.getlist('aziende')
             video_file = request.FILES.get('video_file')
             
-            aziende = Azienda.objects.filter(id__in=aziende)
+            aziende_ids = [int(id) for id in request.POST.getlist('aziende')]
+            aziende = Azienda.objects.filter(id__in=aziende_ids)
             video_corso = VideoCorso.objects.create(titolo=titolo, video_file=video_file)
             video_corso.aziende.set(aziende)
             video_corso.save()
@@ -372,7 +372,7 @@ class AggiungiUtenteView(View):
         cognome = request.POST.get('cognome')
         azienda_id = request.POST.get('azienda')
         email = request.POST.get('email')
-        phone_number = request.POST.get('phone_number')
+        phone_number = request.POST.get('phone')
         is_staff = request.POST.get('is_staff', False)
         is_valid = True
 
