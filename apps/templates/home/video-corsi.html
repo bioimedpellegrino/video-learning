@@ -6,7 +6,48 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
-
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card border-0 shadow">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h2 class="fs-5 fw-bold mb-0">Video corsi</h2>
+                    </div>
+                    <div class="col text-end">
+                        <a href="#" class="btn btn-sm btn-primary">See all</a>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-items-center table-flush">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="border-bottom" scope="col">Nome corso</th>
+                            <th class="border-bottom" scope="col">Page Views</th>
+                            <th class="border-bottom" scope="col">Page Value</th>
+                            <th class="border-bottom" scope="col">Bounce rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for video_corso in video_corsi %}
+                        <tr>
+                            <th class="text-gray-900" scope="row">
+                                {{ video_corso.titolo }}
+                            </th>
+                            <td class="fw-bolder text-gray-500">
+                            </td>
+                            <td class="fw-bolder text-gray-500">
+                            </td>
+                            <td class="fw-bolder text-gray-500">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->

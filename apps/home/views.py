@@ -83,6 +83,10 @@ class AziendeView(View):
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'amministrazione-aziende'}
+        if request.user.is_superuser:
+            aziende = Azienda.objects.all()
+            context["aziende"] = aziende
+            return render(request, self.template_name, context)
         profile = CustomUser.objects.get(user=request.user)
         aziende = profile.aziende.all()
         utenti = CustomUser.objects.filter(azienda__isnull=True)
@@ -147,12 +151,8 @@ class VideoCorsiView(View):
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'amministrazione-videocorsi'}
         #TODO
-        return render(request, self.template_name, context)
-
-    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
-    def get(self, request, *args, **kwargs):
-        context = { 'segment' : 'amministrazione-videocorsi'}
-        #TODO
+        video_corsi = VideoCorso.objects.all()
+        context["video_corsi"] = video_corsi
         return render(request, self.template_name, context)
 
 class UploadVideoCorsiView(View):
@@ -192,6 +192,10 @@ class CorsiView(View):
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'utente_corsi'}
         #TODO
+        user = request.user
+        video_corsi = VideoCorso.objects.filter(aziende__in=user.customuser.aziende.all())
+        context["video_corsi"] = video_corsi
+
         return render(request, self.template_name, context)
     
     @method_decorator(login_required(login_url="/login/"))
@@ -300,6 +304,7 @@ class SupportoView(View):
 class AmministrazioneView(View):
     template_name = 'home/admin-dashboard.html'
 
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         if request.user.is_superuser:
             aziende = Azienda.objects.all()
@@ -315,6 +320,7 @@ class AmministrazioneView(View):
 class AggiungiCorsoView(View):
     template_name = 'home/aggiungi-corso.html'
 
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         if request.user.is_superuser:
             aziende = Azienda.objects.all()
