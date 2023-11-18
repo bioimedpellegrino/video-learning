@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from .models import *
+from custom_mail.models import Mail
 from django.shortcuts import redirect, render
 from django.views.generic import View
 from django.db import IntegrityError
@@ -400,5 +401,12 @@ class AggiungiUtenteView(View):
             context['message'] =  'Utente aggiunto con successo!'
             context['message_class'] =  'alert-success'  
             utente.save()    
+
+            mail = Mail(
+                to_who=email,
+                subject="Benvenuto!",
+                html_text="Benvenuto, {}! Il tuo account è stato creato con successo.".format(nome),
+            )
+            mail.save()
         
         return render(request, self.template_name, context)

@@ -1,0 +1,39 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Mails Inviate {% endblock %} 
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+    <div class="container">
+        <h1>Mails Inviate</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Da</th>
+                    <th scope="col">A</th>
+                    <th scope="col">Oggetto</th>
+                    <th scope="col">Data di invio</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mail in mails %}
+                    <tr>
+                        <td>{{ mail.from_who }}</td>
+                        <td>{{ mail.to_who }}</td>
+                        <td>{{ mail.subject }}</td>
+                        <td>{{ mail.end_date }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">Nessuna mail inviata.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}
+
+{% block javascripts %}
+
+{% endblock javascripts %}

@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'fontawesomefree',
     'apps.home',
+    'custom_mail',
 ]
 
 MIDDLEWARE = [

@@ -5,6 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from django.urls import path
 from apps.home import views
+from custom_mail.views import *
 from .views import *
 
 urlpatterns = [
@@ -19,6 +20,7 @@ urlpatterns = [
     path("amministrazione/caricavideocorsi/", UploadVideoCorsiView.as_view(), name="caricavideocorsi"),
     path("amministrazione/aggiungi_corso/", AggiungiCorsoView.as_view(), name="aggiungi_corso"),
     path("amministrazione/aggiungi_utente/", AggiungiUtenteView.as_view(), name="aggiungi_utente"),
+    path("amministrazione/mail/", SentMailListView.as_view(), name="sent_mail"),
 
     # Pagine utente
     path("utente/profilo/", ProfiloView.as_view(), name="utente_profilo"),
