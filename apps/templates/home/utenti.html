@@ -6,10 +6,44 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <h2 class="h4">Lista utenti</h2>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button type="button" class="btn btn-block btn-gray-800 mb-3" data-bs-toggle="modal" data-bs-target="#aggiungiUtente">Aggiungi utente</button>
+    </div>
+</div>
+
+<div class="card card-body border-0 shadow table-wrapper table-responsive table-responsive-md">
+    <table style="min-height: 20vh;" class="table table-hover align-items-center">
+        <thead class="align-items-center">
+            <th class="border-gray-200">ID</th>
+            <th class="border-gray-200">Nome</th>
+            <th class="border-gray-200 w-25">Email</th>
+            <th class="border-gray-200 w-25">Azienda</th>
+            <th class="border-gray-200 w-25">Azioni</th>
+        </thead>
+        <tbody>
+            {% for utente in utenti %}
+            <tr>
+                <td>{{utente.id}}</td>
+                <td><b>{{utente.user.first_name}} {{utente.user.last_name}}</b></td>
+                <td>{{utente.user.email}}</td>
+                <td>{{utente.azienda}}</td>
+                <td>
+                    <!-- Actions go here -->
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modals go here -->
 
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-
 {% endblock javascripts %}

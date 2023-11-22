@@ -141,7 +141,16 @@ class UtentiView(View):
                 'breadcrumb_level_3': 'Lista utenti'
                 
             }
-        #TODO
+        if request.user.is_superuser:
+            utenti = CustomUser.objects.all()
+            context["utenti"] = utenti
+            return render(request, self.template_name, context)
+        profile = CustomUser.objects.get(user=request.user)
+        utenti = CustomUser.objects.filter(azienda=profile.azienda)
+        context["utenti"] = utenti
+        #nell' html voglio riferirmi al nome dell'utente usando la foreign key user
+        
+        
         return render(request, self.template_name, context)
 
 
@@ -194,7 +203,8 @@ class CorsiView(View):
         context = { 'segment' : 'utente_corsi'}
         #TODO
         user = request.user
-        video_corsi = VideoCorso.objects.filter(aziende__in=user.customuser.aziende.all())
+        # Se l'utente deve avere corsi specifici e non tutti quelli dell'azienda uso var video_corsi_spec
+        video_corsi = VideoCorso.objects.filter(aziende=user.customuser.azienda)
         context["video_corsi"] = video_corsi
 
         return render(request, self.template_name, context)

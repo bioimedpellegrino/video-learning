@@ -9,15 +9,10 @@
     <div class="container">
         <h1>Corsi</h1>
         <div class="row">
-            {% for corso in video_corsi %}
-                <div class="col-md-4">
-                    <h2>{{ corso.nome }}</h2>
-                    <p>{{ corso.descrizione }}</p>
-                    <p><a class="btn btn-secondary" href="{% url 'corso_detail' corso.id %}" role="button">View details &raquo;</a></p>
-                </div>
-            {% empty %}
-                <p>Nessun corso disponibile.</p>
-            {% endfor %}
+            <ul>
+                {% for corso in video_corsi %}
+                    <li>{{ corso.titolo }}</li>
+                {% endfor %}
         </div>
     </div>
 {% endblock content %}
