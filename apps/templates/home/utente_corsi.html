@@ -6,15 +6,45 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
-    <div class="container">
-        <h1>Corsi</h1>
-        <div class="row">
-            <ul>
-                {% for corso in video_corsi %}
-                    <li>{{ corso.titolo }}</li>
-                {% endfor %}
+<h1>Corsi</h1>
+<div class="col-12 mb-4">
+    <div class="card border-0 shadow">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="fs-5 fw-bold mb-0">Video corsi</h2>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                    <tr>
+                        <th class="border-bottom" scope="col">Nome corso</th>
+                        <th class="border-bottom" scope="col">Page Views</th>
+                        <th class="border-bottom" scope="col">Page Value</th>
+                        <th class="border-bottom" scope="col">Bounce rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for video_corso in video_corsi %}
+                    <tr>
+                        <th class="text-gray-900" scope="row">
+                            {{ video_corso.titolo }}
+                        </th>
+                        <td class="fw-bolder text-gray-500">
+                        </td>
+                        <td class="fw-bolder text-gray-500">
+                        </td>
+                        <td class="fw-bolder text-gray-500">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->

@@ -23,6 +23,11 @@
                         <td>{{ mail.to_who }}</td>
                         <td>{{ mail.subject }}</td>
                         <td>{{ mail.end_date }}</td>
+                        <td>
+                            <button class="btn btn-primary ">
+                                <a href="{% url 'sent_mail_detail' mail.id %}">Dettagli</a>
+                            </button>
+                        </td>
                     </tr>
                 {% empty %}
                     <tr>

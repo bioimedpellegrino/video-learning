@@ -32,7 +32,7 @@ class SentMailListView(View):
 
 class SentMailView(View):
 
-    template_name = 'custom_mail/sent_mail.html'
+    template_name = 'custom_mail/sent_mail_detail.html'
 
     def get(self, request, *args, **kwargs):
         mail_id = kwargs.get("id", None)

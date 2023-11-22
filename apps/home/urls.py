@@ -20,7 +20,8 @@ urlpatterns = [
     path("amministrazione/caricavideocorsi/", UploadVideoCorsiView.as_view(), name="caricavideocorsi"),
     path("amministrazione/aggiungi_corso/", AggiungiCorsoView.as_view(), name="aggiungi_corso"),
     path("amministrazione/aggiungi_utente/", AggiungiUtenteView.as_view(), name="aggiungi_utente"),
-    path("amministrazione/mail/", SentMailListView.as_view(), name="sent_mail"),
+    path("amministrazione/mail/", SentMailListView.as_view(), name="sent_mail_list"),
+    path("amministrazione/mail/<int:id>/", SentMailView.as_view(), name="sent_mail_detail"),
 
     # Pagine utente
     path("utente/profilo/", ProfiloView.as_view(), name="utente_profilo"),

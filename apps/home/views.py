@@ -20,10 +20,9 @@ def index(request):
     
     context = {'segment': 'index','breadcrumb_level_1': 'Home'}
     if request.user.is_staff or request.user.is_superuser:
-        html_template = loader.get_template('home/admin-dashboard.html')
+        return HttpResponseRedirect(reverse('amministrazione'))
     else:
-        html_template = loader.get_template('home/utente_corsi.html')
-    return HttpResponse(html_template.render(context, request))
+        return HttpResponseRedirect(reverse('utente_corsi'))
 
 
 @login_required(login_url="/login/")
