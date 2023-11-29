@@ -214,19 +214,20 @@ class CorsiView(View):
         #TODO
         return render(request, self.template_name, context)
 
-# Dettagli corso deve essere accessibile solo dall'admin e deve avere i dati relativi al corso
+# Dettaglio corso deve essere accessibile solo dall'admin e deve avere i dati relativi al corso
 class DettagliCorsoView(View):
     template_name = 'home/utente_corso_dettagli.html'
 
     def get(self, request, *args, **kwargs):
-        #TODO
         videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
         utenti = CustomUser.objects.all()
         aziende_all = Azienda.objects.all()
         aziende_video_corso = videocorso.aziende.all()
+        aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_video_corso.values_list('id', flat=True))
+
         context = {
             'segment' : 'utente_corso_dettaglio',
-            'aziende_all': aziende_all,
+            'aziende_non_aggiunte': aziende_non_aggiunte,
             'aziende_video_corso': aziende_video_corso,
             'videocorso': videocorso,
         }
@@ -237,17 +238,22 @@ class DettagliCorsoView(View):
         videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
         utenti = CustomUser.objects.all()
         aziende_all = Azienda.objects.all()
-        id_azienda_aggiunta = request.POST.get('azienda')
-        if id_azienda_aggiunta:
-            azienda_aggiunta = Azienda.objects.get(pk=id_azienda_aggiunta)
-            videocorso.aziende.add(azienda_aggiunta)
-            videocorso.save()
+        id_aziende_aggiunte = request.POST.getlist('aziende')
         aziende_video_corso = videocorso.aziende.all()
+        aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_video_corso.values_list('id', flat=True))
 
+        for id_azienda in id_aziende_aggiunte:
+            azienda = Azienda.objects.get(pk=id_azienda)
+            if azienda not in videocorso.aziende.all():
+                videocorso.aziende.add(azienda)
+        for azienda in videocorso.aziende.all():
+            if str(azienda.id) not in id_aziende_aggiunte:
+                videocorso.aziende.remove(azienda)
+        aziende_video_corso = videocorso.aziende.all()      
 
         context = {
             'segment' : 'utente_corso_dettaglio',
-            'aziende_all': aziende_all,
+            'aziende_non_aggiunte': aziende_non_aggiunte,
             'aziende_video_corso': aziende_video_corso,
             'videocorso': videocorso,
         }
