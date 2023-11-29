@@ -214,6 +214,45 @@ class CorsiView(View):
         #TODO
         return render(request, self.template_name, context)
 
+# Dettagli corso deve essere accessibile solo dall'admin e deve avere i dati relativi al corso
+class DettagliCorsoView(View):
+    template_name = 'home/utente_corso_dettagli.html'
+
+    def get(self, request, *args, **kwargs):
+        #TODO
+        videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        utenti = CustomUser.objects.all()
+        aziende_all = Azienda.objects.all()
+        aziende_video_corso = videocorso.aziende.all()
+        context = {
+            'segment' : 'utente_corso_dettaglio',
+            'aziende_all': aziende_all,
+            'aziende_video_corso': aziende_video_corso,
+            'videocorso': videocorso,
+        }
+        return render(request, self.template_name, context)
+    
+    @method_decorator(login_required(login_url="/login/"))
+    def post(self, request, *args, **kwargs):
+        videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        utenti = CustomUser.objects.all()
+        aziende_all = Azienda.objects.all()
+        id_azienda_aggiunta = request.POST.get('azienda')
+        if id_azienda_aggiunta:
+            azienda_aggiunta = Azienda.objects.get(pk=id_azienda_aggiunta)
+            videocorso.aziende.add(azienda_aggiunta)
+            videocorso.save()
+        aziende_video_corso = videocorso.aziende.all()
+
+
+        context = {
+            'segment' : 'utente_corso_dettaglio',
+            'aziende_all': aziende_all,
+            'aziende_video_corso': aziende_video_corso,
+            'videocorso': videocorso,
+        }
+        return render(request, self.template_name, context)
+
 class WatchVideoCorsoView(View):
     template_name = 'home/watch-video.html'
 

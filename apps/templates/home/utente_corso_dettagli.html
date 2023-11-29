@@ -1,0 +1,89 @@
+{% extends "layouts/base.html" %}
+
+{% load static %}
+
+
+{% block title %} Video corsi {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'home/css/aggiungi_azienda.css' %}">{% endblock stylesheets %}
+
+{% block content %}
+<h1>{{ videocorso.titolo }}</h1>
+
+<div id="associazione-aziende-wrapper">
+    <div class="multi-select-box">
+        <div class="available-items">
+            <h3>Aziende disponibili</h3>
+            <input type="text" id="search-available" placeholder="Cerca..." onkeyup="filterOptions('available')">
+            <select id="available-aziende" multiple>
+                {% for azienda in aziende_all %}
+                    <option value="{{ azienda.id }}">{{ azienda.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="actions">
+            <button type="button" onclick="moveSelected('available', 'chosen')"> > </button>
+            <button type="button" onclick="moveSelected('chosen', 'available')"> < </button>
+        </div>
+        <div class="chosen-items">
+            <h3>Aziende associate</h3>
+            <input type="text" id="search-chosen" placeholder="Cerca..." onkeyup="filterOptions('chosen')">
+            <select id="chosen-aziende" name="aziende" multiple>
+                {% for azienda in aziende_video_corso %}
+                    <option value="{{ azienda.id }}">{{ azienda.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button class="btn btn-primary me-2" type="submit" onclick="submitForm()">Salva</button>
+        <a href="{% url 'videocorsi' %}" class="btn btn-secondary me-2">Indietro</a>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script>
+    function filterOptions(side) {
+        var input, filter, select, options, i;
+        input = document.getElementById("search-" + side);
+        filter = input.value.toUpperCase();
+        select = document.getElementById(side + "-aziende");
+        options = select.getElementsByTagName("option");
+        for (i = 0; i < options.length; i++) {
+            if (options[i].text.toUpperCase().indexOf(filter) > -1) {
+                options[i].style.display = "";
+            } else {
+                options[i].style.display = "none";
+            }
+        }
+    }
+
+    function moveSelected(from, to) {
+        var fromSelect, toSelect, options, i;
+        fromSelect = document.getElementById(from + "-aziende");
+        toSelect = document.getElementById(to + "-aziende");
+        options = fromSelect.getElementsByTagName("option");
+        for (i = options.length - 1; i >= 0; i--) {
+            if (options[i].selected) {
+                toSelect.appendChild(options[i]);
+            }
+        }
+    }
+
+    function submitForm() {
+        var select, options, i;
+        select = document.getElementById("chosen-aziende");
+        options = select.getElementsByTagName("option");
+        for (i = 0; i < options.length; i++) {
+            options[i].selected = true;
+        }
+        document.getElementById("associazione-aziende-wrapper").parentElement.submit();
+    }
+</script>
+{% endblock javascripts %}

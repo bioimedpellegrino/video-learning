@@ -33,7 +33,7 @@ class Azienda(models.Model):
 class CustomUser(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
     azienda = models.ForeignKey(Azienda, on_delete=models.SET_NULL, related_name="utenti", verbose_name="Azienda", null=True, blank=True)
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     video_corsi_spec = models.ManyToManyField('VideoCorso', related_name="utenti", verbose_name="Video Corsi") # Se l'utente deve avere dei corsi specifici e non tutti quelli associati all'azienda
     
