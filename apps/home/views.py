@@ -127,6 +127,9 @@ class AziendeView(View):
         else:
             return HttpResponse({"message": "ko", "status": 403})
 
+# Per adesso creo solo il nome dell'azienda e lascio la lista utenti da aggiungere vuota perchè associo l'azienda unica già in fase di creazione utente
+# Se per il futuro un utente potrà avere più di una azienda associata potremo usare questa view e modificare il campo azienda di CustomUser 
+# con ManyToManyField
 class AggiungiAziendaView(View):
     template_name = 'home/aggiungi-azienda.html'
     context = {'segment': 'amministrazione-aziende', 'breadcrumb_level_1': 'Amministrazione', 'breadcrumb_level_2': 'Aziende', 'breadcrumb_level_3': 'Aggiungi azienda'}
@@ -135,8 +138,8 @@ class AggiungiAziendaView(View):
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'amministrazione-aziende'}
         if request.user.is_superuser:
-            # Utenti 
-            utenti = CustomUser.objects.all()
+            # Utenti senza azienda ancora associata
+            utenti = CustomUser.objects.filter(azienda__isnull=True)
             context["utenti"] = utenti
             return render(request, self.template_name, context)
         
@@ -500,3 +503,71 @@ class AggiungiUtenteView(View):
             mail.save()
         
         return render(request, self.template_name, context)
+    
+class CreaQuizView(View):
+    template_name = 'home/crea_quiz.html'
+
+    # Questa funzione è per garantire che solo gli utenti staff possano accedere a questa vista
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def get(self, request, *args, **kwargs):
+        # Assumi che 'id' sia l'ID del VideoCorso. Ottienilo dai kwargs o in qualche altro modo.
+        videocorso_id = kwargs.get('id_corso')
+        videocorso = VideoCorso.objects.get(pk=videocorso_id)
+        return render(request, self.template_name, {'videocorso': videocorso})
+
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def post(self, request, *args, **kwargs):
+        videocorso_id = kwargs.get('id_corso')
+        videocorso = VideoCorso.objects.get(pk=videocorso_id)
+        titolo_quiz = request.POST.get('titolo_quiz')
+
+        quiz = Quiz.objects.create(video_corso=videocorso, titolo=titolo_quiz)
+
+        # Itera attraverso le domande inviate
+        for key in request.POST:
+            if key.startswith('domanda_'):
+                num_domanda = key.split('_')[1]
+                testo_domanda = request.POST[key]
+
+                domanda = Domanda.objects.create(quiz=quiz, testo=testo_domanda)
+
+                # Itera attraverso le opzioni per questa specifica domanda
+                for i in range(1, 5):
+                    testo_opzione = request.POST.get(f'opzione_{num_domanda}_{i}')
+                    corretta = request.POST.get(f'risposta_corretta_{num_domanda}') == f'opzione_{i}'
+                    OpzioneRisposta.objects.create(domanda=domanda, testo_opzione=testo_opzione, corretta=corretta)
+
+        return redirect('utente_corso_dettaglio', id_corso=videocorso_id)
+    
+# vista per eseguire il quiz
+class QuizView(View):
+    template_name = 'home/quiz.html'
+
+    def get(self, request, *args, **kwargs):
+        videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        # seleziono il quiz relativo al videocorso, l'ultimo creato
+        quiz = Quiz.objects.filter(video_corso=videocorso).last()
+        return render(request, self.template_name, {'quiz': quiz})
+
+    def post(self, request, *args, **kwargs):
+        videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        # seleziono il quiz relativo al videocorso, l'ultimo creato
+        quiz = Quiz.objects.filter(video_corso=videocorso).last()
+
+        # verifico se le riposte fornite sono corrette
+        for key in request.POST:
+            if key.startswith('domanda_'):
+                num_domanda = key.split('_')[1]
+                domanda = Domanda.objects.get(pk=num_domanda)
+                opzione_selezionata = request.POST[key]
+                opzione_corretta = OpzioneRisposta.objects.get(domanda=domanda, corretta=True).id
+                if opzione_selezionata == opzione_corretta:
+                    domanda.risposta_corretta = True
+                else:
+                    domanda.risposta_corretta = False
+                domanda.save()
+
+        return redirect('utente_corso_dettaglio', id_corso=videocorso.id)

@@ -103,3 +103,45 @@ class AttestatiVideo(models.Model):
     
     def __str__(self):
         return f"{self.utente.username} - {self.video_corso.titolo}"
+    
+    class Meta:
+        verbose_name = "Attestato Video"
+        verbose_name_plural = "Attestati Video"
+
+class Quiz(models.Model):
+    video_corso = models.ForeignKey(VideoCorso, on_delete=models.CASCADE, related_name="quiz")
+    titolo = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.titolo
+    class Meta:
+        verbose_name = "Quiz"
+        verbose_name_plural = "Quiz"
+
+class Domanda(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="domande")
+    testo = models.TextField()
+
+    def __str__(self):
+        return self.testo
+    
+    class Meta:
+        verbose_name = "Domanda"
+        verbose_name_plural = "Domande"
+
+class OpzioneRisposta(models.Model):
+    domanda = models.ForeignKey(Domanda, on_delete=models.CASCADE, related_name="opzioni")
+    testo_opzione = models.TextField()
+    corretta = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.testo_opzione
+    
+    class Meta:
+        verbose_name = "OpzioneRisposta"
+        verbose_name_plural = "Opzioni Risposta"
+
+class QuizAttempt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)

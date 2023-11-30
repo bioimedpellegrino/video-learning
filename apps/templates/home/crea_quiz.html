@@ -1,0 +1,67 @@
+{% extends "layouts/base.html" %}
+
+{% load static %}
+
+{% block title %} Crea Quiz {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'home/css/aggiungi_azienda.css' %}">
+{% endblock stylesheets %}
+
+{% block content %}
+<h1>Crea Quiz per {{ videocorso.titolo }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="quiz-form">
+        <div class="mb-3">
+            <label for="titolo_quiz" class="form-label">Titolo Quiz</label>
+            <input type="text" class="form-control" id="titolo_quiz" name="titolo_quiz" required>
+        </div>
+
+        <div id="domande-container">
+            <!-- Qui vengono aggiunte le domande -->
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="aggiungiDomanda()">Aggiungi Domanda</button>
+        <button type="submit" class="btn btn-success">Salva Quiz</button>
+        <a href="{% url 'utente_corso_dettaglio' videocorso.id %}" class="btn btn-secondary">Indietro</a>
+    </div>
+</form>
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    let domandaId = 0;
+
+    function aggiungiDomanda() {
+        domandaId++;
+        const container = document.getElementById('domande-container');
+        container.innerHTML += `
+            <div class="mb-3 domanda">
+                <label>Domanda ${domandaId}</label>
+                <input type="text" class="form-control mb-2" name="domanda_${domandaId}" required>
+                ${creaOpzioniRisposta(domandaId)}
+            </div>
+        `;
+    }
+
+    function creaOpzioniRisposta(domandaId) {
+        let opzioniHtml = '';
+        for (let i = 1; i <= 4; i++) {
+            opzioniHtml += `
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="risposta_corretta_${domandaId}" id="opzione_${domandaId}_${i}" value="opzione_${i}" required>
+                    <label class="form-check-label" for="opzione_${domandaId}_${i}">
+                        Opzione ${i}: <input type="text" name="opzione_${domandaId}_${i}" required>
+                    </label>
+                </div>
+            `;
+        }
+        return opzioniHtml;
+    }
+
+    // Aggiungi una prima domanda per impostazione predefinita
+    aggiungiDomanda();
+</script>
+{% endblock javascripts %}

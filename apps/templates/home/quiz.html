@@ -1,0 +1,25 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Quiz {% endblock %}
+
+{% block content %}
+<h1>{{ quiz.titolo }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {% for domanda in quiz.domande.all %}
+    <div class="mb-3 domanda">
+        <label class="domanda-label">{{ domanda.testo }}</label>
+        {% for opzione in domanda.opzioni.all %}
+            <div class="form-check opzione">
+                <input class="form-check-input" type="radio" name="risposta_{{ domanda.id }}" id="opzione_{{ opzione.id }}" value="{{ opzione.id }}" required>
+                <label class="form-check-label" for="opzione_{{ opzione.id }}">
+                    {{ opzione.testo_opzione }}
+                </label>
+            </div>
+        {% endfor %}
+    </div>
+{% endfor %}
+    <button type="submit" class="btn btn-success">Invia</button>
+</form>
+{% endblock content %}
