@@ -14,6 +14,7 @@ urlpatterns = [
     path('', views.index, name='home'),
     path("amministrazione/dashboard/", AmministrazioneView.as_view(), name="amministrazione"),
     path("amministrazione/aziende/", AziendeView.as_view(), name="aziende"),
+    path("amministrazione/aggiungi_azienda/", AggiungiAziendaView.as_view(), name="aggiungi_azienda"),
     path("amministrazione/azienda/<int:id_azienda>/", AziendeView.as_view(), name="aziende"),
     path("amministrazione/lista_utenti/", UtentiView.as_view(), name="lista_utenti"),
     path("amministrazione/videocorsi/", VideoCorsiView.as_view(), name="videocorsi"),

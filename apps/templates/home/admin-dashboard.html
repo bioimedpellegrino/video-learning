@@ -48,9 +48,6 @@
                                 <div class="col">
                                     <h2 class="fs-5 fw-bold mb-0">Video corsi</h2>
                                 </div>
-                                <div class="col text-end">
-                                    <a href="#" class="btn btn-sm btn-primary">See all</a>
-                                </div>
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -58,9 +55,8 @@
                                 <thead class="thead-light">
                                     <tr>
                                         <th class="border-bottom" scope="col">Nome corso</th>
-                                        <th class="border-bottom" scope="col">Page Views</th>
-                                        <th class="border-bottom" scope="col">Page Value</th>
-                                        <th class="border-bottom" scope="col">Bounce rate</th>
+                                        <th class="border-bottom" scope="col">Aziende associare</th>
+                                        <th class="border-bottom" scope="col">Utenti partecipanti</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -74,6 +70,7 @@
                                         <td class="fw-bolder text-gray-500">
                                         </td>
                                         <td class="fw-bolder text-gray-500">
+                                            <a href="{% url 'utente_corso_dettaglio' video_corso.id %}" class="btn btn-primary">Dettagli</a>
                                         </td>
                                     </tr>
                                     {% endfor %}

@@ -1,0 +1,91 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+
+{% block title %} Aggiungi Azienda {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'home/css/aggiungi_azienda.css' %}">
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="py-4">
+    <form id="form" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="nome_azienda" class="form-label">Nome Azienda</label>
+            <input type="text" name="nome_azienda" id="nome_azienda" class="form-control" required>
+        </div>
+        <div class="multi-select-box">
+            <div class="available-items">
+                <h3>Utenti disponibili</h3>
+                <input type="text" id="search-available" placeholder="Cerca..." onkeyup="filterOptions('available')">
+                <select id="available-users" multiple>
+                    {% for utente in utenti %}
+                        <option value="{{ utente.id }}">{{ utente.user.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="actions">
+                <button type="button" onclick="moveSelected('available', 'chosen')"> > </button>
+                <button type="button" onclick="moveSelected('chosen', 'available')"> < </button>
+            </div>
+            <div class="chosen-items">
+                <h3>Utenti associati</h3>
+                <input type="text" id="search-chosen" placeholder="Cerca..." onkeyup="filterOptions('chosen')">
+                <select id="chosen-users" name="utenti" multiple>
+                    {% for utente in utenti_azienda %}
+                        <option value="{{ utente.id }}">{{ utente.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary me-2" type="submit" onclick="submitForm()">Salva</button>
+            <a href="{% url 'amministrazione' %}" class="btn btn-secondary me-2">Indietro</a>
+        </div>
+    </form>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script>
+    // Filters options in the select lists based on user input
+    function filterOptions(listId) {
+        var input, filter, select, options, i;
+        input = document.getElementById("search-" + listId);
+        filter = input.value.toUpperCase();
+        select = document.getElementById(listId + "-users");
+        options = select.getElementsByTagName("option");
+        for (i = 0; i < options.length; i++) {
+            if (options[i].text.toUpperCase().indexOf(filter) > -1) {
+                options[i].style.display = "";
+            } else {
+                options[i].style.display = "none";
+            }
+        }
+    }
+
+    // Moves selected options from one list to another
+    function moveSelected(fromListId, toListId) {
+        var fromSelect, toSelect, selectedOptions, i;
+        fromSelect = document.getElementById(fromListId + "-users");
+        toSelect = document.getElementById(toListId + "-users");
+        selectedOptions = Array.from(fromSelect.selectedOptions);
+        for (i = 0; i < selectedOptions.length; i++) {
+            toSelect.appendChild(selectedOptions[i]);
+        }
+    }
+
+    // Prepares the form for submission by ensuring all chosen options are selected
+    function submitForm() {
+        var chosenList, options, i;
+        chosenList = document.getElementById("chosen-users");
+        options = chosenList.options;
+        for (i = 0; i < options.length; i++) {
+            options[i].selected = true;
+        }
+        document.getElementById("form").submit();
+    }
+</script>
+{% endblock javascripts %}

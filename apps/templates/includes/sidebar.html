@@ -59,11 +59,39 @@
                   role="list" id="submenu-app" aria-expanded="false">
                   <ul class="flex-column nav">
                     <li class="nav-item {% if 'aziende' in segment %} active {% endif %}">
-                      <a class="nav-link" href="{% url 'aziende' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#ffffff}</style><path d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h96V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h96c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM80 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112zM272 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16z"/></svg>
-                        <span class="sidebar-text">Aziende</span>
+                      <a class="nav-link collapsed d-flex justify-content-between align-items-center"
+                          data-bs-toggle="collapse" data-bs-target="#submenu-aziende">
+                          <span>
+                              <span class="sidebar-icon">
+                                  <!-- Mi serve un'icona di un'azienda-->
+                                  <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512">
+                                    <style>svg{fill:#ffffff}</style>
+                                    <path d="M320 0h-64v192h64V0zm-64 256v-64h-64v64H64v192h192V256zm0 0h192v192H256V256zm320 192h-64v64h-64v-64h-64v64h-64v-64h-64v64h-64v-64h-64v64h-64v-64H64v64H0V64h640v384zm0-448H0v32h640V0z"/>
+                                </svg>                              </span> 
+                              <span class="sidebar-text">Aziende</span>
+                          </span>
+                          <span class="link-arrow">
+                            <svg class="icon icon-sm" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                          </span>
                       </a>
-                    </li>
+                      <div class="multi-level collapse {% if 'aziende' in segment %} show {% endif %}"
+                          role="list" id="submenu-aziende" aria-expanded="false">
+                          <ul class="flex-column nav">
+                              <li class="nav-item {% if 'aggiungi_azienda' in segment %} active {% endif %}">
+                                  <a class="nav-link" style="font-size: smaller"; href="{% url 'aggiungi_azienda' %}">
+                                    <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
+                                      <span class="sidebar-text">Aggiungi Azienda</span>
+                                  </a>
+                              </li>
+                              <li class="nav-item {% if 'lista_aziende' in segment %} active {% endif %}">
+                                  <a class="nav-link" style="font-size: smaller"href="{% url 'aziende' %}">
+                                    <i class="fa-solid fa-list" style="color: #ffffff;"></i>
+                                      <span class="sidebar-text">Lista Aziende</span>
+                                  </a>
+                              </li>
+                          </ul>
+                      </div>
+                  </li>
                     <li class="nav-item">
                       <span
                       class="nav-link collapsed d-flex justify-content-between align-items-center"

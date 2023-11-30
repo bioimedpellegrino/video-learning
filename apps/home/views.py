@@ -126,6 +126,42 @@ class AziendeView(View):
             return HttpResponse({"message": "ok", "status": 200})
         else:
             return HttpResponse({"message": "ko", "status": 403})
+
+class AggiungiAziendaView(View):
+    template_name = 'home/aggiungi-azienda.html'
+    context = {'segment': 'amministrazione-aziende', 'breadcrumb_level_1': 'Amministrazione', 'breadcrumb_level_2': 'Aziende', 'breadcrumb_level_3': 'Aggiungi azienda'}
+
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def get(self, request, *args, **kwargs):
+        context = { 'segment' : 'amministrazione-aziende'}
+        if request.user.is_superuser:
+            # Utenti 
+            utenti = CustomUser.objects.all()
+            context["utenti"] = utenti
+            return render(request, self.template_name, context)
+        
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def post(self, request, *args, **kwargs):
+        try:
+            nome_azienda = request.POST.get('nome_azienda')
+            utenti_selezionati = request.POST.getlist('utenti')
+
+            if nome_azienda:
+                # Crea o ottiene un'azienda con il nome specificato
+                azienda, created = Azienda.objects.get_or_create(nome=nome_azienda)
+
+                if utenti_selezionati:
+                    # Associa gli utenti selezionati all'azienda
+                    utenti = CustomUser.objects.filter(pk__in=utenti_selezionati)
+                    azienda.staff_users.set(utenti)
+
+        except Exception as e:
+            # Gestione dell'errore
+            import traceback
+            traceback.print_exc()
+            self.context["error"] = "Ops! Si è verificato un'errore."
+        
+        return redirect('aziende')
         
 
 class UtentiView(View):
