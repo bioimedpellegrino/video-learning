@@ -230,7 +230,10 @@ class ProfiloView(View):
     @method_decorator(login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'utente_profilo'}
-        #TODO
+        custom_user = CustomUser.objects.get(user=request.user)
+        azienda = custom_user.azienda
+        corsi_utente = azienda.video_corsi.all()
+        context = { 'segment' : 'utente_profilo', 'corsi_utente': corsi_utente}
         return render(request, self.template_name, context)
     
     @method_decorator(login_required(login_url="/login/"))
@@ -244,20 +247,22 @@ class CorsiView(View):
 
     @method_decorator(login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
-        context = { 'segment' : 'utente_corsi'}
-        #TODO
-        user = request.user
-        # Se l'utente deve avere corsi specifici e non tutti quelli dell'azienda uso var video_corsi_spec
-        video_corsi = VideoCorso.objects.filter(aziende=user.customuser.azienda)
-        context["video_corsi"] = video_corsi
+        if not request.user.is_staff:
+            context = { 'segment' : 'utente_corsi'}
+            # Se l'utente deve avere corsi specifici e non tutti quelli dell'azienda uso var video_corsi_spec
+            video_corsi = VideoCorso.objects.filter(aziende=request.user.customuser.azienda)
+            context["video_corsi"] = video_corsi
+            return render(request, self.template_name, context)
+        else:
+            return redirect('amministrazione')
 
-        return render(request, self.template_name, context)
-    
     @method_decorator(login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
-        context = { 'segment' : 'utente_corsi'}
-        #TODO
-        return render(request, self.template_name, context)
+        if not request.user.is_staff:
+            context = { 'segment' : 'utente_corsi'}
+            return render(request, self.template_name, context)
+        else:
+            return redirect('amministrazione')
 
 # Dettaglio corso deve essere accessibile solo dall'admin e deve avere i dati relativi al corso
 class DettagliCorsoView(View):
@@ -393,8 +398,16 @@ class AttestatiView(View):
 
     @method_decorator(login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
-        context = { 'segment' : 'utente_attestati'}
-        #TODO
+        user = request.user
+        video_corsi = VideoCorso.objects.all()
+        ultimi_attestati = {}
+
+        for video_corso in video_corsi:
+            ultimo_attestato = AttestatiVideo.objects.filter(utente=user, video_corso=video_corso).order_by('-data_conseguimento').first()
+            if ultimo_attestato:
+                ultimi_attestati[video_corso] = ultimo_attestato
+
+        context = { 'segment' : 'utente_attestati', 'ultimi_attestati': ultimi_attestati}
         return render(request, self.template_name, context)
     
     @method_decorator(login_required(login_url="/login/"))
@@ -581,11 +594,12 @@ class QuizView(View):
                 num_domanda = key.split('_')[1]
                 domanda = Domanda.objects.get(pk=num_domanda)
                 opzione_selezionata = int(request.POST[key])  # Converti in intero
+                opzione_selezionata_obj = OpzioneRisposta.objects.get(id=opzione_selezionata)
+                testo_risposta = opzione_selezionata_obj.testo_opzione
                 opzione_corretta = OpzioneRisposta.objects.get(domanda=domanda, corretta=True).id
-                # Memorizzo il risultato nel dizionario
+                # Memorizzo il risultato e la risposta data nel dizionario
                 risultato = opzione_selezionata == opzione_corretta
-                risultati[num_domanda] = risultato
-
+                risultati[num_domanda] = {'risultato': risultato, 'risposta_data': opzione_selezionata, 'testo_risposta': testo_risposta}
                 # Se la risposta è corretta, incremento il contatore
                 if risultato:
                     risposte_corrette += 1
@@ -642,4 +656,14 @@ class QuizRisultatiView(View):
     def get(self, request, *args, **kwargs):
         quiz_attempt = QuizAttempt.objects.get(pk=kwargs.get('id_quiz_attempt'))
         numero_domande = quiz_attempt.quiz.domande.count()
-        return render(request, self.template_name, {'quiz_attempt': quiz_attempt, 'numero_domande': numero_domande})
+        risultati = [
+                {
+                    'domanda': domanda, 
+                    'corretta': quiz_attempt.risultati.get(str(domanda.id)), 
+                    'risposta_data': quiz_attempt.risultati[str(domanda.id)]['risposta_data'],
+                    'testo_risposta': quiz_attempt.risultati[str(domanda.id)]['testo_risposta']
+            } 
+                for domanda in quiz_attempt.quiz.domande.all()
+            ]
+
+        return render(request, self.template_name, {'quiz_attempt': quiz_attempt, 'risultati': risultati, 'numero_domande': numero_domande})

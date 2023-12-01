@@ -13,6 +13,7 @@
 
 <form id="form" method="post">
     {% csrf_token %}
+    {% if request.user.is_staff %}
     <div id="associazione-aziende-wrapper">
         <div class="multi-select-box">
             <div class="available-items">
@@ -40,12 +41,13 @@
         </div>
         <div class="form-actions">
             <button class="btn btn-primary me-2" type="submit" onclick="submitForm()">Salva</button>
-            <a href="{% url 'videocorsi' %}" class="btn btn-secondary me-2">Indietro</a>
             <a href="{% url 'crea_quiz' videocorso.id %}" class="btn btn-success me-2">Crea Quiz</a>
-            <a href="{% url 'quiz' videocorso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
-
+            <a href="{% url 'videocorsi' %}" class="btn btn-secondary me-2">Indietro</a>
         </div>
     </div>
+    {% endif %}
+    <a href="{% url 'utente_corsi' %}" class="btn btn-secondary me-2">Indietro</a>
+    <a href="{% url 'quiz' videocorso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
 </form>
 {% endblock content %}
 

@@ -1,18 +1,23 @@
 {% extends "layouts/base.html" %}
 
+{% load templatetags %}
+
 {% block title %} Risultati Quiz {% endblock %}
 
 {% block content %}
 <h1>Risultati per {{ quiz_attempt.quiz.titolo }}</h1>
 
-{% for domanda_id, corretta in quiz_attempt.risultati.items %}
+{% for risultato in risultati %}
     <div class="mb-3 domanda">
-        <label class="domanda-label">{{ domanda_id }}</label>
+        <label class="domanda-label">{{ risultato.domanda.testo }}</label>
         <div class="form-check opzione">
-            <input class="form-check-input" type="radio" disabled {% if corretta %}checked{% endif %}>
+            <input class="form-check-input" type="radio" disabled {% if risultato.corretta %}checked{% endif %}>
             <label class="form-check-label">
-                Risposta: {{ corretta|yesno:"Corretta,Errata" }}
+                Risposta: {{ risultato.corretta|yesno:"Corretta,Errata" }}
             </label>
+        </div>
+        <div class="risposta-data">
+            Risposta data: {{ risultato.testo_risposta }}
         </div>
     </div>
 {% endfor %}

@@ -6,7 +6,18 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
-
+    <h1>Attestati ottenuti</h1>
+    <ul>
+    {% for video_corso, attestato in ultimi_attestati.items %}
+        <li>
+            <h2>{{ video_corso.titolo }}</h2>
+            <p>Data di consegna: {{ attestato.data_conseguimento }}</p>
+            <!-- Aggiungi qui ulteriori dettagli sull'attestato se necessario -->
+        </li>
+    {% empty %}
+        <li>Nessun attestato ottenuto.</li>
+    {% endfor %}
+    </ul>
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->

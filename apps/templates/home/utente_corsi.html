@@ -1,12 +1,12 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Corsi {% endblock %} 
+{% block title %} Corsi Utente {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
-<h1>Corsi</h1>
+<h1>Corsi Utente</h1>
 <div class="col-12 mb-4">
     <div class="card border-0 shadow">
         <div class="card-header">
@@ -37,6 +37,7 @@
                         <td class="fw-bolder text-gray-500">
                         </td>
                         <td class="fw-bolder text-gray-500">
+                            <a href="{% url 'utente_corso_dettaglio' video_corso.id %}" class="btn btn-primary">Dettagli</a>
                         </td>
                     </tr>
                     {% endfor %}
