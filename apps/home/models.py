@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.contrib.auth.models import User  
-
+from django.db.models import JSONField
 class Azienda(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
     nome = models.CharField(max_length=255, verbose_name="Nome Azienda")
@@ -37,7 +37,6 @@ class CustomUser(models.Model):
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     video_corsi_spec = models.ManyToManyField('VideoCorso', related_name="utenti", verbose_name="Video Corsi") # Se l'utente deve avere dei corsi specifici e non tutti quelli associati all'azienda
     
-
     def __str__(self):
         return self.user.first_name + " " + self.user.last_name
     
@@ -145,3 +144,8 @@ class QuizAttempt(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
+    risultati = JSONField(default=dict)
+
+    class Meta:
+        verbose_name = "Tentativo Quiz"
+        verbose_name_plural = "Tentativi Quiz"

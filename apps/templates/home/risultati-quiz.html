@@ -1,0 +1,29 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Risultati Quiz {% endblock %}
+
+{% block content %}
+<h1>Risultati per {{ quiz_attempt.quiz.titolo }}</h1>
+
+{% for domanda_id, corretta in quiz_attempt.risultati.items %}
+    <div class="mb-3 domanda">
+        <label class="domanda-label">{{ domanda_id }}</label>
+        <div class="form-check opzione">
+            <input class="form-check-input" type="radio" disabled {% if corretta %}checked{% endif %}>
+            <label class="form-check-label">
+                Risposta: {{ corretta|yesno:"Corretta,Errata" }}
+            </label>
+        </div>
+    </div>
+{% endfor %}
+
+<p>Risposte corrette: {{ quiz_attempt.risultati.risposte_corrette }} su {{numero_domande}}</p>
+
+{% if quiz_attempt.risultati.superato %}
+    <p class="alert alert-success">Test superato!</p>
+{% else %}
+    <p class="alert alert-danger">Test non superato!</p>
+{% endif %}
+
+<a href="{% url 'utente_corso_dettaglio' id_corso=quiz_attempt.quiz.video_corso.id %}">Torna al corso</a>
+{% endblock content %}

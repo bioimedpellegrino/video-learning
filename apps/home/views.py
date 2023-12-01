@@ -554,20 +554,36 @@ class QuizView(View):
 
     def post(self, request, *args, **kwargs):
         videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
-        # seleziono il quiz relativo al videocorso, l'ultimo creato
         quiz = Quiz.objects.filter(video_corso=videocorso).last()
 
-        # verifico se le riposte fornite sono corrette
+        risultati = {}
+        risposte_corrette = 0 
+
         for key in request.POST:
-            if key.startswith('domanda_'):
+            if key.startswith('risposta_'):
                 num_domanda = key.split('_')[1]
                 domanda = Domanda.objects.get(pk=num_domanda)
-                opzione_selezionata = request.POST[key]
+                opzione_selezionata = int(request.POST[key])  # Converti in intero
                 opzione_corretta = OpzioneRisposta.objects.get(domanda=domanda, corretta=True).id
-                if opzione_selezionata == opzione_corretta:
-                    domanda.risposta_corretta = True
-                else:
-                    domanda.risposta_corretta = False
-                domanda.save()
+                # Memorizzo il risultato nel dizionario
+                risultato = opzione_selezionata == opzione_corretta
+                risultati[num_domanda] = risultato
 
-        return redirect('utente_corso_dettaglio', id_corso=videocorso.id)
+                # Se la risposta è corretta, incremento il contatore
+                if risultato:
+                    risposte_corrette += 1
+
+        risultati['risposte_corrette'] = risposte_corrette
+        risultati['test_superato'] = risposte_corrette == quiz.domande.count()
+        quiz_attempt = QuizAttempt.objects.create(user=request.user, quiz=quiz, risultati=risultati)
+        
+
+        return redirect('risultati_quiz', id_corso=videocorso.id, id_quiz_attempt=quiz_attempt.id)
+    
+class QuizRisultatiView(View):
+    template_name = 'home/risultati-quiz.html'
+
+    def get(self, request, *args, **kwargs):
+        quiz_attempt = QuizAttempt.objects.get(pk=kwargs.get('id_quiz_attempt'))
+        numero_domande = quiz_attempt.quiz.domande.count()
+        return render(request, self.template_name, {'quiz_attempt': quiz_attempt, 'numero_domande': numero_domande})

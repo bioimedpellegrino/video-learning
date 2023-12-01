@@ -35,15 +35,38 @@
     let domandaId = 0;
 
     function aggiungiDomanda() {
-        domandaId++;
-        const container = document.getElementById('domande-container');
-        container.innerHTML += `
-            <div class="mb-3 domanda">
-                <label>Domanda ${domandaId}</label>
-                <input type="text" class="form-control mb-2" name="domanda_${domandaId}" required>
-                ${creaOpzioniRisposta(domandaId)}
-            </div>
-        `;
+    const container = document.getElementById('domande-container');
+
+    // Calcola l'ID della domanda in base al numero di domande attualmente presenti
+    const domandaId = container.getElementsByClassName('domanda').length + 1;
+
+    // Crea un nuovo elemento div
+    const domandaDiv = document.createElement('div');
+    domandaDiv.className = 'mb-3 domanda';
+    domandaDiv.id = 'domanda_' + domandaId;
+
+    // Imposta l'HTML interno del div
+    domandaDiv.innerHTML = `
+        <label>Domanda ${domandaId}</label>
+        <input type="text" class="form-control mb-2" name="domanda_${domandaId}" required>
+        ${creaOpzioniRisposta(domandaId)}
+        <button type="button" class="btn btn-danger" onclick="rimuoviDomanda(${domandaId})">Rimuovi Domanda</button>
+    `;
+
+    // Aggiungi il div al container
+    container.appendChild(domandaDiv);
+    }
+
+    function rimuoviDomanda(id) {
+        const domandaDaRimuovere = document.getElementById('domanda_' + id);
+        domandaDaRimuovere.remove();
+
+        // Aggiorna gli ID e le etichette delle domande rimanenti
+        const domande = document.getElementsByClassName('domanda');
+        for (let i = 0; i < domande.length; i++) {
+            domande[i].id = 'domanda_' + (i + 1);
+            domande[i].getElementsByTagName('label')[0].textContent = 'Domanda ' + (i + 1);
+        }
     }
 
     function creaOpzioniRisposta(domandaId) {
