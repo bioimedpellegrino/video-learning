@@ -31,6 +31,9 @@ urlpatterns = [
     path("utente/corso/<int:id_corso>/crea_quiz", CreaQuizView.as_view(), name="crea_quiz"),
     path("utente/corso/<int:id_corso>/quiz", QuizView.as_view(), name="quiz"),
     path('risultati_quiz/<int:id_corso>/<int:id_quiz_attempt>/', QuizRisultatiView.as_view(), name='risultati_quiz'),
+    #scarica attestato
+    path('scarica_attestato/<int:id_corso>/', scarica_attestato, name='scarica_attestato'),
+
     path("utente/attestati/", AttestatiView.as_view(), name="utente_attestati"),
     
     # Pagine videocorso

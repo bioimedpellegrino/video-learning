@@ -19,8 +19,9 @@
 
 <p>Risposte corrette: {{ quiz_attempt.risultati.risposte_corrette }} su {{numero_domande}}</p>
 
-{% if quiz_attempt.risultati.superato %}
+{% if quiz_attempt.risultati.test_superato %}
     <p class="alert alert-success">Test superato!</p>
+    <a href="{% url 'scarica_attestato' id_corso=quiz_attempt.quiz.video_corso.id %}" class="btn btn-primary">Scarica Attestato</a>
 {% else %}
     <p class="alert alert-danger">Test non superato!</p>
 {% endif %}

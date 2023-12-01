@@ -12,6 +12,12 @@ from django.shortcuts import redirect, render
 from django.views.generic import View
 from django.db import IntegrityError
 from .forms import *
+from django.http import FileResponse, Http404
+from django.shortcuts import get_object_or_404
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from io import BytesIO
+import os
 
 import datetime
 
@@ -371,6 +377,17 @@ class WatchVideoCorsoView(View):
             
         return HttpResponse({"message": "ok", "status": 200})
 
+def scarica_attestato(request, id_corso):
+    try:
+        attestato = AttestatiVideo.objects.filter(utente=request.user, video_corso__id=id_corso).order_by('-data_conseguimento')[0]
+    except IndexError:
+        raise Http404("Attestato non trovato.")
+    try:
+        print(attestato.pdf.path)
+        return FileResponse(open(attestato.pdf.path, 'rb'), content_type='application/pdf')
+    except FileNotFoundError:
+        raise Http404("File non trovato.")
+    
 class AttestatiView(View):
     template_name = 'home/utente_attestati.html'
 
@@ -576,7 +593,46 @@ class QuizView(View):
         risultati['risposte_corrette'] = risposte_corrette
         risultati['test_superato'] = risposte_corrette == quiz.domande.count()
         quiz_attempt = QuizAttempt.objects.create(user=request.user, quiz=quiz, risultati=risultati)
-        
+
+        if risultati['test_superato']:
+            # Se l'utente ha superato il test, genero l'attestato
+            buffer = BytesIO()
+            p = canvas.Canvas(buffer, pagesize=letter)
+
+            p.setFont("Helvetica", 24)
+            p.drawString(100, 700, "Attestato di superamento del corso")
+            p.setFont("Helvetica", 16)
+            p.drawString(100, 650, f"Conseguito da: {request.user.username}")
+            p.drawString(100, 600, f"Corso: {quiz_attempt.quiz.video_corso.titolo}")
+            p.drawString(100, 550, f"Data: {quiz_attempt.timestamp.strftime('%d/%m/%Y')}")
+
+            p.showPage()
+            p.save()
+
+            # Salvo il PDF in un file temporaneo che si trova nella cartella media/attestati
+            import shutil
+
+            directory = "attestati"
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
+            # Crea il file nel percorso originale
+            filename_originale = f"{request.user.username}_{quiz_attempt.quiz.video_corso.titolo}.pdf"
+            with open(filename_originale, 'wb') as f:
+                f.write(buffer.getvalue())
+
+            # Sposto il file nella cartella media/attestati
+            filename_destinazione = f"media/{directory}/{filename_originale}"
+            shutil.move(filename_originale, filename_destinazione)
+
+            # Creo un nuovo AttestatiVideo con il percorso al file PDF
+            AttestatiVideo.objects.create(
+                utente=request.user,
+                video_corso=quiz_attempt.quiz.video_corso,
+                data_conseguimento=quiz_attempt.timestamp,
+                pdf=filename_destinazione,
+            )        
+
 
         return redirect('risultati_quiz', id_corso=videocorso.id, id_quiz_attempt=quiz_attempt.id)
     

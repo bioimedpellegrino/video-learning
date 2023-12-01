@@ -13,3 +13,4 @@ whitenoise
 ipython
 fontawesomefree
 Pillow
+reportlab
