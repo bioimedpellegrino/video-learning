@@ -2,26 +2,25 @@
 
 {% load static %}
 
-{% block title %} Video corsi {% endblock %} 
+{% block title %} Dettagli Azienda {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
 <link rel="stylesheet" href="{% static 'home/css/aggiungi_azienda.css' %}">{% endblock stylesheets %}
 
 {% block content %}
-<h1>{{ videocorso.titolo }}</h1>
+<h1>{{ azienda.nome }}</h1>
 
 <form id="form" method="post">
     {% csrf_token %}
-    {% if request.user.is_staff %}
-    <div id="associazione-aziende-wrapper">
+    <div id="associazione-utenti-wrapper">
         <div class="multi-select-box">
             <div class="available-items">
-                <h3>Aziende disponibili</h3>
+                <h3>Utenti disponibili</h3>
                 <input type="text" id="search-available" placeholder="Cerca..." onkeyup="filterOptions('available')">
-                <select id="available-aziende" multiple>
-                    {% for azienda in aziende_non_aggiunte %}
-                        <option value="{{ azienda.id }}">{{ azienda.nome }}</option>
+                <select id="available-utenti" multiple>
+                    {% for utente in utenti_no_azienda %}
+                        <option value="{{ utente.id }}">{{ utente.user.first_name }} {{ utente.user.last_name }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -30,26 +29,20 @@
                 <button type="button" onclick="moveSelected('chosen', 'available')"> < </button>
             </div>
             <div class="chosen-items">
-                <h3>Aziende associate</h3>
+                <h3>Utenti associati</h3>
                 <input type="text" id="search-chosen" placeholder="Cerca..." onkeyup="filterOptions('chosen')">
-                <select id="chosen-aziende" name="aziende" multiple>
-                    {% for azienda in aziende_video_corso %}
-                        <option value="{{ azienda.id }}">{{ azienda.nome }}</option>
+                <select id="chosen-utenti" name="utenti" multiple>
+                    {% for utente in utenti_azienda %}
+                        <option value="{{ utente.id }}">{{ utente.user.first_name }} {{ utente.user.last_name }}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
         <div class="form-actions">
             <button class="btn btn-primary me-2" type="submit" onclick="submitForm()">Salva</button>
-            <a href="{% url 'crea_quiz' videocorso.id %}" class="btn btn-success me-2">Crea Quiz</a>
-            <a href="{% url 'quiz' videocorso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
-            <a href="{% url 'videocorsi' %}" class="btn btn-secondary me-2">Indietro</a>
+            <a href="{% url 'aziende' %}" class="btn btn-secondary me-2">Indietro</a>
         </div>
     </div>
-    {% else %}    
-    <a href="{% url 'utente_corsi' %}" class="btn btn-secondary me-2">Indietro</a>
-    <a href="{% url 'quiz' videocorso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
-    {% endif %}
 </form>
 {% endblock content %}
 
@@ -60,7 +53,7 @@
         var input, filter, select, options, i;
         input = document.getElementById("search-" + side);
         filter = input.value.toUpperCase();
-        select = document.getElementById(side + "-aziende");
+        select = document.getElementById(side + "-utenti");
         options = select.getElementsByTagName("option");
         for (i = 0; i < options.length; i++) {
             if (options[i].text.toUpperCase().indexOf(filter) > -1) {
@@ -70,11 +63,11 @@
             }
         }
     }
-
+    
     function moveSelected(from, to) {
         var fromSelect, toSelect, options, i;
-        fromSelect = document.getElementById(from + "-aziende");
-        toSelect = document.getElementById(to + "-aziende");
+        fromSelect = document.getElementById(from + "-utenti");
+        toSelect = document.getElementById(to + "-utenti");
         options = fromSelect.getElementsByTagName("option");
         for (i = options.length - 1; i >= 0; i--) {
             if (options[i].selected) {
@@ -85,7 +78,7 @@
 
     function submitForm() {
         var select, options, i;
-        select = document.getElementById("chosen-aziende");
+        select = document.getElementById("chosen-utenti");
         options = select.getElementsByTagName("option");
         for (i = 0; i < options.length; i++) {
             options[i].selected = true;

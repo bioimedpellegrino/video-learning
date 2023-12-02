@@ -132,6 +132,38 @@ class AziendeView(View):
             return HttpResponse({"message": "ok", "status": 200})
         else:
             return HttpResponse({"message": "ko", "status": 403})
+        
+from django.shortcuts import get_object_or_404
+
+class DettagliAziendaView(View):
+    template_name = 'home/dettagli-azienda.html'
+
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def get(self, request, *args, **kwargs):
+        azienda_id = kwargs.get('id_azienda')
+        azienda = get_object_or_404(Azienda, id=azienda_id)
+        utenti_azienda = azienda.utenti.all()
+        utenti_no_azienda = CustomUser.objects.filter(azienda__isnull=True)
+
+        context = {
+            'azienda': azienda,
+            'utenti_azienda': utenti_azienda,
+            'utenti_no_azienda': utenti_no_azienda,
+        }
+
+        return render(request, self.template_name, context)
+
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def post(self, request, *args, **kwargs):
+        azienda_id = kwargs.get('azienda_id')
+        azienda = get_object_or_404(Azienda, id=azienda_id)
+        utenti_selezionati = request.POST.getlist('utenti_selezionabili')
+
+        if utenti_selezionati:
+            utenti = CustomUser.objects.filter(pk__in=utenti_selezionati)
+            utenti.update(azienda=azienda)
+
+        return redirect('azienda_detail', azienda_id=azienda.id)
 
 # Per adesso creo solo il nome dell'azienda e lascio la lista utenti da aggiungere vuota perchè associo l'azienda unica già in fase di creazione utente
 # Se per il futuro un utente potrà avere più di una azienda associata potremo usare questa view e modificare il campo azienda di CustomUser 

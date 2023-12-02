@@ -26,6 +26,7 @@
 
 {% if quiz_attempt.risultati.test_superato %}
     <p class="alert alert-success">Test superato!</p>
+    <!-- Da abilitare solo per admin -->
     <a href="{% url 'scarica_attestato' id_corso=quiz_attempt.quiz.video_corso.id %}" class="btn btn-primary">Scarica Attestato</a>
 {% else %}
     <p class="alert alert-danger">Test non superato!</p>

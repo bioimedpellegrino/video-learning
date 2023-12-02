@@ -16,6 +16,7 @@ urlpatterns = [
     path("amministrazione/aziende/", AziendeView.as_view(), name="aziende"),
     path("amministrazione/aggiungi_azienda/", AggiungiAziendaView.as_view(), name="aggiungi_azienda"),
     path("amministrazione/azienda/<int:id_azienda>/", AziendeView.as_view(), name="aziende"),
+    path("amministrazione/azienda/<int:id_azienda>/dettaglio", DettagliAziendaView.as_view(), name="dettagli_azienda"),
     path("amministrazione/lista_utenti/", UtentiView.as_view(), name="lista_utenti"),
     path("amministrazione/videocorsi/", VideoCorsiView.as_view(), name="videocorsi"),
     path("amministrazione/caricavideocorsi/", UploadVideoCorsiView.as_view(), name="caricavideocorsi"),
