@@ -34,7 +34,9 @@
                 <td>{{azienda.utenti.all.count}}</td>
                 <td>{{azienda.video_corsi.all.count}}</td>
                 <td>
-                    <div class="btn-group">
+                    <!-- Bottone che reindirizza a Dettagli azienda -->
+                    <a href="{% url 'dettagli_azienda' azienda.id %}" class="btn btn-primary">Dettagli</a>
+                    <!-- <div class="btn-group">
                         <button class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="icon icon-sm">
                                 <span class="fas fa-ellipsis-h icon-dark"></span>
@@ -42,11 +44,11 @@
                             <span class="visually-hidden">Dropdown</span>
                         </button>
                         <div class="dropdown-menu py-0">
+                            <a class="dropdown-item" href="{% url 'dettagli_azienda' azienda.id %}"><span class="fas fa-info-circle me-2"></span>Dettagli</a>
                             <a class="dropdown-item rounded-top" data-bs-toggle="modal" data-bs-target="#listaUtenti" onclick="setUtenti({{azienda.get_utenti_serialized|safe}})" href="#"><span class="fas fa-eye me-2"></span>Vedi utenti</a>
                             <a class="dropdown-item text-danger rounded-bottom elimina-btn" data-id="{{azienda.id}}" data-name="{{azienda.nome}}" href="#"><span class="fas fa-trash-alt me-2"></span>Elimina</a>
-                            <a class="dropdown-item" href="{% url 'dettagli_azienda' azienda.id %}"><span class="fas fa-info-circle me-2"></span>Dettagli</a>
                         </div>
-                    </div>
+                    </div> -->
                 </td>
             </tr>
             {% endfor %}

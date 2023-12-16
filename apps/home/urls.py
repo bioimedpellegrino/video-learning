@@ -26,7 +26,7 @@ urlpatterns = [
     path("amministrazione/mail/<int:id>/", SentMailView.as_view(), name="sent_mail_detail"),
 
     # Pagine utente
-    path("utente/profilo/", ProfiloView.as_view(), name="utente_profilo"),
+    path("utente/profilo/<int:id_utente>", ProfiloView.as_view(), name="utente_profilo"),
     path("utente/corsi/", CorsiView.as_view(), name="utente_corsi"),
     path("utente/corso/<int:id_corso>/dettagli", DettagliCorsoView.as_view(), name="utente_corso_dettaglio"),
     path("utente/corso/<int:id_corso>/crea_quiz", CreaQuizView.as_view(), name="crea_quiz"),

@@ -262,10 +262,23 @@ class ProfiloView(View):
     @method_decorator(login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'utente_profilo'}
-        custom_user = CustomUser.objects.get(user=request.user)
-        azienda = custom_user.azienda
+        user_id = kwargs.get('id_utente')
+        is_admin = False
+        if request.user.username == 'admin' and user_id == request.user.id:
+            return redirect('amministrazione')
+        elif request.user.username == 'admin' and user_id != request.user.id:
+            is_admin = True
+
+        utente = CustomUser.objects.get(id=user_id)
+        azienda = utente.azienda
         corsi_utente = azienda.video_corsi.all()
-        context = { 'segment' : 'utente_profilo', 'corsi_utente': corsi_utente}
+
+        
+        context = { 'segment' : 'utente_profilo',
+                    'utente': utente,
+                    'is_admin': is_admin,
+                   'corsi_utente': corsi_utente,
+                   }
         return render(request, self.template_name, context)
     
     @method_decorator(login_required(login_url="/login/"))
@@ -463,9 +476,11 @@ class AmministrazioneView(View):
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         if request.user.is_superuser:
+            user = request.user
             aziende = Azienda.objects.all()
             video_corsi = VideoCorso.objects.all()
             context = {
+                'utente': user,
                 'aziende': aziende,
                 'video_corsi': video_corsi,
             }
@@ -561,6 +576,7 @@ class AggiungiUtenteView(View):
                 to_who=email,
                 subject="Benvenuto!",
                 html_text="Benvenuto, {}! Il tuo account è stato creato con successo.".format(nome),
+                request_date = datetime.datetime.now(),
             )
             mail.save()
         
@@ -658,17 +674,19 @@ class QuizView(View):
             # Salvo il PDF in un file temporaneo che si trova nella cartella media/attestati
             import shutil
 
-            directory = "attestati"
+            directory = f"media/attestati/{request.user.username}_{request.user.customuser.id}"
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
             # Crea il file nel percorso originale
-            filename_originale = f"{request.user.username}_{quiz_attempt.quiz.video_corso.titolo}.pdf"
+            filename_originale = f"{quiz_attempt.quiz.video_corso.titolo}.pdf"
             with open(filename_originale, 'wb') as f:
                 f.write(buffer.getvalue())
 
             # Sposto il file nella cartella media/attestati
-            filename_destinazione = f"media/{directory}/{filename_originale}"
+            filename_destinazione = os.path.join(directory, filename_originale)
+            if os.path.exists(filename_destinazione):
+                os.remove(filename_destinazione)
             shutil.move(filename_originale, filename_destinazione)
 
             # Creo un nuovo AttestatiVideo con il percorso al file PDF
@@ -676,7 +694,7 @@ class QuizView(View):
                 utente=request.user,
                 video_corso=quiz_attempt.quiz.video_corso,
                 data_conseguimento=quiz_attempt.timestamp,
-                pdf=filename_destinazione,
+                pdf=filename_destinazione
             )        
 
 

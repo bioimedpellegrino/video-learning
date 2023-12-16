@@ -11,6 +11,33 @@
 {% block content %}
 <h1>{{ azienda.nome }}</h1>
 
+<div class="table-responsive">
+    <table class="table align-items-center table-flush">
+        <thead class="thead-light">
+            <tr>
+                <th class="border-bottom" scope="col">Nome</th>
+                <th class="border-bottom" scope="col">Cognome</th>
+                <th class="border-bottom" scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for utente in utenti_azienda %}
+                <tr>
+                    <th class="text-gray-900" scope="row">
+                        {{ utente.user.first_name }}
+                    </th>
+                    <td class="fw-bolder text-gray-500">
+                        {{ utente.user.last_name }}
+                    </td>
+                    <td class="fw-bolder text-gray-500">
+                        <a href="{% url 'utente_profilo' utente.id %}" class="btn btn-primary">Visualizza profilo</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 <form id="form" method="post">
     {% csrf_token %}
     <div id="associazione-utenti-wrapper">
@@ -25,8 +52,8 @@
                 </select>
             </div>
             <div class="actions">
-                <button type="button" onclick="moveSelected('available', 'chosen')"> > </button>
-                <button type="button" onclick="moveSelected('chosen', 'available')"> < </button>
+                <button class="btn-action" type="button" onclick="moveSelected('available', 'chosen')"> > </button>
+                <button class="btn-action" type="button" onclick="moveSelected('chosen', 'available')"> < </button>
             </div>
             <div class="chosen-items">
                 <h3>Utenti associati</h3>
@@ -44,6 +71,8 @@
         </div>
     </div>
 </form>
+
+
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->

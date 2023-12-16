@@ -137,7 +137,7 @@
                         </div>
                       </a>
                       <div class="dropdown-menu dashboard-dropdown dropdown-menu-end mt-2 py-1">
-                        <a class="dropdown-item d-flex align-items-center" href="{% url 'utente_profilo' %}">
+                        <a class="dropdown-item d-flex align-items-center" href="{% url 'utente_profilo' request.user.customuser.id %}">
                           <span><i class="fa-solid fa-user" style="color: #000000;"></i></span>
                           <span>Profilo</span>
                         </a>

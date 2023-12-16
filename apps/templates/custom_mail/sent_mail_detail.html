@@ -25,6 +25,12 @@
             </tr>
         </tbody>
     </table>
+    <h2>Contenuto</h2>
+    <textarea class="form-control" rows="10" readonly>{{ mail.html_text }}</textarea>
+
+    <br>
+    <a href="{% url 'sent_mail_list' %}" class="btn btn-primary">Indietro</a>
+
 {% endblock content %}
 
 {% block javascripts %}

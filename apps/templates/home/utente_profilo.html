@@ -6,7 +6,41 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
+<h1>Profilo di {{ utente.user.first_name }} {{ utente.user.last_name }}</h1>
 
+<div class="col-12 mb-4">
+    <div class="card border-0 shadow">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="fs-5 fw-bold mb-0">Video corsi</h2>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Titolo del corso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for corso in corsi_utente %}
+                        <tr>
+                            <td>{{ corso.titolo }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Tasto indietro, se l'utente è admin riporta alla al dettaglio dell'aziend -->
+{% if is_admin %}
+    <a href="{% url 'dettagli_azienda' utente.azienda.id %}" class="btn btn-primary">Indietro</a>
+{% else %}
+{% endif %}
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
