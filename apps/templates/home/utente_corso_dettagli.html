@@ -48,7 +48,15 @@
     </div>
     {% else %}    
     <a href="{% url 'utente_corsi' %}" class="btn btn-secondary me-2">Indietro</a>
-    <a href="{% url 'quiz' videocorso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
+    <a href="{% url 'video_corso_utente' videocorso.id %}" class="btn btn-success me-2">Guarda il video corso</a>
+    <!-- se svolgimento esami è false disabilito il bottone quiz -->
+    {% if svolgimento_esame %}
+        <a href="{% url 'quiz' videocorso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
+    {% else %}
+    <div title="Devi completare il video corso per effettuare il quiz">
+        <a href="{% url 'quiz' videocorso.id %}" class="btn btn-primary me-2 disabled">Effettua Quiz</a>
+    </div>
+    {% endif %}
     {% endif %}
 </form>
 {% endblock content %}

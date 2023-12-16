@@ -86,7 +86,7 @@ class StatoVideo(models.Model):
     totale_secondi_visualizzati = models.IntegerField(blank=True, null=True, default=0, verbose_name="Totale secondi visualizzati")
 
     def __str__(self):
-        return f"{self.utente.user.username} - {self.video_corso.titolo}"   
+        return f"{self.utente}-{self.video_corso}"   
     class Meta:
         unique_together = (("utente", "video_corso"),)
         verbose_name_plural = "Stati Video"

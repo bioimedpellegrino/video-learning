@@ -5,6 +5,12 @@
 {% block content %}
 <h1>{{ quiz.titolo }}</h1>
 
+{% if alert %}
+<div class="alert alert-{{ alert.type }}" role="alert">
+   {{alert}}
+</div>
+{% endif %}
+
 <form method="post">
     {% csrf_token %}
     {% for domanda in quiz.domande.all %}
@@ -21,6 +27,6 @@
     </div>
 {% endfor %}
     <button type="submit" class="btn btn-success">Invia</button>
-    <a href="{% url 'videocorsi' %}" class="btn btn-secondary">Indietro</a>
+    <a href="{% url 'utente_corso_dettaglio' videocorso.id %}" class="btn btn-secondary">Indietro</a>
 </form>
 {% endblock content %}

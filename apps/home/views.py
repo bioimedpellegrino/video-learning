@@ -314,17 +314,23 @@ class DettagliCorsoView(View):
     template_name = 'home/utente_corso_dettagli.html'
 
     def get(self, request, *args, **kwargs):
+        svolgimento_esame = False
         videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
-        utenti = CustomUser.objects.all()
+        utente = CustomUser.objects.get(user=request.user)
         aziende_all = Azienda.objects.all()
         aziende_video_corso = videocorso.aziende.all()
         aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_video_corso.values_list('id', flat=True))
+        video = StatoVideo.objects.filter(video_corso=videocorso, utente=utente).first()
+
+        if video and video.completato:
+            svolgimento_esame = True
 
         context = {
             'segment' : 'utente_corso_dettaglio',
             'aziende_non_aggiunte': aziende_non_aggiunte,
             'aziende_video_corso': aziende_video_corso,
             'videocorso': videocorso,
+            'svolgimento_esame': svolgimento_esame,
         }
         return render(request, self.template_name, context)
     
@@ -626,9 +632,12 @@ class QuizView(View):
 
     def get(self, request, *args, **kwargs):
         videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        alert = None
         # seleziono il quiz relativo al videocorso, l'ultimo creato
         quiz = Quiz.objects.filter(video_corso=videocorso).last()
-        return render(request, self.template_name, {'quiz': quiz})
+        if quiz is None:
+            alert = "Non è stato ancora creato un quiz per questo corso."
+        return render(request, self.template_name, {'quiz': quiz, 'videocorso': videocorso, 'alert': alert})
 
     def post(self, request, *args, **kwargs):
         videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))

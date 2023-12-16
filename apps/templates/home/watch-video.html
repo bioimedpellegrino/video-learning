@@ -40,7 +40,9 @@
       <i class="fa-solid fa-play" style="color: #ffffff;"></i> <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Riproduci / Interrompi
     </button>
   </div>
-
+  <div class="d-flex justify-content-center mt-5">
+    <a href="{% url 'utente_corso_dettaglio' video_corso.id%}" class="btn btn-secondary me-2">Indietro</a>
+  </div>
   <div class="p-5">
     <div class="mt-5 mb-3">
       <span class="h6 fw-bold">Descrizione</span>
