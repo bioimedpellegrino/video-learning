@@ -22,12 +22,18 @@
                 <thead class="thead-light">
                     <tr>
                         <th>Titolo del corso</th>
+                        <th>Secondi visualizzati</th>
+                        <th>Durata totale</th>
+                        <th>Percentuale completamento</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for corso in corsi_utente %}
                         <tr>
                             <td>{{ corso.titolo }}</td>
+                            <td>{{ corso.stati_video.first.totale_secondi_visualizzati }}</td>
+                            <td>{{ corso.durata_video }}</td>
+                            <td class="completion-percentage" data-seconds-viewed="{{ corso.stati_video.first.totale_secondi_visualizzati }}" data-total-seconds="{{ corso.durata_video }}"></td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -45,5 +51,14 @@
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
+
+<script>
+    document.querySelectorAll('.completion-percentage').forEach(function(td) {
+        var secondsViewed = parseFloat(td.dataset.secondsViewed);
+        var totalSeconds = parseFloat(td.dataset.totalSeconds);
+        var percentage = totalSeconds > 0 ? (secondsViewed / totalSeconds) * 100 : 0;
+        td.textContent = percentage.toFixed(2) + '%';
+    });
+</script>
 
 {% endblock javascripts %}

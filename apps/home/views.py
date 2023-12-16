@@ -272,7 +272,6 @@ class ProfiloView(View):
         utente = CustomUser.objects.get(id=user_id)
         azienda = utente.azienda
         corsi_utente = azienda.video_corsi.all()
-
         
         context = { 'segment' : 'utente_profilo',
                     'utente': utente,
