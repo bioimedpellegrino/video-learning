@@ -86,7 +86,14 @@ class StatoVideo(models.Model):
     totale_secondi_visualizzati = models.IntegerField(blank=True, null=True, default=0, verbose_name="Totale secondi visualizzati")
 
     def __str__(self):
-        return f"{self.utente}-{self.video_corso}"   
+        return f"{self.utente}-{self.video_corso}"
+    
+    def percentuale_completamento(self):
+        if self.video_corso.durata_video and self.video_corso.durata_video > 0:
+            return round((self.totale_secondi_visualizzati / self.video_corso.durata_video) * 100, 2)
+        else:
+            return 0
+
     class Meta:
         unique_together = (("utente", "video_corso"),)
         verbose_name_plural = "Stati Video"

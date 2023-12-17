@@ -25,6 +25,7 @@
                         <th>Secondi visualizzati</th>
                         <th>Durata totale</th>
                         <th>Percentuale completamento</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,7 +34,12 @@
                             <td>{{ corso.titolo }}</td>
                             <td>{{ corso.stati_video.first.totale_secondi_visualizzati }}</td>
                             <td>{{ corso.durata_video }}</td>
-                            <td class="completion-percentage" data-seconds-viewed="{{ corso.stati_video.first.totale_secondi_visualizzati }}" data-total-seconds="{{ corso.durata_video }}"></td>
+                            <td>{{corso.stati_video.first.percentuale_completamento}} %</td>
+                            <td>
+                                <div class="progress mb-0">
+                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="{{corso.stati_video.first.percentuale_completamento}}" aria-valuemin="0" aria-valuemax="100" style="width: {{corso.stati_video.first.percentuale_completamento|floatformat:0}}%;"></div>
+                                </div>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

@@ -18247,7 +18247,7 @@ label {
   padding: 1rem; }
 
 .table td .progress {
-  height: 3px;
+  height: 0.5vh;
   width: 120px;
   margin: 0; }
 
