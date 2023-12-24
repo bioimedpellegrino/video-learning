@@ -155,15 +155,26 @@ class DettagliAziendaView(View):
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
-        azienda_id = kwargs.get('azienda_id')
+        azienda_id = kwargs.get('id_azienda')
         azienda = get_object_or_404(Azienda, id=azienda_id)
-        utenti_selezionati = request.POST.getlist('utenti_selezionabili')
-
-        if utenti_selezionati:
-            utenti = CustomUser.objects.filter(pk__in=utenti_selezionati)
+        utenti_associati = request.POST.getlist('utenti_associati')
+        utenti_disponibili = request.POST.getlist('utenti_disponibili')
+        
+        if utenti_associati:
+            utenti = CustomUser.objects.filter(pk__in=utenti_associati)
             utenti.update(azienda=azienda)
+        
+        if utenti_disponibili:
+            utenti = CustomUser.objects.filter(pk__in=utenti_disponibili)
+            utenti.update(azienda=None)
 
-        return redirect('azienda_detail', azienda_id=azienda.id)
+        context = {
+            'azienda': azienda,
+            'utenti_azienda': azienda.utenti.all(),
+            'utenti_no_azienda': CustomUser.objects.filter(azienda__isnull=True),
+        }
+
+        return redirect('dettagli_azienda', id_azienda=azienda_id)
 
 # Per adesso creo solo il nome dell'azienda e lascio la lista utenti da aggiungere vuota perchè associo l'azienda unica già in fase di creazione utente
 # Se per il futuro un utente potrà avere più di una azienda associata potremo usare questa view e modificare il campo azienda di CustomUser 

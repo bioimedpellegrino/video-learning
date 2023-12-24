@@ -45,7 +45,7 @@
             <div class="available-items">
                 <h3>Utenti disponibili</h3>
                 <input type="text" id="search-available" placeholder="Cerca..." onkeyup="filterOptions('available')">
-                <select id="available-utenti" multiple>
+                <select id="available-utenti" name="utenti_disponibili" multiple>
                     {% for utente in utenti_no_azienda %}
                         <option value="{{ utente.id }}">{{ utente.user.first_name }} {{ utente.user.last_name }}</option>
                     {% endfor %}
@@ -58,7 +58,7 @@
             <div class="chosen-items">
                 <h3>Utenti associati</h3>
                 <input type="text" id="search-chosen" placeholder="Cerca..." onkeyup="filterOptions('chosen')">
-                <select id="chosen-utenti" name="utenti" multiple>
+                <select id="chosen-utenti" name="utenti_associati" multiple>
                     {% for utente in utenti_azienda %}
                         <option value="{{ utente.id }}">{{ utente.user.first_name }} {{ utente.user.last_name }}</option>
                     {% endfor %}

@@ -50,7 +50,7 @@
 
 <!-- Tasto indietro, se l'utente è admin riporta alla al dettaglio dell'aziend -->
 {% if is_admin %}
-    <a href="{% url 'dettagli_azienda' utente.azienda.id %}" class="btn btn-primary">Indietro</a>
+    <a href="{% url 'amministrazione' %}" class="btn btn-primary">Indietro</a>
 {% else %}
 {% endif %}
 {% endblock content %}
