@@ -3,6 +3,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login
+from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
@@ -17,6 +18,7 @@ from django.shortcuts import get_object_or_404
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from io import BytesIO
+import json
 import os
 
 import datetime
@@ -244,12 +246,36 @@ class UtentiView(View):
 class VideoCorsiView(View):
     template_name = 'home/video-corsi.html'
 
-    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    @method_decorator(login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'amministrazione-videocorsi'}
-        #TODO
-        video_corsi = VideoCorso.objects.all()
-        context["video_corsi"] = video_corsi
+        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+        utente = CustomUser.objects.get(user=request.user)        
+        if request.user.is_superuser:
+            videocorsi = VideoCorso.objects.all()
+            context["videocorsi"] = videocorsi
+            context["corso"] = corso        
+            return render(request, self.template_name, context)
+        # videocorsi = list(VideoCorso.objects.filter(aziende=utente.azienda).order_by('ordine'))
+        # i videocorsi di del corso
+        videocorsi = list(corso.video_corsi.all().order_by('ordine'))
+        # gli stati video dei video corsi dell'utente
+        stati_video = StatoVideo.objects.filter(video_corso__in=videocorsi, utente=utente)
+        # Devo controllare se il video corso è stato completato dall'utente altrimenti disabilito il pulsante dei corsi successivi
+        # Add an attribute to each videocorso that indicates whether the previous videocorso has been completed
+        for i in range(len(videocorsi)):
+            if i == 0:
+                videocorsi[i].prev_completed = True
+                continue
+            prev_videocorso = videocorsi[i-1]
+            prev_stato_video = stati_video.filter(video_corso=prev_videocorso).first()
+            if prev_stato_video:
+                videocorsi[i].prev_completed = prev_stato_video.completato
+            else:
+                videocorsi[i].prev_completed = False
+
+        context["videocorsi"] = videocorsi
+        context["corso"] = corso
         return render(request, self.template_name, context)
 
 class UploadVideoCorsiView(View):
@@ -305,8 +331,8 @@ class CorsiView(View):
         if not request.user.is_staff:
             context = { 'segment' : 'utente_corsi'}
             # Se l'utente deve avere corsi specifici e non tutti quelli dell'azienda uso var video_corsi_spec
-            video_corsi = VideoCorso.objects.filter(aziende=request.user.customuser.azienda)
-            context["video_corsi"] = video_corsi
+            corsi = Corso.objects.filter(aziende=request.user.customuser.azienda)
+            context["corsi"] = corsi
             return render(request, self.template_name, context)
         else:
             return redirect('amministrazione')
@@ -324,49 +350,124 @@ class DettagliCorsoView(View):
     template_name = 'home/utente_corso_dettagli.html'
 
     def get(self, request, *args, **kwargs):
+        # svolgimento_esame = False
+        # videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        # utente = CustomUser.objects.get(user=request.user)
+        # aziende_all = Azienda.objects.all()
+        # aziende_video_corso = videocorso.aziende.all()
+        # aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_video_corso.values_list('id', flat=True))
+        # video = StatoVideo.objects.filter(video_corso=videocorso, utente=utente).first()
+
         svolgimento_esame = False
-        videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
         utente = CustomUser.objects.get(user=request.user)
         aziende_all = Azienda.objects.all()
-        aziende_video_corso = videocorso.aziende.all()
-        aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_video_corso.values_list('id', flat=True))
-        video = StatoVideo.objects.filter(video_corso=videocorso, utente=utente).first()
+        aziende_corso = corso.aziende.all()
+        aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_corso.values_list('id', flat=True))
+        # video corsi
+        videocorsi = VideoCorso.objects.all()
+        videocorsi_non_aggiunti = videocorsi.exclude(id__in=corso.video_corsi.values_list('id', flat=True))
+        docenti = CustomUser.objects.filter(user__is_staff=True)
+        docenti_non_aggiunti = docenti.exclude(id__in=corso.docenti.values_list('id', flat=True))
+        # gli stati video relativi ai video corsi del corso
+        stati_video = StatoVideo.objects.filter(video_corso__in=corso.video_corsi.all(), utente=utente)
 
-        if video and video.completato:
-            svolgimento_esame = True
+        # if video and video.completato:
+        #     svolgimento_esame = True
 
         context = {
             'segment' : 'utente_corso_dettaglio',
             'aziende_non_aggiunte': aziende_non_aggiunte,
-            'aziende_video_corso': aziende_video_corso,
-            'videocorso': videocorso,
+            'aziende_corso': aziende_corso,
+            'videocorsi_non_aggiunti': videocorsi_non_aggiunti,
+            'videocorsi_corso': corso.video_corsi.all(),
+            'docenti_non_aggiunti': docenti_non_aggiunti,
+            'docenti_corso': corso.docenti.all(),
+            'corso': corso,
             'svolgimento_esame': svolgimento_esame,
         }
         return render(request, self.template_name, context)
     
     @method_decorator(login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
-        videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        # videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        # utenti = CustomUser.objects.all()
+        # aziende_all = Azienda.objects.all()
+        # id_aziende_aggiunte = request.POST.getlist('aziende')
+        # aziende_video_corso = videocorso.aziende.all()
+        # aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_video_corso.values_list('id', flat=True))
+
+        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
         utenti = CustomUser.objects.all()
         aziende_all = Azienda.objects.all()
         id_aziende_aggiunte = request.POST.getlist('aziende')
-        aziende_video_corso = videocorso.aziende.all()
-        aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_video_corso.values_list('id', flat=True))
+        aziende_corso = corso.aziende.all()
+        aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_corso.values_list('id', flat=True))
+        videocorsi = VideoCorso.objects.all()
+        videocorsi_non_aggiunti = videocorsi.exclude(id__in=corso.video_corsi.values_list('id', flat=True))
+        docenti = CustomUser.objects.filter(user__is_staff=True)
+        docenti_non_aggiunti = docenti.exclude(id__in=corso.docenti.values_list('id', flat=True))
 
         for id_azienda in id_aziende_aggiunte:
             azienda = Azienda.objects.get(pk=id_azienda)
-            if azienda not in videocorso.aziende.all():
-                videocorso.aziende.add(azienda)
-        for azienda in videocorso.aziende.all():
+            if azienda not in corso.aziende.all():
+                corso.aziende.add(azienda)
+        for azienda in corso.aziende.all():
             if str(azienda.id) not in id_aziende_aggiunte:
-                videocorso.aziende.remove(azienda)
-        aziende_video_corso = videocorso.aziende.all()      
+                corso.aziende.remove(azienda)
+        aziende_corso = corso.aziende.all()      
+
+        # aggiungere o rimuovere i videocorsi al corso
+        id_videocorsi_aggiunti = request.POST.getlist('videocorsi')
+        for id_videocorso in id_videocorsi_aggiunti:
+            videocorso = VideoCorso.objects.get(pk=id_videocorso)
+            if videocorso not in corso.video_corsi.all():
+                corso.video_corsi.add(videocorso)
+        for videocorso in corso.video_corsi.all():
+            if str(videocorso.id) not in id_videocorsi_aggiunti:
+                corso.video_corsi.remove(videocorso)
+        videocorsi_corso = corso.video_corsi.all()
+
+        # Aggiorno il campo aziende dei videocorsi associati al corso per le aziende aggiunte
+        for videocorso in corso.video_corsi.all():
+            for azienda in aziende_corso:
+                if azienda not in videocorso.aziende.all():
+                    videocorso.aziende.add(azienda)
+            for azienda in videocorso.aziende.all():
+                if azienda not in aziende_corso:
+                    videocorso.aziende.remove(azienda)
+
+        # aggiungere o rimuovere i docenti al corso
+        id_docenti_aggiunti = request.POST.getlist('docenti')
+        for id_docente in id_docenti_aggiunti:
+            docente = CustomUser.objects.get(pk=id_docente)
+            if docente not in corso.docenti.all():
+                corso.docenti.add(docente)
+        for docente in corso.docenti.all():
+            if str(docente.id) not in id_docenti_aggiunti:
+                corso.docenti.remove(docente)
+        docenti_corso = corso.docenti.all()
+
+        # update order of videocorsi
+        try:
+            new_order = json.loads(request.POST.get('order'))
+            for item in new_order:
+                videocorso = VideoCorso.objects.get(pk=item['id'])
+                videocorso.ordine = item['order']
+                videocorso.save()
+        except Exception as e:
+            print(e)
+            pass
 
         context = {
             'segment' : 'utente_corso_dettaglio',
             'aziende_non_aggiunte': aziende_non_aggiunte,
-            'aziende_video_corso': aziende_video_corso,
-            'videocorso': videocorso,
+            'aziende_corso': aziende_corso,
+            'videocorsi_non_aggiunti': videocorsi_non_aggiunti,
+            'videocorsi_corso': videocorsi_corso,
+            'docenti_non_aggiunti': docenti_non_aggiunti,
+            'docenti_corso': docenti_corso,
+            'corso': corso,
         }
         return render(request, self.template_name, context)
 
@@ -378,19 +479,28 @@ class WatchVideoCorsoView(View):
         context = { 'segment' : 'miei_corsi'}
         id_video = kwargs.get('id_video')
         custom_user = CustomUser.objects.get(user=request.user)
+        video_corso = VideoCorso.objects.get(pk=id_video)
+        # il corso a cui è associato il videocorso
+        corso = video_corso.corsi.first()
+
+        if video_corso.ordine > 1:
+            video_corso_precedente = VideoCorso.objects.get(ordine=video_corso.ordine - 1)
+            stato_precedente = StatoVideo.objects.filter(utente=custom_user, video_corso=video_corso_precedente, completato=True).exists()
+            if not stato_precedente:
+                return render(request, 'home/page-404.html')
+
         try:
             video_corso = VideoCorso.objects.get(pk=id_video)
             context['breadcrumb_level_1'] = video_corso.titolo
         except VideoCorso.DoesNotExist:
             return render(request, 'home/page-404.html')
         
-        if not custom_user.azienda in video_corso.aziende.all():
-            return render(request, 'home/page-403.html')
         else:
             stato_video, _ = StatoVideo.objects.get_or_create(utente=custom_user, video_corso=video_corso)
             context["video_corso"] = video_corso
             context["custom_user"] = custom_user
             context["stato_video"] = stato_video
+            context["corso"] = corso
             return render(request, self.template_name, context)
     
     def post(self, request, *args, **kwargs):
@@ -442,10 +552,90 @@ class WatchVideoCorsoView(View):
         stato_video.save()
             
         return HttpResponse({"message": "ok", "status": 200})
+    
+class ConfiguraModuliView(View):
+    template_name = 'home/configura-moduli.html'
+
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def get(self, request, *args, **kwargs):
+        context = { 'segment' : 'miei_corsi'}
+        
+        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+        custom_user = CustomUser.objects.get(user=request.user)
+
+        # Get the list of VideoCorsi for this Corso
+        videocorsi_corso = corso.video_corsi.all()
+        context['videocorsi_corso'] = videocorsi_corso
+        context['corso'] = corso
+
+        return render(request, self.template_name, context)
+    
+    @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
+    def post(self, request, *args, **kwargs):
+        pass
+    
+    
+class SalvaModuloView(View):
+    def post(self, request, *args, **kwargs):
+        from django.core.exceptions import ValidationError
+        context = { 'segment' : 'miei_corsi'}
+        
+        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+        videocorsi_corso = corso.video_corsi.all()        
+        custom_user = CustomUser.objects.get(user=request.user)
+        aziende = corso.aziende.all()
+
+        # Handle adding a new VideoCorso
+        titolo = request.POST.get('titolo')
+        descrizione = request.POST.get('descrizione')
+        ordine = request.POST.get('ordine')
+        video_file = request.FILES.get('video_file')
+        poster_file = request.FILES.get('poster_file')
+        external_url = request.POST.get('external_url')
+
+        try:
+            videocorso = VideoCorso.objects.create(
+                titolo=titolo,
+                descrizione=descrizione,
+                ordine=ordine,
+                video_file=video_file,
+                poster_file=poster_file,
+                external_url=external_url,
+            )
+            videocorso.aziende.set(aziende)
+            videocorso.save()
+            corso.video_corsi.add(videocorso)
+            corso.save()
+
+            messages.success(request, 'VideoCorso aggiunto con successo.')
+        except ValidationError as e:
+            messages.error(request, 'Errore nell\'aggiunta del VideoCorso: ' + str(e))
+        return redirect('configura_moduli', id_corso=corso.id)
+
+class OrdinaVideocorsiView(View):
+    def post(self, request, *args, **kwargs):
+        context = { 'segment' : 'miei_corsi'}
+        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+        videocorsi_corso = corso.video_corsi.all()        
+        custom_user = CustomUser.objects.get(user=request.user)
+        try:
+            new_order = json.loads(request.POST.get('order'))
+            for item in new_order:
+                videocorso = VideoCorso.objects.get(pk=item['id'])
+                videocorso.ordine = item['order']
+                videocorso.save()
+        except Exception as e:
+            print(e)
+            pass
+
+        context['videocorsi_corso'] = videocorsi_corso
+        context['corso'] = corso
+
+        return redirect('configura_moduli', id_corso=corso.id)
 
 def scarica_attestato(request, id_corso):
     try:
-        attestato = AttestatiVideo.objects.filter(utente=request.user, video_corso__id=id_corso).order_by('-data_conseguimento')[0]
+        attestato = AttestatiVideo.objects.filter(utente=request.user, corso__id=id_corso).order_by('-data_conseguimento')[0]
     except IndexError:
         raise Http404("Attestato non trovato.")
     try:
@@ -494,11 +684,11 @@ class AmministrazioneView(View):
         if request.user.is_superuser:
             user = request.user
             aziende = Azienda.objects.all()
-            video_corsi = VideoCorso.objects.all()
+            corsi = Corso.objects.all()
             context = {
                 'utente': user,
                 'aziende': aziende,
-                'video_corsi': video_corsi,
+                'corsi': corsi,
             }
             return render(request, self.template_name, context)
         else:
@@ -525,9 +715,10 @@ class AggiungiCorsoView(View):
             
             aziende_ids = [int(id) for id in request.POST.getlist('aziende')]
             aziende = Azienda.objects.filter(id__in=aziende_ids)
-            video_corso = VideoCorso.objects.create(titolo=titolo, video_file=video_file)
-            video_corso.aziende.set(aziende)
-            video_corso.save()
+            # video_corso = VideoCorso.objects.create(titolo=titolo, video_file=video_file)
+            corso = Corso.objects.create(titolo=titolo)
+            corso.aziende.set(aziende)
+            corso.save()
             return HttpResponseRedirect(reverse('amministrazione'))
         else:
             return HttpResponseRedirect(reverse('home'))
@@ -608,17 +799,18 @@ class CreaQuizView(View):
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
         # Assumi che 'id' sia l'ID del VideoCorso. Ottienilo dai kwargs o in qualche altro modo.
-        videocorso_id = kwargs.get('id_corso')
-        videocorso = VideoCorso.objects.get(pk=videocorso_id)
-        return render(request, self.template_name, {'videocorso': videocorso})
+        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+        # i videocorsi associati al corso
+        videocorsi = corso.video_corsi.all()
+        return render(request, self.template_name, {'videocorso': videocorsi, 'corso': corso})
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
-        videocorso_id = kwargs.get('id_corso')
-        videocorso = VideoCorso.objects.get(pk=videocorso_id)
+        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+        videocorsi = corso.video_corsi.all()
         titolo_quiz = request.POST.get('titolo_quiz')
 
-        quiz = Quiz.objects.create(video_corso=videocorso, titolo=titolo_quiz)
+        quiz = Quiz.objects.create(corso=corso, titolo=titolo_quiz)
 
         # Itera attraverso le domande inviate
         for key in request.POST:
@@ -634,24 +826,26 @@ class CreaQuizView(View):
                     corretta = request.POST.get(f'risposta_corretta_{num_domanda}') == f'opzione_{i}'
                     OpzioneRisposta.objects.create(domanda=domanda, testo_opzione=testo_opzione, corretta=corretta)
 
-        return redirect('utente_corso_dettaglio', id_corso=videocorso_id)
+        return redirect('utente_corso_dettaglio', id_corso=corso.id)
     
 # vista per eseguire il quiz
 class QuizView(View):
     template_name = 'home/quiz.html'
 
     def get(self, request, *args, **kwargs):
-        videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        # videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
         alert = None
-        # seleziono il quiz relativo al videocorso, l'ultimo creato
-        quiz = Quiz.objects.filter(video_corso=videocorso).last()
+        # seleziono il quiz relativo al corso, l'ultimo creato
+        quiz = Quiz.objects.filter(corso=corso).last()
         if quiz is None:
             alert = "Non è stato ancora creato un quiz per questo corso."
-        return render(request, self.template_name, {'quiz': quiz, 'videocorso': videocorso, 'alert': alert})
+        return render(request, self.template_name, {'quiz': quiz, 'corso': corso, 'alert': alert})
 
     def post(self, request, *args, **kwargs):
-        videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
-        quiz = Quiz.objects.filter(video_corso=videocorso).last()
+        # videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
+        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+        quiz = Quiz.objects.filter(corso=corso).last()
 
         risultati = {}
         risposte_corrette = 0 
@@ -684,7 +878,7 @@ class QuizView(View):
             p.drawString(100, 700, "Attestato di superamento del corso")
             p.setFont("Helvetica", 16)
             p.drawString(100, 650, f"Conseguito da: {request.user.username}")
-            p.drawString(100, 600, f"Corso: {quiz_attempt.quiz.video_corso.titolo}")
+            p.drawString(100, 600, f"Corso: {quiz_attempt.quiz.corso.titolo}")
             p.drawString(100, 550, f"Data: {quiz_attempt.timestamp.strftime('%d/%m/%Y')}")
 
             p.showPage()
@@ -698,7 +892,7 @@ class QuizView(View):
                 os.makedirs(directory)
 
             # Crea il file nel percorso originale
-            filename_originale = f"{quiz_attempt.quiz.video_corso.titolo}.pdf"
+            filename_originale = f"{quiz_attempt.quiz.corso.titolo}.pdf"
             with open(filename_originale, 'wb') as f:
                 f.write(buffer.getvalue())
 
@@ -711,13 +905,13 @@ class QuizView(View):
             # Creo un nuovo AttestatiVideo con il percorso al file PDF
             AttestatiVideo.objects.create(
                 utente=request.user,
-                video_corso=quiz_attempt.quiz.video_corso,
+                corso=quiz_attempt.quiz.corso,
                 data_conseguimento=quiz_attempt.timestamp,
                 pdf=filename_destinazione
             )        
 
 
-        return redirect('risultati_quiz', id_corso=videocorso.id, id_quiz_attempt=quiz_attempt.id)
+        return redirect('risultati_quiz', id_corso=corso.id, id_quiz_attempt=quiz_attempt.id)
     
 class QuizRisultatiView(View):
     template_name = 'home/risultati-quiz.html'

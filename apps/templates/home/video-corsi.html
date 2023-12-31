@@ -12,7 +12,7 @@
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h2 class="fs-5 fw-bold mb-0">Video corsi</h2>
+                        <h2 class="fs-5 fw-bold mb-0">Moduli del corso di {{corso.nome}}</h2>
                     </div>
                 </div>
             </div>
@@ -24,18 +24,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for video_corso in video_corsi %}
+                        {% for videocorso in videocorsi %}
                         <tr>
                             <th class="text-gray-900" scope="row">
-                                {{ video_corso.titolo }}
+                                {{ videocorso.titolo }}
                             </th>
                             <td class="fw-bolder text-gray-500">
                             </td>
                             <td class="fw-bolder text-gray-500">
                             </td>
+                            {% if not videocorso.prev_completed %}
                             <td class="fw-bolder text-gray-500">
-                                <a href="{% url 'utente_corso_dettaglio' video_corso.id %}" class="btn btn-primary">Dettagli</a>
+                                <a href="{% url 'video_corso_utente' videocorso.id %}" class="btn btn-primary disabled">Dettagli</a>
                             </td>
+                            {% else %}
+                            <td class="fw-bolder text-gray-500">
+                                <a href="{% url 'video_corso_utente' videocorso.id %}" class="btn btn-primary">Dettagli</a>
+                            </td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -43,6 +49,8 @@
             </div>
         </div>
     </div>
+</div>
+<a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary me-2">Indietro</a>
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->

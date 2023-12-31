@@ -53,6 +53,7 @@ class VideoCorso(models.Model):
     titolo = models.CharField(max_length=255, verbose_name="Titolo Video")
     descrizione = models.TextField(blank=True, null=True)
     aziende = models.ManyToManyField(Azienda, related_name="video_corsi", verbose_name="Aziende")
+    ordine = models.PositiveIntegerField(default=0)
     video_file = models.FileField(
         upload_to='videos/', 
         validators=[FileExtensionValidator(allowed_extensions=['mp4', 'webm', 'ogg'])],
@@ -73,6 +74,26 @@ class VideoCorso(models.Model):
     class Meta:
         verbose_name_plural = "Video Corsi"
         verbose_name = "Video Corso"
+        ordering = ['ordine']
+
+class Corso(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="ID")
+    titolo = models.CharField(max_length=255, verbose_name="Titolo Corso")
+    descrizione = models.TextField(blank=True, null=True)
+    aziende = models.ManyToManyField(Azienda, related_name="corsi", verbose_name="Aziende")
+    video_corsi = models.ManyToManyField(VideoCorso, related_name="corsi", verbose_name="Video Corsi")
+    docenti = models.ManyToManyField('CustomUser', related_name="corsi_insegnati", verbose_name="Docenti")
+    data_inizio = models.DateField(blank=True, null=True, verbose_name="Data inizio")
+    data_fine = models.DateField(blank=True, null=True, verbose_name="Data fine")
+    durata = models.IntegerField(blank=True, null=True, verbose_name="Durata in giorni")
+    data_creazione = models.DateTimeField(auto_now_add=True, verbose_name="Data creazione")
+
+    def __str__(self):
+        return self.titolo
+    
+    class Meta:
+        verbose_name_plural = "Corsi"
+        verbose_name = "Corso"
 
 class StatoVideo(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
@@ -102,7 +123,8 @@ class StatoVideo(models.Model):
 class AttestatiVideo(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
     utente = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, verbose_name="Utente")
-    video_corso = models.ForeignKey(VideoCorso, null=True, on_delete=models.SET_NULL, verbose_name="Video Corso")
+    # video_corso = models.ForeignKey(VideoCorso, null=True, on_delete=models.SET_NULL, verbose_name="Video Corso")
+    corso = models.ForeignKey(Corso, null=True, on_delete=models.SET_NULL, verbose_name="Corso")
     data_conseguimento = models.DateTimeField(blank=True, null=True, verbose_name="Data conseguimento")
     data_download = models.DateTimeField(blank=True, null=True, verbose_name="Data download")
     pdf = models.FileField(blank=True, null=True, upload_to="attestati/")
@@ -115,7 +137,8 @@ class AttestatiVideo(models.Model):
         verbose_name_plural = "Attestati Video"
 
 class Quiz(models.Model):
-    video_corso = models.ForeignKey(VideoCorso, on_delete=models.CASCADE, related_name="quiz")
+    # video_corso = models.ForeignKey(VideoCorso, on_delete=models.CASCADE, related_name="quiz")
+    corso = models.ForeignKey(Corso, blank=True, null=True, on_delete=models.CASCADE, related_name="quiz")
     titolo = models.CharField(max_length=255)
 
     def __str__(self):

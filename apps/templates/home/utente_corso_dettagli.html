@@ -2,18 +2,39 @@
 
 {% load static %}
 
-{% block title %} Video corsi {% endblock %} 
+{% block title %} Dettagli Corso {% endblock %}
 
-<!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
-<link rel="stylesheet" href="{% static 'home/css/aggiungi_azienda.css' %}">{% endblock stylesheets %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'home/css/aggiungi_azienda.css' %}">
+<style>
+  #order-videocorsi {
+    width: 100%;
+    min-height: 150px;
+    margin-bottom: 10px;
+    border: 1px solid #ced4da;
+    background: #fff;
+  }
+  .order-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .order-buttons button {
+    width: 49%;
+  }
+  .selected-option {
+    background-color: #e9ecef;
+  }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
-<h1>{{ videocorso.titolo }}</h1>
+<h1>{{ corso.titolo }}</h1>
 
+{% if request.user.is_staff %}
 <form id="form" method="post">
     {% csrf_token %}
-    {% if request.user.is_staff %}
     <div id="associazione-aziende-wrapper">
         <div class="multi-select-box">
             <div class="available-items">
@@ -26,53 +47,120 @@
                 </select>
             </div>
             <div class="actions">
-                <button type="button" onclick="moveSelected('available', 'chosen')"> > </button>
-                <button type="button" onclick="moveSelected('chosen', 'available')"> < </button>
+                <button type="button" onclick="moveSelected('available', 'chosen', 'aziende')"> > </button>
+                <button type="button" onclick="moveSelected('chosen', 'available', 'aziende')"> < </button>
             </div>
             <div class="chosen-items">
                 <h3>Aziende associate</h3>
                 <input type="text" id="search-chosen" placeholder="Cerca..." onkeyup="filterOptions('chosen')">
                 <select id="chosen-aziende" name="aziende" multiple>
-                    {% for azienda in aziende_video_corso %}
+                    {% for azienda in aziende_corso %}
                         <option value="{{ azienda.id }}">{{ azienda.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <!-- Multi-select box for Video Courses -->
+        <div class="multi-select-box">
+            <div class="available-items">
+                <h3>Video Courses Available</h3>
+                <input type="text" id="search-available-videocorsi" placeholder="Search..." onkeyup="filterOptions('available')">
+                <select id="available-videocorsi" multiple>
+                    {% for videocorso in videocorsi_non_aggiunti %}
+                        <option value="{{ videocorso.id }}">{{ videocorso.titolo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="actions">
+                <button type="button" onclick="moveSelected('available', 'chosen', 'videocorsi')"> > </button>
+                <button type="button" onclick="moveSelected('chosen', 'available', 'videocorsi')"> < </button>                
+            </div>
+            <div class="chosen-items">
+                <h3>Associated Video Courses</h3>
+                <input type="text" id="search-chosen-videocorsi" placeholder="Search..." onkeyup="filterOptions('chosen')">
+                <select id="chosen-videocorsi" name="videocorsi" multiple>
+                    {% for videocorso in videocorsi_corso %}
+                        <option value="{{ videocorso.id }}">{{ videocorso.titolo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- <div class="form-group">
+            <h3>Ordine dei Video Corsi</h3>
+            <select id="order-videocorsi" multiple>
+                {% for videocorso in videocorsi_corso %}
+                    <option value="{{ videocorso.id }}">{{ videocorso.titolo }}</option>
+                {% endfor %}
+            </select>
+            <div class="order-buttons">
+                <button type="button" onclick="moveUp('order-videocorsi')">Muovi su</button>
+                <button type="button" onclick="moveDown('order-videocorsi')">Muovi giù</button>
+            </div>
+        </div> -->
+
+        <!-- Multi-select box for Teachers -->
+        <div class="multi-select-box">
+            <div class="available-items">
+                <h3>Teachers Available</h3>
+                <input type="text" id="search-available-docenti" placeholder="Search..." onkeyup="filterOptions('available')">
+                <select id="available-docenti" multiple>
+                    {% for docente in docenti_non_aggiunti %}
+                        <option value="{{ docente.id }}">{{ docente.user.first_name }} {{ docente.user.last_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="actions">
+                <button type="button" onclick="moveSelected('available', 'chosen', 'docenti')"> > </button>
+                <button type="button" onclick="moveSelected('chosen', 'available', 'docenti')"> < </button>
+            </div>
+            <div class="chosen-items">
+                <h3>Associated Teachers</h3>
+                <input type="text" id="search-chosen-docenti" placeholder="Search..." onkeyup="filterOptions('chosen')">
+                <select id="chosen-docenti" name="docenti" multiple>
+                    {% for docente in docenti_corso %}
+                        <option value="{{ docente.id }}">{{ docente.user.first_name }} {{ docente.user.last_name }}</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
         <div class="form-actions">
             <button class="btn btn-primary me-2" type="submit" onclick="submitForm()">Salva</button>
-            <a href="{% url 'crea_quiz' videocorso.id %}" class="btn btn-success me-2">Crea Quiz</a>
-            <a href="{% url 'quiz' videocorso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
+            <a href="{% url 'crea_quiz' corso.id %}" class="btn btn-success me-2">Crea Quiz</a>
+            <a href="{% url 'quiz' corso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
+            <a href="{% url 'configura_moduli' corso.id %}" class="btn btn-primary me-2">Configura moduli</a>
         </div>
         <div>
-            <a href="{% url 'video_corso_utente' videocorso.id %}" class="btn btn-success me-2">Guarda il video corso</a>
+            <a href="{% url 'videocorsi' corso.id %}" class="btn btn-success me-2">Video lezioni</a>
         </div>
     </div>
+    </form>
+
     {% else %}    
-    <a href="{% url 'video_corso_utente' videocorso.id %}" class="btn btn-success me-2">Guarda il video corso</a>
+    <a href="{% url 'videocorsi' corso.id %}" class="btn btn-success me-2">Video lezioni</a>
+    <br>
     <!-- se svolgimento esami è false disabilito il bottone quiz -->
     {% if svolgimento_esame %}
-        <a href="{% url 'quiz' videocorso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
+        <a href="{% url 'quiz' corso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
     {% else %}
     <div title="Devi completare il video corso per effettuare il quiz">
-        <a href="{% url 'quiz' videocorso.id %}" class="btn btn-primary me-2 disabled">Effettua Quiz</a>
+        <a href="{% url 'quiz' corso.id %}" class="btn btn-primary me-2 disabled">Effettua Quiz</a>
     </div>
     {% endif %}
     {% endif %}
     <br>
     <a href="{% url 'utente_corsi' %}" class="btn btn-secondary me-2">Indietro</a>
 
-</form>
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script>
-    function filterOptions(side) {
+    function filterOptions(side, type) {
         var input, filter, select, options, i;
-        input = document.getElementById("search-" + side);
+        input = document.getElementById("search-" + side + "-" + type);
         filter = input.value.toUpperCase();
-        select = document.getElementById(side + "-aziende");
+        select = document.getElementById(side + "-" + type);
         options = select.getElementsByTagName("option");
         for (i = 0; i < options.length; i++) {
             if (options[i].text.toUpperCase().indexOf(filter) > -1) {
@@ -83,26 +171,60 @@
         }
     }
 
-    function moveSelected(from, to) {
-        var fromSelect, toSelect, options, i;
-        fromSelect = document.getElementById(from + "-aziende");
-        toSelect = document.getElementById(to + "-aziende");
-        options = fromSelect.getElementsByTagName("option");
-        for (i = options.length - 1; i >= 0; i--) {
-            if (options[i].selected) {
-                toSelect.appendChild(options[i]);
-            }
+function moveSelected(from, to, type) {
+    var fromSelect, toSelect, options, i;
+    fromSelect = document.getElementById(from + "-" + type);
+    toSelect = document.getElementById(to + "-" + type);
+    options = fromSelect.getElementsByTagName("option");
+    for (i = options.length - 1; i >= 0; i--) {
+        if (options[i].selected) {
+            toSelect.appendChild(options[i]);
         }
     }
+}
 
-    function submitForm() {
-        var select, options, i;
-        select = document.getElementById("chosen-aziende");
+function submitForm() {
+    var select, options, i;
+    var types = ['aziende', 'videocorsi', 'docenti'];
+    for (var j = 0; j < types.length; j++) {
+        select = document.getElementById("chosen-" + types[j]);
         options = select.getElementsByTagName("option");
         for (i = 0; i < options.length; i++) {
             options[i].selected = true;
         }
-        document.getElementById("form").submit();
     }
+
+    select = document.getElementById("order-videocorsi");
+    options = select.getElementsByTagName("option");
+    var order = [];
+    for (i = 0; i < options.length; i++) {
+        order.push({id: options[i].value, order: i});
+    }
+
+    var form = document.getElementById("form");
+    var input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "order";
+    input.value = JSON.stringify(order);
+    form.appendChild(input);
+
+    form.submit();
+}
+
+function moveUp(selectId) {
+    var select = document.getElementById(selectId);
+    var selectedOption = select.options[select.selectedIndex];
+    if (selectedOption.previousElementSibling) {
+        select.insertBefore(selectedOption, selectedOption.previousElementSibling);
+    }
+}
+
+function moveDown(selectId) {
+    var select = document.getElementById(selectId);
+    var selectedOption = select.options[select.selectedIndex];
+    if (selectedOption.nextElementSibling) {
+        select.insertBefore(selectedOption.nextElementSibling, selectedOption);
+    }
+}
 </script>
 {% endblock javascripts %}

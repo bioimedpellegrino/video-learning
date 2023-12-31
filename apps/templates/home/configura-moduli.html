@@ -1,0 +1,129 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Configurazione moduli{% endblock %}
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="py-4">
+    {% if message %}
+    <div class="alert {{message_class}} mt-3" role="alert">
+        {{ message }}
+    </div>
+    {% endif %}
+    <form id="module-data-form" action="{% url 'salva_modulo' corso.id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="titolo" class="form-label">Titolo Modulo</label>
+                <input type="text" name="titolo" id="titolo" class="form-control form-control-sm" required>
+            </div>
+            <div class="col-md-6">
+                <label for="descrizione" class="form-label">Descrizione</label>
+                <textarea name="descrizione" id="descrizione" class="form-control form-control-sm"></textarea>                
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="ordine" class="form-label">Ordine</label>
+                <input type="number" name="ordine" id="ordine" class="form-control form-control-sm" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="video_file" class="form-label">File Video</label>
+                <input type="file" name="video_file" id="video_file" class="form-control form-control-sm" accept="video/mp4,video/webm,video/ogg">
+            </div>
+            <div class="col-md-6">
+                <label for="poster_file" class="form-label">Miniature foto</label>
+                <input type="file" name="poster_file" id="poster_file" class="form-control form-control-sm" accept="image/*">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="external_url" class="form-label">Url CDN</label>
+                <input type="text" name="external_url" id="external_url" class="form-control form-control-sm">
+            </div>
+        </div>
+        <div class="d-flex justify-content-start">
+            <button class="btn btn-primary me-2" type="submit">Inserisci corso</button>
+        </div>
+    </form>
+    <br>
+    {% if form.errors %}
+    <div class="alert alert-danger mt-3" role="alert">
+        {{ form.errors }}
+    </div>
+    {% endif %}
+    <!-- Form per l'ordinamento dei videocorsi -->
+    <form id="module-order-form" action="{% url 'ordina_videocorsi' corso.id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <h3>Ordine dei Moduli</h3>
+            <select id="order-videocorsi" multiple onchange="updateOrder()">
+                {% for videocorso in videocorsi_corso %}
+                    <option value="{{ videocorso.id }}">{{ videocorso.titolo }}</option>
+                {% endfor %}
+            </select>
+            <!-- Campo nascosto per inviare l'ordine dei videocorsi -->
+            <input type="hidden" id="order" name="order">
+            <div class="order-buttons">
+                <button type="button" onclick="moveUp('order-videocorsi')">Muovi su</button>
+                <button type="button" onclick="moveDown('order-videocorsi')">Muovi giù</button>
+            </div>
+        </div>
+        <br>
+        <button class="btn btn-primary me-2" type="submit">Salva ordinamento</button>
+    </form>
+    <br>
+    <div>
+        <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary me-2">Indietro</a>
+    </div>
+
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+
+document.getElementById('module-order-form').addEventListener('submit', function(e) {
+    e.preventDefault(); // Previene il submit di default del form
+
+
+    var select = document.getElementById("order-videocorsi");
+    var options = select.getElementsByTagName("option");
+    var order = [];
+    for (var i = 0; i < options.length; i++) {
+        order.push({id: options[i].value, order: i});
+    }
+
+    // Input nascosto
+    var input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "order";
+    input.value = JSON.stringify(order);
+    e.target.appendChild(input);
+
+    e.target.submit();
+});
+
+function moveUp(selectId) {
+    var select = document.getElementById(selectId);
+    var selectedOption = select.options[select.selectedIndex];
+    if (selectedOption.previousElementSibling) {
+        select.insertBefore(selectedOption, selectedOption.previousElementSibling);
+    }
+}
+
+function moveDown(selectId) {
+    var select = document.getElementById(selectId);
+    var selectedOption = select.options[select.selectedIndex];
+    if (selectedOption.nextElementSibling) {
+        select.insertBefore(selectedOption.nextElementSibling, selectedOption);
+    }
+}
+
+</script>
+{% endblock javascripts %}  

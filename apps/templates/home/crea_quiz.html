@@ -9,7 +9,7 @@
 {% endblock stylesheets %}
 
 {% block content %}
-<h1>Crea Quiz per {{ videocorso.titolo }}</h1>
+<h1>Crea Quiz per {{ corso.titolo }}</h1>
 
 <form method="post">
     {% csrf_token %}
@@ -25,7 +25,7 @@
 
         <button type="button" class="btn btn-primary" onclick="aggiungiDomanda()">Aggiungi Domanda</button>
         <button type="submit" class="btn btn-success">Salva Quiz</button>
-        <a href="{% url 'utente_corso_dettaglio' videocorso.id %}" class="btn btn-secondary">Indietro</a>
+        <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary">Indietro</a>
     </div>
 </form>
 {% endblock content %}

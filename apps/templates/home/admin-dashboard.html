@@ -60,17 +60,17 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for video_corso in video_corsi %}
+                                    {% for corso in corsi %}
                                     <tr>
                                         <th class="text-gray-900" scope="row">
-                                            {{ video_corso.titolo }}
+                                            {{ corso.titolo }}
                                         </th>
                                         <td class="fw-bolder text-gray-500">
                                         </td>
                                         <td class="fw-bolder text-gray-500">
                                         </td>
                                         <td class="fw-bolder text-gray-500">
-                                            <a href="{% url 'utente_corso_dettaglio' video_corso.id %}" class="btn btn-primary">Dettagli</a>
+                                            <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-primary">Dettagli</a>
                                         </td>
                                     </tr>
                                     {% endfor %}
