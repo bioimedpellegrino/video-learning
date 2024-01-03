@@ -21,26 +21,47 @@
             <table class="table align-items-center table-flush">
                 <thead class="thead-light">
                     <tr>
-                        <th>Titolo del corso</th>
+                        <th>Titolo del video_corso</th>
+                        <th>Titolo del modulo</th>
+                        <th>Durata video</th>
                         <th>Secondi visualizzati</th>
-                        <th>Durata totale</th>
                         <th>Percentuale completamento</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for corso in corsi_utente %}
-                        <tr>
-                            <td>{{ corso.titolo }}</td>
-                            <td>{{ corso.stati_video.first.totale_secondi_visualizzati }}</td>
-                            <td>{{ corso.durata_video }}</td>
-                            <td>{{corso.stati_video.first.percentuale_completamento}} %</td>
-                            <td>
-                                <div class="progress mb-0">
-                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="{{corso.stati_video.first.percentuale_completamento}}" aria-valuemin="0" aria-valuemax="100" style="width: {{corso.stati_video.first.percentuale_completamento|floatformat:0}}%;"></div>
-                                </div>
-                            </td>
-                        </tr>
+                    {% for video_corso, data in video_corsi_utente.items %}
+                    {% with actual_video_corso=data.0 stato_video=data.1 has_stato=data.2 %}
+                        {% if has_stato %}
+                            <!-- There is a StatoVideo associated with this video_corso -->
+                            <tr>
+                                <td>{{ video_corso.titolo }}</td>
+                                <td>{{ video_corso.corso.titolo }}</td>
+                                <td>{{ video_corso.durata_video }}</td>
+                                <td>{{stato_video.totale_secondi_visualizzati}}</td>
+                                <td>{{stato_video.percentuale_completamento}} %</td>
+                                <td>
+                                    <div class="progress mb-0">
+                                        <div class="progress-bar bg-success" role="progressbar" aria-valuenow="{{video_corso.stati_video.first.percentuale_completamento}}" aria-valuemin="0" aria-valuemax="100" style="width: {{video_corso.stati_video.first.percentuale_completamento|floatformat:0}}%;"></div>
+                                    </div>
+                                </td>
+                        {% else %}
+                            <!-- There is no StatoVideo associated with this video_corso -->
+                            <tr>
+                                <td>{{ video_corso.titolo }}</td>
+                                <td>{{ video_corso.corso}}</td>
+                                <td>{{ video_corso.durata_video }}</td>
+                                <td> 0 </td>
+                                <td> 0 % </td>
+                                <td>
+                                    <div class="progress mb-0">
+                                        <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: {{video_corso.stati_video.first.percentuale_completamento|floatformat:0}}%;"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endwith %}
+                        
                     {% endfor %}
                 </tbody>
             </table>
@@ -50,7 +71,7 @@
 
 <!-- Tasto indietro, se l'utente è admin riporta alla al dettaglio dell'aziend -->
 {% if is_admin %}
-    <a href="{% url 'amministrazione' %}" class="btn btn-primary">Indietro</a>
+    <a href="{% url 'dettagli_azienda' azienda.id%}" class="btn btn-primary">Indietro</a>
 {% else %}
 {% endif %}
 {% endblock content %}

@@ -32,7 +32,7 @@
 {% block content %}
 <h1>{{ corso.titolo }}</h1>
 
-{% if request.user.is_staff %}
+{% if request.user.is_superuser %}
 <form id="form" method="post">
     {% csrf_token %}
     <div id="associazione-aziende-wrapper">
@@ -140,7 +140,7 @@
     <a href="{% url 'videocorsi' corso.id %}" class="btn btn-success me-2">Video lezioni</a>
     <br>
     <!-- se svolgimento esami è false disabilito il bottone quiz -->
-    {% if svolgimento_esame %}
+    {% if corso_completato %}
         <a href="{% url 'quiz' corso.id %}" class="btn btn-primary me-2">Effettua Quiz</a>
     {% else %}
     <div title="Devi completare il video corso per effettuare il quiz">

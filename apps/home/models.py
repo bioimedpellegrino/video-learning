@@ -48,12 +48,32 @@ class CustomUser(models.Model):
         verbose_name = "Profilo"
         verbose_name_plural = "Profili"
 
+class Corso(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name="ID")
+    titolo = models.CharField(max_length=255, verbose_name="Titolo Corso")
+    descrizione = models.TextField(blank=True, null=True)
+    aziende = models.ManyToManyField(Azienda, related_name="corsi", verbose_name="Aziende")
+    # video_corsi = models.ManyToManyField(VideoCorso, related_name="corsi", verbose_name="Video Corsi")
+    docenti = models.ManyToManyField('CustomUser', related_name="corsi_insegnati", verbose_name="Docenti")
+    data_inizio = models.DateField(blank=True, null=True, verbose_name="Data inizio")
+    data_fine = models.DateField(blank=True, null=True, verbose_name="Data fine")
+    durata = models.IntegerField(blank=True, null=True, verbose_name="Durata in giorni")
+    data_creazione = models.DateTimeField(auto_now_add=True, verbose_name="Data creazione")
+
+    def __str__(self):
+        return self.titolo
+    
+    class Meta:
+        verbose_name_plural = "Corsi"
+        verbose_name = "Corso"
 class VideoCorso(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
     titolo = models.CharField(max_length=255, verbose_name="Titolo Video")
     descrizione = models.TextField(blank=True, null=True)
     aziende = models.ManyToManyField(Azienda, related_name="video_corsi", verbose_name="Aziende")
     ordine = models.PositiveIntegerField(default=0)
+    corso = models.ForeignKey(Corso, on_delete=models.CASCADE, related_name="video_corsi", null=True, blank=True, verbose_name="Corso")
+
     video_file = models.FileField(
         upload_to='videos/', 
         validators=[FileExtensionValidator(allowed_extensions=['mp4', 'webm', 'ogg'])],
@@ -75,25 +95,6 @@ class VideoCorso(models.Model):
         verbose_name_plural = "Video Corsi"
         verbose_name = "Video Corso"
         ordering = ['ordine']
-
-class Corso(models.Model):
-    id = models.AutoField(primary_key=True, verbose_name="ID")
-    titolo = models.CharField(max_length=255, verbose_name="Titolo Corso")
-    descrizione = models.TextField(blank=True, null=True)
-    aziende = models.ManyToManyField(Azienda, related_name="corsi", verbose_name="Aziende")
-    video_corsi = models.ManyToManyField(VideoCorso, related_name="corsi", verbose_name="Video Corsi")
-    docenti = models.ManyToManyField('CustomUser', related_name="corsi_insegnati", verbose_name="Docenti")
-    data_inizio = models.DateField(blank=True, null=True, verbose_name="Data inizio")
-    data_fine = models.DateField(blank=True, null=True, verbose_name="Data fine")
-    durata = models.IntegerField(blank=True, null=True, verbose_name="Durata in giorni")
-    data_creazione = models.DateTimeField(auto_now_add=True, verbose_name="Data creazione")
-
-    def __str__(self):
-        return self.titolo
-    
-    class Meta:
-        verbose_name_plural = "Corsi"
-        verbose_name = "Corso"
 
 class StatoVideo(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
@@ -175,6 +176,9 @@ class QuizAttempt(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
     risultati = JSONField(default=dict)
+
+    def __str__(self):
+        return f"{self.user} - {self.quiz.corso}"
 
     class Meta:
         verbose_name = "Tentativo Quiz"

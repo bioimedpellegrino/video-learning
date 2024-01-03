@@ -185,8 +185,9 @@
                   </ul>
                 </div>
               <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
-              {% endif %}
-              
+              {% else %}
+              <!-- su l'utente è superuser non deve vedere queste parti -->
+              {% if not utente_corsi.is_superuser %}
               <li class="nav-item {% if 'utente_profilo' in segment %} active {% endif %}">
                 <a href="{% url 'utente_profilo' request.user.customuser.id %}" class="nav-link">
                   <span class="sidebar-icon mr-1">
@@ -194,8 +195,6 @@
                   <span class="sidebar-text">Profilo</span>
                 </a>
               </li>
-              <!-- su l'utente è superuser non deve vedere queste parti -->
-              {% if not utente_corsi.is_superuser %}
               <li class="nav-item {% if 'utente_corsi' in segment %} active {% endif %}">
                 <a href="{% url 'utente_corsi' %}" class="nav-link">
                   <span class="sidebar-icon mr-1">
@@ -211,6 +210,8 @@
                 </a>
               </li>
               {% endif %}
+              {% endif %}
+
               
               <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
               

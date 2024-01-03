@@ -27,7 +27,7 @@ import datetime
 def index(request):
     
     context = {'segment': 'index','breadcrumb_level_1': 'Home'}
-    if request.user.is_staff or request.user.is_superuser:
+    if request.user.is_superuser:
         return HttpResponseRedirect(reverse('amministrazione'))
     else:
         return HttpResponseRedirect(reverse('utente_corsi'))
@@ -90,18 +90,17 @@ class AziendeView(View):
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
-        context = { 'segment' : 'amministrazione-aziende'}
         if request.user.is_superuser:
             aziende = Azienda.objects.all()
-            context["aziende"] = aziende
-            return render(request, self.template_name, context)
+            self.context["aziende"] = aziende
+            return render(request, self.template_name, self.context)
         profile = CustomUser.objects.get(user=request.user)
         aziende = profile.aziende.all()
         utenti = CustomUser.objects.filter(azienda__isnull=True)
         self.context["aziende"] = aziende
         self.context["utenti"] = utenti
         
-        return render(request, self.template_name, context)
+        return render(request, self.template_name, self.context)
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
@@ -139,6 +138,8 @@ from django.shortcuts import get_object_or_404
 
 class DettagliAziendaView(View):
     template_name = 'home/dettagli-azienda.html'
+    context = {'segment': 'amministrazione-aziende', 'breadcrumb_level_1': 'Amministrazione', 'breadcrumb_level_2': 'Aziende'}
+
 
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
@@ -148,6 +149,10 @@ class DettagliAziendaView(View):
         utenti_no_azienda = CustomUser.objects.filter(azienda__isnull=True)
 
         context = {
+            'segment': 'amministrazione-aziende', 
+            'breadcrumb_level_1': 'Amministrazione', 
+            'breadcrumb_level_2': 'Aziende',
+            'breadcrumb_level_3': 'Dettaglio azienda',
             'azienda': azienda,
             'utenti_azienda': utenti_azienda,
             'utenti_no_azienda': utenti_no_azienda,
@@ -171,6 +176,10 @@ class DettagliAziendaView(View):
             utenti.update(azienda=None)
 
         context = {
+            'segment': 'amministrazione-aziende', 
+            'breadcrumb_level_1': 'Amministrazione', 
+            'breadcrumb_level_2': 'Aziende',
+            'breadcrumb_level_3': 'Dettaglio azienda',
             'azienda': azienda,
             'utenti_azienda': azienda.utenti.all(),
             'utenti_no_azienda': CustomUser.objects.filter(azienda__isnull=True),
@@ -248,35 +257,34 @@ class VideoCorsiView(View):
 
     @method_decorator(login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
-        context = { 'segment' : 'amministrazione-videocorsi'}
-        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
-        utente = CustomUser.objects.get(user=request.user)        
         if request.user.is_superuser:
-            videocorsi = VideoCorso.objects.all()
+            context = { 'segment' : 'amministrazione-videocorsi'}
+            corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+            videocorsi = list(corso.video_corsi.all().order_by('ordine'))
             context["videocorsi"] = videocorsi
-            context["corso"] = corso        
+            context["corso"] = corso
             return render(request, self.template_name, context)
-        # videocorsi = list(VideoCorso.objects.filter(aziende=utente.azienda).order_by('ordine'))
-        # i videocorsi di del corso
-        videocorsi = list(corso.video_corsi.all().order_by('ordine'))
-        # gli stati video dei video corsi dell'utente
-        stati_video = StatoVideo.objects.filter(video_corso__in=videocorsi, utente=utente)
-        # Devo controllare se il video corso è stato completato dall'utente altrimenti disabilito il pulsante dei corsi successivi
-        # Add an attribute to each videocorso that indicates whether the previous videocorso has been completed
-        for i in range(len(videocorsi)):
-            if i == 0:
-                videocorsi[i].prev_completed = True
-                continue
-            prev_videocorso = videocorsi[i-1]
-            prev_stato_video = stati_video.filter(video_corso=prev_videocorso).first()
-            if prev_stato_video:
-                videocorsi[i].prev_completed = prev_stato_video.completato
-            else:
-                videocorsi[i].prev_completed = False
+        else:
+            context = { 'segment' : 'amministrazione-videocorsi'}
+            corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+            utente = CustomUser.objects.get(user=request.user)        
+            videocorsi = list(corso.video_corsi.all().order_by('ordine'))
+            stati_video = StatoVideo.objects.filter(video_corso__in=videocorsi, utente=utente)
+            # Devo controllare se il video corso è stato completato dall'utente altrimenti disabilito il pulsante dei corsi successivi
+            for i in range(len(videocorsi)):
+                if i == 0:
+                    videocorsi[i].prev_completed = True
+                    continue
+                prev_videocorso = videocorsi[i-1]
+                prev_stato_video = stati_video.filter(video_corso=prev_videocorso).first()
+                if prev_stato_video:
+                    videocorsi[i].prev_completed = prev_stato_video.completato
+                else:
+                    videocorsi[i].prev_completed = False
 
-        context["videocorsi"] = videocorsi
-        context["corso"] = corso
-        return render(request, self.template_name, context)
+            context["videocorsi"] = videocorsi
+            context["corso"] = corso
+            return render(request, self.template_name, context)
 
 class UploadVideoCorsiView(View):
     template_name = 'home/uploadcorsi.html'
@@ -308,12 +316,17 @@ class ProfiloView(View):
 
         utente = CustomUser.objects.get(id=user_id)
         azienda = utente.azienda
-        corsi_utente = azienda.video_corsi.all()
-        
+        video_corsi = azienda.video_corsi.all()
+
+        # gli stati video relativi all'utente   
+        stati_video_utente = StatoVideo.objects.filter(video_corso__in=video_corsi, utente=utente)
+        video_corsi_utente = {video_corso: (video_corso, StatoVideo.objects.filter(video_corso=video_corso, utente=utente).first(), StatoVideo.objects.filter(video_corso=video_corso, utente=utente).exists()) for video_corso in video_corsi}        
         context = { 'segment' : 'utente_profilo',
                     'utente': utente,
                     'is_admin': is_admin,
-                   'corsi_utente': corsi_utente,
+                    'video_corsi_utente': video_corsi_utente,
+                    'stati_video': stati_video_utente,
+                    'azienda': azienda,
                    }
         return render(request, self.template_name, context)
     
@@ -328,9 +341,15 @@ class CorsiView(View):
 
     @method_decorator(login_required(login_url="/login/"))
     def get(self, request, *args, **kwargs):
-        if not request.user.is_staff:
+        if not request.user.is_superuser:
             context = { 'segment' : 'utente_corsi'}
-            # Se l'utente deve avere corsi specifici e non tutti quelli dell'azienda uso var video_corsi_spec
+            if request.user.is_staff:       
+                # i corsi di cui l'utente è docente
+                corsi = Corso.objects.filter(docenti__user=request.user)
+                context["corsi"] = corsi
+                return render(request, self.template_name, context)
+             
+            # Se l'utente non è docente deve avere corsi specifici e non tutti quelli dell'azienda uso var video_corsi_spec
             corsi = Corso.objects.filter(aziende=request.user.customuser.azienda)
             context["corsi"] = corsi
             return render(request, self.template_name, context)
@@ -350,53 +369,56 @@ class DettagliCorsoView(View):
     template_name = 'home/utente_corso_dettagli.html'
 
     def get(self, request, *args, **kwargs):
-        # svolgimento_esame = False
-        # videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
-        # utente = CustomUser.objects.get(user=request.user)
-        # aziende_all = Azienda.objects.all()
-        # aziende_video_corso = videocorso.aziende.all()
-        # aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_video_corso.values_list('id', flat=True))
-        # video = StatoVideo.objects.filter(video_corso=videocorso, utente=utente).first()
+        if request.user.is_superuser:
+            corso_completato = False
+            corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+            aziende_all = Azienda.objects.all()
+            aziende_corso = corso.aziende.all()
+            aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_corso.values_list('id', flat=True))
+            # video corsi
+            videocorsi = VideoCorso.objects.all()
+            videocorsi_non_aggiunti = videocorsi.exclude(id__in=corso.video_corsi.values_list('id', flat=True))
+            docenti = CustomUser.objects.filter(user__is_staff=True)
+            docenti_non_aggiunti = docenti.exclude(id__in=corso.docenti.values_list('id', flat=True))
+            
+            context = {
+                'segment' : 'utente_corso_dettaglio',
+                'aziende_non_aggiunte': aziende_non_aggiunte,
+                'aziende_corso': aziende_corso,
+                'videocorsi_non_aggiunti': videocorsi_non_aggiunti,
+                'videocorsi_corso': corso.video_corsi.all(),
+                'docenti_non_aggiunti': docenti_non_aggiunti,
+                'docenti_corso': corso.docenti.all(),
+                'corso': corso,
+                'svolgimento_esame': corso_completato,
+            }
+            return render(request, self.template_name, context)
+        else:
+            corso_completato = False
+            corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+            utente = CustomUser.objects.get(user=request.user)
+            aziende_all = Azienda.objects.all()
+            aziende_corso = corso.aziende.all()
+            stati_video = StatoVideo.objects.filter(video_corso__in=corso.video_corsi.all(), utente=utente)
+            azienda_utente = utente.azienda
+            videocorsi = corso.video_corsi.all()
+            # vedere se per ogni video corso associato al corso l'utente ha completato il video
+            
+            # se tutti gli stati_video hanno il campo completato a true allora il corso è completato
+            if stati_video and all([stato_video.completato for stato_video in stati_video]) and len(stati_video) == len(videocorsi):
+                corso_completato = True
 
-        svolgimento_esame = False
-        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
-        utente = CustomUser.objects.get(user=request.user)
-        aziende_all = Azienda.objects.all()
-        aziende_corso = corso.aziende.all()
-        aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_corso.values_list('id', flat=True))
-        # video corsi
-        videocorsi = VideoCorso.objects.all()
-        videocorsi_non_aggiunti = videocorsi.exclude(id__in=corso.video_corsi.values_list('id', flat=True))
-        docenti = CustomUser.objects.filter(user__is_staff=True)
-        docenti_non_aggiunti = docenti.exclude(id__in=corso.docenti.values_list('id', flat=True))
-        # gli stati video relativi ai video corsi del corso
-        stati_video = StatoVideo.objects.filter(video_corso__in=corso.video_corsi.all(), utente=utente)
+            context = {
+                'segment' : 'utente_corso_dettaglio',
+                'aziende_corso': aziende_corso,
+                'corso': corso,
+                'corso_completato': corso_completato,
+            }
+            return render(request, self.template_name, context)
 
-        # if video and video.completato:
-        #     svolgimento_esame = True
-
-        context = {
-            'segment' : 'utente_corso_dettaglio',
-            'aziende_non_aggiunte': aziende_non_aggiunte,
-            'aziende_corso': aziende_corso,
-            'videocorsi_non_aggiunti': videocorsi_non_aggiunti,
-            'videocorsi_corso': corso.video_corsi.all(),
-            'docenti_non_aggiunti': docenti_non_aggiunti,
-            'docenti_corso': corso.docenti.all(),
-            'corso': corso,
-            'svolgimento_esame': svolgimento_esame,
-        }
-        return render(request, self.template_name, context)
     
     @method_decorator(login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
-        # videocorso = VideoCorso.objects.get(pk=kwargs.get('id_corso'))
-        # utenti = CustomUser.objects.all()
-        # aziende_all = Azienda.objects.all()
-        # id_aziende_aggiunte = request.POST.getlist('aziende')
-        # aziende_video_corso = videocorso.aziende.all()
-        # aziende_non_aggiunte = aziende_all.exclude(id__in=aziende_video_corso.values_list('id', flat=True))
-
         corso = Corso.objects.get(pk=kwargs.get('id_corso'))
         utenti = CustomUser.objects.all()
         aziende_all = Azienda.objects.all()
@@ -448,7 +470,7 @@ class DettagliCorsoView(View):
                 corso.docenti.remove(docente)
         docenti_corso = corso.docenti.all()
 
-        # update order of videocorsi
+        #  Aggiorno ordine dei videocorsi
         try:
             new_order = json.loads(request.POST.get('order'))
             for item in new_order:
@@ -481,7 +503,7 @@ class WatchVideoCorsoView(View):
         custom_user = CustomUser.objects.get(user=request.user)
         video_corso = VideoCorso.objects.get(pk=id_video)
         # il corso a cui è associato il videocorso
-        corso = video_corso.corsi.first()
+        corso = video_corso.corso
 
         if video_corso.ordine > 1:
             video_corso_precedente = VideoCorso.objects.get(ordine=video_corso.ordine - 1)
@@ -560,15 +582,15 @@ class ConfiguraModuliView(View):
     def get(self, request, *args, **kwargs):
         context = { 'segment' : 'miei_corsi'}
         
-        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
-        custom_user = CustomUser.objects.get(user=request.user)
+        if request.user.is_superuser:
+            corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+            videocorsi_corso = corso.video_corsi.all()
+            context['videocorsi_corso'] = videocorsi_corso
+            context['corso'] = corso
 
-        # Get the list of VideoCorsi for this Corso
-        videocorsi_corso = corso.video_corsi.all()
-        context['videocorsi_corso'] = videocorsi_corso
-        context['corso'] = corso
-
-        return render(request, self.template_name, context)
+            return render(request, self.template_name, context)
+        else:
+            return render(request, 'home/page-404.html')
     
     @method_decorator(staff_member_required(login_url="page-403.html"), login_required(login_url="/login/"))
     def post(self, request, *args, **kwargs):
@@ -577,61 +599,64 @@ class ConfiguraModuliView(View):
     
 class SalvaModuloView(View):
     def post(self, request, *args, **kwargs):
-        from django.core.exceptions import ValidationError
-        context = { 'segment' : 'miei_corsi'}
-        
-        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
-        videocorsi_corso = corso.video_corsi.all()        
-        custom_user = CustomUser.objects.get(user=request.user)
-        aziende = corso.aziende.all()
+        if request.user.is_superuser:
+            from django.core.exceptions import ValidationError
+            context = { 'segment' : 'miei_corsi'}
+            corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+            videocorsi_corso = corso.video_corsi.all()        
+            aziende = corso.aziende.all()
 
-        # Handle adding a new VideoCorso
-        titolo = request.POST.get('titolo')
-        descrizione = request.POST.get('descrizione')
-        ordine = request.POST.get('ordine')
-        video_file = request.FILES.get('video_file')
-        poster_file = request.FILES.get('poster_file')
-        external_url = request.POST.get('external_url')
+            # Handle adding a new VideoCorso
+            titolo = request.POST.get('titolo')
+            descrizione = request.POST.get('descrizione')
+            ordine = request.POST.get('ordine')
+            video_file = request.FILES.get('video_file')
+            poster_file = request.FILES.get('poster_file')
+            external_url = request.POST.get('external_url')
 
-        try:
-            videocorso = VideoCorso.objects.create(
-                titolo=titolo,
-                descrizione=descrizione,
-                ordine=ordine,
-                video_file=video_file,
-                poster_file=poster_file,
-                external_url=external_url,
-            )
-            videocorso.aziende.set(aziende)
-            videocorso.save()
-            corso.video_corsi.add(videocorso)
-            corso.save()
+            try:
+                videocorso = VideoCorso.objects.create(
+                    titolo=titolo,
+                    descrizione=descrizione,
+                    ordine=ordine,
+                    video_file=video_file,
+                    poster_file=poster_file,
+                    external_url=external_url,
+                )
+                videocorso.aziende.set(aziende)
+                videocorso.save()
+                corso.video_corsi.add(videocorso)
+                corso.save()
 
-            messages.success(request, 'VideoCorso aggiunto con successo.')
-        except ValidationError as e:
-            messages.error(request, 'Errore nell\'aggiunta del VideoCorso: ' + str(e))
-        return redirect('configura_moduli', id_corso=corso.id)
+                messages.success(request, 'VideoCorso aggiunto con successo.')
+            except ValidationError as e:
+                messages.error(request, 'Errore nell\'aggiunta del VideoCorso: ' + str(e))
+            return redirect('configura_moduli', id_corso=corso.id)
+        else:
+            return render(request, 'home/page-404.html')
 
 class OrdinaVideocorsiView(View):
     def post(self, request, *args, **kwargs):
-        context = { 'segment' : 'miei_corsi'}
-        corso = Corso.objects.get(pk=kwargs.get('id_corso'))
-        videocorsi_corso = corso.video_corsi.all()        
-        custom_user = CustomUser.objects.get(user=request.user)
-        try:
-            new_order = json.loads(request.POST.get('order'))
-            for item in new_order:
-                videocorso = VideoCorso.objects.get(pk=item['id'])
-                videocorso.ordine = item['order']
-                videocorso.save()
-        except Exception as e:
-            print(e)
-            pass
+        if request.user.is_superuser:
+            context = { 'segment' : 'miei_corsi'}
+            corso = Corso.objects.get(pk=kwargs.get('id_corso'))
+            videocorsi_corso = corso.video_corsi.all()        
+            try:
+                new_order = json.loads(request.POST.get('order'))
+                for item in new_order:
+                    videocorso = VideoCorso.objects.get(pk=item['id'])
+                    videocorso.ordine = item['order']
+                    videocorso.save()
+            except Exception as e:
+                print(e)
+                pass
 
-        context['videocorsi_corso'] = videocorsi_corso
-        context['corso'] = corso
+            context['videocorsi_corso'] = videocorsi_corso
+            context['corso'] = corso
 
-        return redirect('configura_moduli', id_corso=corso.id)
+            return redirect('configura_moduli', id_corso=corso.id)
+        else:
+            return render(request, 'home/page-404.html')
 
 def scarica_attestato(request, id_corso):
     try:
@@ -654,7 +679,7 @@ class AttestatiView(View):
         ultimi_attestati = {}
 
         for video_corso in video_corsi:
-            ultimo_attestato = AttestatiVideo.objects.filter(utente=user, video_corso=video_corso).order_by('-data_conseguimento').first()
+            ultimo_attestato = AttestatiVideo.objects.filter(utente=user, corso=video_corso.corso).order_by('-data_conseguimento').first()
             if ultimo_attestato:
                 ultimi_attestati[video_corso] = ultimo_attestato
 
@@ -758,6 +783,7 @@ class AggiungiUtenteView(View):
         email = request.POST.get('email')
         phone_number = request.POST.get('phone')
         is_staff = request.POST.get('is_staff', False)
+        is_staff = True if is_staff == 'on' else False
         is_valid = True
 
         if User.objects.filter(username=username).exists():

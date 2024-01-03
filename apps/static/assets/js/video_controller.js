@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
     player.on('timeupdate', function() {
         var currentTime = player.currentTime();
         tempoTrascorsoElement.textContent = formatTime(currentTime);
-        if (parseInt(currentTime) > 0 && parseInt(currentTime) % 60 == 0 && currentTime % 1 > 0.70){
+        if (parseInt(currentTime) > 0 && parseInt(currentTime) % 30 == 0 && currentTime % 1 > 0.70){
             handleTimeUpdate(parseInt(currentTime));
         }
     });
