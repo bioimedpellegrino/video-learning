@@ -8,9 +8,9 @@
 {% block content %}
     <h1>Attestati ottenuti</h1>
     <ul>
-    {% for video_corso, attestato in ultimi_attestati.items %}
+    {% for corso, attestato in ultimi_attestati.items %}
         <li>
-            <h2>{{ video_corso.titolo }}</h2>
+            <h2>{{ corso.titolo }}</h2>
             <p>Data di consegna: {{ attestato.data_conseguimento }}</p>
         </li>
     {% empty %}

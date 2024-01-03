@@ -606,7 +606,6 @@ class SalvaModuloView(View):
             videocorsi_corso = corso.video_corsi.all()        
             aziende = corso.aziende.all()
 
-            # Handle adding a new VideoCorso
             titolo = request.POST.get('titolo')
             descrizione = request.POST.get('descrizione')
             ordine = request.POST.get('ordine')
@@ -676,12 +675,14 @@ class AttestatiView(View):
     def get(self, request, *args, **kwargs):
         user = request.user
         video_corsi = VideoCorso.objects.all()
+        azienda = user.customuser.azienda
+        corsi = azienda.corsi.all()
         ultimi_attestati = {}
 
-        for video_corso in video_corsi:
-            ultimo_attestato = AttestatiVideo.objects.filter(utente=user, corso=video_corso.corso).order_by('-data_conseguimento').first()
+        for corso in corsi:
+            ultimo_attestato = AttestatiVideo.objects.filter(utente=user, corso=corso).order_by('-data_conseguimento').first()
             if ultimo_attestato:
-                ultimi_attestati[video_corso] = ultimo_attestato
+                ultimi_attestati[corso] = ultimo_attestato
 
         context = { 'segment' : 'utente_attestati', 'ultimi_attestati': ultimi_attestati}
         return render(request, self.template_name, context)

@@ -131,7 +131,7 @@ class AttestatiVideo(models.Model):
     pdf = models.FileField(blank=True, null=True, upload_to="attestati/")
     
     def __str__(self):
-        return f"{self.utente.username} - {self.video_corso.titolo}"
+        return f"{self.utente.username} - {self.corso.titolo}"
     
     class Meta:
         verbose_name = "Attestato Video"
