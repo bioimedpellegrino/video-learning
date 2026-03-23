@@ -1,129 +1,231 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Configurazione moduli{% endblock %}
+{% block title %} Configurazione Moduli {% endblock %}
 
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+{{ block.super }}
+<style>
+  .vl-form-card {
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(19, 33, 47, 0.08);
+    border-radius: 24px;
+    padding: 1.4rem;
+    box-shadow: 0 24px 60px rgba(17, 32, 49, 0.08);
+  }
+
+  .vl-order-select {
+    width: 100%;
+    min-height: 240px;
+    border-radius: 18px;
+    border: 1px solid rgba(19, 33, 47, 0.12);
+    padding: 0.6rem;
+    background: #fff;
+  }
+
+  .vl-order-actions {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .vl-module-list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .vl-module-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border-radius: 18px;
+    border: 1px solid rgba(19, 33, 47, 0.08);
+    background: rgba(255, 255, 255, 0.74);
+  }
+
+  .vl-module-row strong {
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .vl-module-row p {
+    margin-bottom: 0.35rem;
+    color: #5b6876;
+  }
+
+  .vl-module-row small {
+    color: #5b6876;
+  }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
-
-<div class="py-4">
-    {% if message %}
-    <div class="alert {{message_class}} mt-3" role="alert">
-        {{ message }}
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">Modules setup</div>
+        <h1 class="mb-3">Configura i moduli di {{ corso.titolo }}</h1>
+        <p class="text-muted mb-0">
+          Aggiungi nuovi moduli al corso, carica file o URL esterni e definisci l'ordine di fruizione.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <span class="vl-chip">{{ videocorsi_corso|length }} moduli</span>
+      </div>
     </div>
-    {% endif %}
-    <form id="module-data-form" action="{% url 'salva_modulo' corso.id %}" method="post" enctype="multipart/form-data">
+  </div>
+</section>
+
+{% if message %}
+<div class="alert {{message_class}} mt-3" role="alert">
+  {{ message }}
+</div>
+{% endif %}
+
+<section class="row g-4">
+  <div class="col-12 col-xl-7">
+    <div class="vl-form-card h-100">
+      <div class="vl-kicker text-muted mb-2">Nuovo modulo</div>
+      <h2 class="mb-4">Inserisci contenuto</h2>
+      <form id="module-data-form" action="{% url 'salva_modulo' corso.id %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="titolo" class="form-label">Titolo Modulo</label>
-                <input type="text" name="titolo" id="titolo" class="form-control form-control-sm" required>
-            </div>
-            <div class="col-md-6">
-                <label for="descrizione" class="form-label">Descrizione</label>
-                <textarea name="descrizione" id="descrizione" class="form-control form-control-sm"></textarea>                
-            </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="titolo" class="form-label">Titolo modulo</label>
+            <input type="text" name="titolo" id="titolo" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label for="ordine" class="form-label">Ordine</label>
+            <input type="number" name="ordine" id="ordine" class="form-control" required>
+          </div>
+          <div class="col-12">
+            <label for="descrizione" class="form-label">Descrizione</label>
+            <textarea name="descrizione" id="descrizione" class="form-control" rows="4"></textarea>
+          </div>
+          <div class="col-md-6">
+            <label for="video_file" class="form-label">File video</label>
+            <input type="file" name="video_file" id="video_file" class="form-control" accept="video/mp4,video/webm,video/ogg">
+          </div>
+          <div class="col-md-6">
+            <label for="poster_file" class="form-label">Poster</label>
+            <input type="file" name="poster_file" id="poster_file" class="form-control" accept="image/*">
+          </div>
+          <div class="col-12">
+            <label for="external_url" class="form-label">URL CDN</label>
+            <input type="text" name="external_url" id="external_url" class="form-control" placeholder="https://...">
+          </div>
         </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="ordine" class="form-label">Ordine</label>
-                <input type="number" name="ordine" id="ordine" class="form-control form-control-sm" required>
-            </div>
+
+        <div class="vl-actions mt-4">
+          <button class="btn btn-primary" type="submit">Aggiungi modulo</button>
+          <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary">Torna al corso</a>
         </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="video_file" class="form-label">File Video</label>
-                <input type="file" name="video_file" id="video_file" class="form-control form-control-sm" accept="video/mp4,video/webm,video/ogg">
-            </div>
-            <div class="col-md-6">
-                <label for="poster_file" class="form-label">Miniature foto</label>
-                <input type="file" name="poster_file" id="poster_file" class="form-control form-control-sm" accept="image/*">
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="external_url" class="form-label">Url CDN</label>
-                <input type="text" name="external_url" id="external_url" class="form-control form-control-sm">
-            </div>
-        </div>
-        <div class="d-flex justify-content-start">
-            <button class="btn btn-primary me-2" type="submit">Inserisci corso</button>
-        </div>
-    </form>
-    <br>
-    {% if form.errors %}
-    <div class="alert alert-danger mt-3" role="alert">
-        {{ form.errors }}
+      </form>
     </div>
-    {% endif %}
-    <!-- Form per l'ordinamento dei videocorsi -->
-    <form id="module-order-form" action="{% url 'ordina_videocorsi' corso.id %}" method="post" enctype="multipart/form-data">
+  </div>
+
+  <div class="col-12 col-xl-5">
+    <div class="vl-form-card h-100">
+      <div class="vl-kicker text-muted mb-2">Sequenza</div>
+      <h2 class="mb-3">Ordine dei moduli</h2>
+      <p class="text-muted">Seleziona un modulo e spostalo in alto o in basso per definire la progressione del corso.</p>
+
+      <form id="module-order-form" action="{% url 'ordina_videocorsi' corso.id %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="form-group">
-            <h3>Ordine dei Moduli</h3>
-            <select id="order-videocorsi" multiple onchange="updateOrder()">
-                {% for videocorso in videocorsi_corso %}
-                    <option value="{{ videocorso.id }}">{{ videocorso.titolo }}</option>
-                {% endfor %}
-            </select>
-            <!-- Campo nascosto per inviare l'ordine dei videocorsi -->
-            <input type="hidden" id="order" name="order">
-            <div class="order-buttons">
-                <button type="button" onclick="moveUp('order-videocorsi')">Muovi su</button>
-                <button type="button" onclick="moveDown('order-videocorsi')">Muovi giù</button>
-            </div>
+        <select id="order-videocorsi" class="vl-order-select" multiple>
+          {% for videocorso in videocorsi_corso %}
+          <option value="{{ videocorso.id }}">{{ videocorso.ordine }}. {{ videocorso.titolo }}</option>
+          {% endfor %}
+        </select>
+        <input type="hidden" id="order" name="order">
+
+        <div class="vl-order-actions mt-3">
+          <button type="button" class="btn btn-secondary" onclick="moveUp('order-videocorsi')">Sposta su</button>
+          <button type="button" class="btn btn-secondary" onclick="moveDown('order-videocorsi')">Sposta giu</button>
+          <button class="btn btn-primary" type="submit">Salva ordinamento</button>
         </div>
-        <br>
-        <button class="btn btn-primary me-2" type="submit">Salva ordinamento</button>
-    </form>
-    <br>
-    <div>
-        <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary me-2">Indietro</a>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="mt-4">
+  <div class="vl-form-card">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+      <div>
+        <div class="vl-kicker text-muted mb-2">Gestione rapida</div>
+        <h2 class="mb-1">Moduli esistenti</h2>
+        <p class="text-muted mb-0">Apri ogni modulo per aggiornare titolo, ordine, file video, poster o URL esterno.</p>
+      </div>
+      <span class="vl-chip">{{ videocorsi_corso|length }} elementi</span>
     </div>
 
+    <div class="vl-module-list">
+      {% for videocorso in videocorsi_corso %}
+      <article class="vl-module-row">
+        <div>
+          <strong>{{ videocorso.ordine }}. {{ videocorso.titolo }}</strong>
+          <p>{{ videocorso.descrizione|default:"Nessuna descrizione disponibile."|truncatechars:130 }}</p>
+          <small>
+            {% if videocorso.external_url %}
+            Sorgente: URL esterno
+            {% elif videocorso.video_file %}
+            Sorgente: file caricato
+            {% else %}
+            Sorgente: non ancora configurata
+            {% endif %}
+          </small>
+        </div>
+        <div class="vl-actions">
+          <a href="{% url 'modifica_modulo' videocorso.id %}" class="btn btn-secondary">Modifica modulo</a>
+        </div>
+      </article>
+      {% empty %}
+      <div class="alert alert-light border mb-0">Non ci sono ancora moduli associati a questo corso.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
 
+{% if form.errors %}
+<div class="alert alert-danger mt-3" role="alert">
+  {{ form.errors }}
+</div>
+{% endif %}
 {% endblock content %}
 
 {% block javascripts %}
-
 <script>
-
 document.getElementById('module-order-form').addEventListener('submit', function(e) {
-    e.preventDefault(); // Previene il submit di default del form
+  e.preventDefault();
 
+  const select = document.getElementById("order-videocorsi");
+  const options = select.getElementsByTagName("option");
+  const order = [];
+  for (let i = 0; i < options.length; i++) {
+    order.push({id: options[i].value, order: i + 1});
+  }
 
-    var select = document.getElementById("order-videocorsi");
-    var options = select.getElementsByTagName("option");
-    var order = [];
-    for (var i = 0; i < options.length; i++) {
-        order.push({id: options[i].value, order: i});
-    }
-
-    // Input nascosto
-    var input = document.createElement("input");
-    input.type = "hidden";
-    input.name = "order";
-    input.value = JSON.stringify(order);
-    e.target.appendChild(input);
-
-    e.target.submit();
+  document.getElementById("order").value = JSON.stringify(order);
+  e.target.submit();
 });
 
 function moveUp(selectId) {
-    var select = document.getElementById(selectId);
-    var selectedOption = select.options[select.selectedIndex];
-    if (selectedOption.previousElementSibling) {
-        select.insertBefore(selectedOption, selectedOption.previousElementSibling);
-    }
+  const select = document.getElementById(selectId);
+  const selectedOption = select.options[select.selectedIndex];
+  if (selectedOption && selectedOption.previousElementSibling) {
+    select.insertBefore(selectedOption, selectedOption.previousElementSibling);
+  }
 }
 
 function moveDown(selectId) {
-    var select = document.getElementById(selectId);
-    var selectedOption = select.options[select.selectedIndex];
-    if (selectedOption.nextElementSibling) {
-        select.insertBefore(selectedOption.nextElementSibling, selectedOption);
-    }
+  const select = document.getElementById(selectId);
+  const selectedOption = select.options[select.selectedIndex];
+  if (selectedOption && selectedOption.nextElementSibling) {
+    select.insertBefore(selectedOption.nextElementSibling, selectedOption);
+  }
 }
-
 </script>
-{% endblock javascripts %}  
+{% endblock javascripts %}

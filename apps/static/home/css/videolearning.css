@@ -1,0 +1,540 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --vl-bg: #f4f1ea;
+  --vl-bg-soft: #fbf8f2;
+  --vl-surface: rgba(255, 255, 255, 0.82);
+  --vl-surface-strong: #ffffff;
+  --vl-border: rgba(33, 37, 41, 0.08);
+  --vl-text: #13212f;
+  --vl-text-soft: #5b6876;
+  --vl-primary: #1f8f5f;
+  --vl-primary-dark: #176d48;
+  --vl-secondary: #1f3a56;
+  --vl-secondary-dark: #162c42;
+  --vl-accent: #d97706;
+  --vl-ink: #15202b;
+  --vl-sidebar: linear-gradient(180deg, #0f5132 0%, #146c43 52%, #198754 100%);
+  --vl-shadow: 0 24px 60px rgba(17, 32, 49, 0.12);
+  --vl-radius-xl: 28px;
+  --vl-radius-lg: 20px;
+  --vl-radius-md: 14px;
+  --vl-sidebar-width: 265px;
+}
+
+body {
+  font-family: 'Manrope', sans-serif;
+  color: var(--vl-text);
+  background:
+    radial-gradient(circle at top left, rgba(31, 143, 95, 0.14), transparent 28%),
+    radial-gradient(circle at top right, rgba(217, 119, 6, 0.12), transparent 24%),
+    linear-gradient(180deg, #f7f3ec 0%, #f1eee7 100%);
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, .vl-display {
+  font-family: 'Fraunces', serif;
+  letter-spacing: -0.02em;
+}
+
+.content {
+  background: transparent;
+}
+
+.navbar-dashboard,
+.vl-topbar {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(19, 33, 47, 0.08);
+  border-radius: 18px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 35px rgba(21, 32, 43, 0.08);
+}
+
+.vl-sidebar-shell {
+  background:
+    linear-gradient(180deg, rgba(11, 76, 48, 0.99) 0%, rgba(18, 104, 64, 0.99) 52%, rgba(25, 135, 84, 0.99) 100%);
+  border-radius: 0 28px 28px 0;
+  box-shadow: 18px 0 40px rgba(12, 77, 49, 0.24);
+}
+
+.sidebar {
+  background:
+    linear-gradient(180deg, rgba(11, 76, 48, 0.99) 0%, rgba(18, 104, 64, 0.99) 52%, rgba(25, 135, 84, 0.99) 100%) !important;
+}
+
+.sidebar .sidebar-inner {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.sidebar,
+.sidebar .sidebar-inner,
+.sidebar .simplebar-wrapper,
+.sidebar .simplebar-content-wrapper,
+.sidebar .simplebar-content {
+  background-color: transparent !important;
+}
+
+.sidebar .nav-link,
+.sidebar .sidebar-text,
+.sidebar .sidebar-icon,
+.sidebar .link-arrow,
+.sidebar .nav-item .collapsed {
+  color: rgba(255, 255, 255, 0.96) !important;
+}
+
+.sidebar .nav-link {
+  border-radius: 14px;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  font-weight: 700;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar .nav-item.active > .nav-link,
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateX(2px);
+}
+
+.vl-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.75rem 0 1.5rem;
+}
+
+.vl-brand-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #d7f36a, #58c27d);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  box-shadow: 0 14px 30px rgba(31, 143, 95, 0.35);
+}
+
+.vl-brand-copy small,
+.vl-user-card small,
+.vl-kicker {
+  color: var(--vl-text-soft);
+}
+
+.vl-topbar .vl-kicker,
+.vl-topbar .breadcrumb-item,
+.vl-topbar .breadcrumb-item a,
+.vl-topbar .media-body span {
+  color: var(--vl-text-soft) !important;
+}
+
+.vl-topbar .breadcrumb-item.active,
+.vl-topbar .media-body .fw-bold {
+  color: var(--vl-text) !important;
+}
+
+.vl-topbar .nav-link {
+  color: var(--vl-text) !important;
+}
+
+.vl-page-header .vl-kicker,
+.vl-panel .vl-kicker,
+.vl-side-card .vl-kicker,
+.vl-course-card .vl-kicker,
+.vl-stat-card .vl-stat-label {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.vl-brand-copy strong {
+  display: block;
+  font-size: 1.05rem;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.18);
+}
+
+.vl-user-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.vl-user-card .avatar {
+  border: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+.vl-user-card .fw-bold {
+  color: #fff;
+}
+
+.vl-shell {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.vl-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.vl-hero,
+.vl-panel,
+.vl-card,
+.vl-stat-card,
+.vl-learning-shell,
+.vl-video-player-card,
+.vl-course-card {
+  background: var(--vl-surface);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--vl-radius-xl);
+  box-shadow: var(--vl-shadow);
+  backdrop-filter: blur(16px);
+}
+
+.vl-hero {
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.vl-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -40px -50px auto;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(15, 118, 110, 0.18), transparent 70%);
+}
+
+.vl-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.vl-stat-card {
+  padding: 1.1rem 1.2rem;
+}
+
+.vl-stat-label {
+  color: var(--vl-text-soft);
+  font-size: 0.88rem;
+  margin-bottom: 0.35rem;
+}
+
+.vl-stat-value {
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.vl-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(31, 143, 95, 0.12);
+  color: var(--vl-primary-dark);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.vl-panel {
+  padding: 1.4rem;
+}
+
+.vl-course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.vl-course-card {
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vl-course-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.vl-course-title {
+  margin-bottom: 0.4rem;
+  font-size: 1.35rem;
+}
+
+.vl-course-meta {
+  color: var(--vl-text-soft);
+  font-size: 0.92rem;
+}
+
+.vl-progress {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(19, 33, 47, 0.08);
+  overflow: hidden;
+}
+
+.vl-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1f8f5f, #49b97d);
+}
+
+.vl-learning-shell {
+  padding: 1.2rem;
+}
+
+.vl-learning-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.75fr);
+  gap: 1.2rem;
+}
+
+.vl-video-player-card {
+  padding: 1.2rem;
+}
+
+.vl-video-stage {
+  border-radius: 22px;
+  overflow: hidden;
+  background: #0c1724;
+}
+
+.vl-video-stage .video-js {
+  width: 100%;
+  height: auto;
+  min-height: 320px;
+}
+
+.vl-video-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.vl-video-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vl-side-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--vl-border);
+  border-radius: 22px;
+  padding: 1.2rem;
+}
+
+.vl-lesson-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.vl-lesson-item {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--vl-border);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.vl-lesson-item strong {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.vl-lesson-item small {
+  color: var(--vl-text-soft);
+}
+
+.vl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn-primary,
+.btn-success {
+  background: linear-gradient(135deg, var(--vl-primary), #49b97d);
+  border-color: transparent;
+  box-shadow: 0 12px 28px rgba(31, 143, 95, 0.24);
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn-success:hover {
+  background: linear-gradient(135deg, var(--vl-primary-dark), var(--vl-primary));
+  border-color: transparent;
+}
+
+.btn-secondary,
+.btn-gray-800 {
+  background: linear-gradient(135deg, var(--vl-secondary), #2d4e72);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 12px 28px rgba(31, 58, 86, 0.18);
+}
+
+.btn-secondary:hover,
+.btn-gray-800:hover,
+.btn-secondary:focus,
+.btn-gray-800:focus {
+  background: linear-gradient(135deg, var(--vl-secondary-dark), var(--vl-secondary));
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn {
+  min-height: 48px;
+  padding: 0.85rem 1.25rem;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.table {
+  --bs-table-bg: transparent;
+}
+
+.vl-simple-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.vl-simple-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--vl-border);
+}
+
+.vl-footer {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 1.35rem 2rem;
+}
+
+.vl-footer-band {
+  margin-top: 3rem;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.46);
+  border-top: 1px solid rgba(19, 33, 47, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.vl-footer-inner {
+  width: 100%;
+  max-width: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.vl-footer-brand p,
+.vl-footer-brand small,
+.vl-footer-meta small {
+  margin: 0;
+}
+
+.vl-footer-brand p {
+  color: var(--vl-text);
+  font-size: 1rem;
+}
+
+.vl-footer-brand small,
+.vl-footer-meta small {
+  color: var(--vl-text-soft);
+  line-height: 1.6;
+}
+
+.vl-footer-meta {
+  text-align: right;
+  max-width: 540px;
+}
+
+.vl-hero .btn + .btn {
+  margin-left: 0.25rem;
+}
+
+@media (min-width: 992px) {
+  .vl-footer-band {
+    margin-left: var(--vl-sidebar-width);
+    width: calc(100% - var(--vl-sidebar-width));
+  }
+}
+
+@media (max-width: 991.98px) {
+  .vl-sidebar-shell {
+    border-radius: 0;
+    background:
+      linear-gradient(180deg, rgba(11, 76, 48, 0.99) 0%, rgba(22, 108, 67, 0.99) 100%);
+  }
+
+  .sidebar {
+    background:
+      linear-gradient(180deg, rgba(11, 76, 48, 0.99) 0%, rgba(22, 108, 67, 0.99) 100%) !important;
+  }
+
+  .vl-learning-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vl-shell {
+    padding-top: 1rem;
+  }
+
+  .vl-hero {
+    padding: 1.4rem;
+  }
+
+  .vl-footer {
+    padding: 1.1rem 1rem;
+  }
+
+  .vl-footer-band {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .vl-footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .vl-footer-meta {
+    max-width: none;
+    text-align: left;
+  }
+
+  .sidebar .nav-link,
+  .sidebar .sidebar-text,
+  .sidebar .sidebar-icon,
+  .sidebar .link-arrow {
+    color: #ffffff !important;
+  }
+}

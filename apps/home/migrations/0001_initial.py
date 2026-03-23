@@ -4,6 +4,7 @@ from django.conf import settings
 import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
+import apps.home.fields
 
 
 class Migration(migrations.Migration):
@@ -212,7 +213,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("timestamp", models.DateTimeField(auto_now_add=True)),
-                ("risultati", models.JSONField(default=dict)),
+                ("risultati", apps.home.fields.JSONTextField(default=dict)),
                 (
                     "quiz",
                     models.ForeignKey(

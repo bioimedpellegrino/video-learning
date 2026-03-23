@@ -1,51 +1,80 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Corsi Utente {% endblock %} 
-
-<!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block title %} I Miei Corsi {% endblock %}
 
 {% block content %}
-<h1>Corsi Utente</h1>
-<div class="col-12 mb-4">
-    <div class="card border-0 shadow">
-        <div class="card-header">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="fs-5 fw-bold mb-0">Video corsi</h2>
-                </div>
-            </div>
-        </div>
-        <div class="table-responsive">
-            <table class="table align-items-center table-flush">
-                <thead class="thead-light">
-                    <tr>
-                        <th class="border-bottom" scope="col">Nome corso</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for corso in corsi %}
-                    <tr>
-                        <th class="text-gray-900" scope="row">
-                            {{ corso.titolo }}
-                        </th>
-                        <td class="fw-bolder text-gray-500">
-                        </td>
-                        <td class="fw-bolder text-gray-500">
-                        </td>
-                        <td class="fw-bolder text-gray-500">
-                            <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-primary">Dettagli</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">Learning path</div>
+        <h1 class="mb-3">I tuoi corsi disponibili</h1>
+        <p class="text-muted mb-0">
+          Accedi ai percorsi assegnati, continua da dove hai interrotto e prepara il completamento finale.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <span class="vl-chip">{{ corsi|length }} corsi assegnati</span>
+      </div>
     </div>
-</div>
+  </div>
+</section>
+
+<section class="vl-panel">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <div class="vl-kicker text-muted mb-2">Catalogo personale</div>
+      <h2 class="mb-0">Percorsi attivi</h2>
+    </div>
+  </div>
+
+  <div class="vl-course-grid">
+    {% for corso in corsi %}
+    <article class="vl-course-card">
+      <div class="vl-course-card-top">
+        <div>
+          <div class="vl-kicker text-muted mb-2">Corso</div>
+          <h3 class="vl-course-title">{{ corso.titolo }}</h3>
+          <div class="vl-course-meta">
+            {{ corso.video_corsi.count }} moduli disponibili
+          </div>
+        </div>
+        <span class="vl-chip">
+          {% if request.user.is_staff and not request.user.is_superuser %}
+          Docente
+          {% else %}
+          Studente
+          {% endif %}
+        </span>
+      </div>
+
+      <p class="text-muted mb-0">
+        {% if corso.descrizione %}
+        {{ corso.descrizione|truncatechars:120 }}
+        {% else %}
+        Un percorso formativo disponibile nel tuo ambiente di apprendimento.
+        {% endif %}
+      </p>
+
+      <div class="vl-progress">
+        <span style="width: {% widthratio forloop.counter 1 18 %}%;"></span>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center">
+        <small class="text-muted">
+          {{ corso.docenti.count }} docenti coinvolti
+        </small>
+        <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-primary">Apri corso</a>
+      </div>
+    </article>
+    {% empty %}
+    <div class="vl-side-card">
+      <h3 class="h4 mb-3">Nessun corso assegnato</h3>
+      <p class="text-muted mb-0">
+        Quando un amministratore o un docente pubblicherà un percorso per la tua azienda, lo troverai qui.
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
 {% endblock content %}
-
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}
-
-{% endblock javascripts %}

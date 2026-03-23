@@ -1,228 +1,157 @@
-        <nav class="navbar navbar-dark navbar-theme-primary px-4 col-12 d-lg-none">
-            <a class="navbar-brand me-lg-5" href="/">
-                <img class="navbar-brand-dark" src="/static/assets/img/brand/light.svg" alt="Volt logo" /> <img class="navbar-brand-light" src="/static/assets/img/brand/dark.svg" alt="Volt logo" />
-            </a>
-            <div class="d-flex align-items-center">
-                <button class="navbar-toggler d-lg-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-                  <span class="navbar-toggler-icon"></span>
-                </button>
-            </div>
-        </nav>
+<nav class="navbar navbar-dark navbar-theme-primary px-4 col-12 d-lg-none">
+  <a class="navbar-brand me-lg-5" href="{% url 'home' %}">
+    <span class="vl-brand-badge">VL</span>
+  </a>
+  <div class="d-flex align-items-center">
+    <button class="navbar-toggler d-lg-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </div>
+</nav>
 
-        <nav id="sidebarMenu" class="sidebar d-lg-block bg-gray-800 text-white collapse" data-simplebar>
-          <div class="sidebar-inner px-4 pt-3">
-            <div class="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
-              <div class="d-flex align-items-center">
-                <div class="avatar-lg me-4">
-                  <img src="/static/assets/img/team/profile-picture-3.jpg" class="card-img-top rounded-circle border-white"
-                    alt="Bonnie Green">
-                </div>
-                <div class="d-block">
-                  <h2 class="h5 mb-3">Hi, Jane</h2>
-                  <a href="/page-sign-in.html" class="btn btn-secondary btn-sm d-inline-flex align-items-center">
-                    <svg class="icon icon-xxs me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>            
-                    Sign Out
-                  </a>
-                </div>
-              </div>
-              <div class="collapse-close d-md-none">
-                <a href="#sidebarMenu" data-bs-toggle="collapse"
-                    data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="true"
-                    aria-label="Toggle navigation">
-                    <svg class="icon icon-xs" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                  </a>
-              </div>
-            </div>
-            <ul class="nav flex-column pt-3 pt-md-0">
-              {% if user.is_superuser %}
-              <li class="nav-item {% if 'dashboard' in segment %} active {% endif %}">
-                <a href="{% url 'amministrazione' %}" class="nav-link">
-                  <span class="sidebar-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#ffffff}</style><path d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM288 96a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zM256 416c35.3 0 64-28.7 64-64c0-17.4-6.9-33.1-18.1-44.6L366 161.7c5.3-12.1-.2-26.3-12.3-31.6s-26.3 .2-31.6 12.3L257.9 288c-.6 0-1.3 0-1.9 0c-35.3 0-64 28.7-64 64s28.7 64 64 64zM176 144a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zM96 288a32 32 0 1 0 0-64 32 32 0 1 0 0 64zm352-32a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>                  </span> 
-                  <span class="sidebar-text">Dashboard</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <span
-                  class="nav-link  collapsed d-flex justify-content-between align-items-center"
-                  data-bs-toggle="collapse" data-bs-target="#submenu-app">
-                  <span>
-                    <span class="sidebar-icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#ffffff}</style><path d="M152.1 38.2c9.9 8.9 10.7 24 1.8 33.9l-72 80c-4.4 4.9-10.6 7.8-17.2 7.9s-12.9-2.4-17.6-7L7 113C-2.3 103.6-2.3 88.4 7 79s24.6-9.4 33.9 0l22.1 22.1 55.1-61.2c8.9-9.9 24-10.7 33.9-1.8zm0 160c9.9 8.9 10.7 24 1.8 33.9l-72 80c-4.4 4.9-10.6 7.8-17.2 7.9s-12.9-2.4-17.6-7L7 273c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l22.1 22.1 55.1-61.2c8.9-9.9 24-10.7 33.9-1.8zM224 96c0-17.7 14.3-32 32-32H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32zm0 160c0-17.7 14.3-32 32-32H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H256c-17.7 0-32-14.3-32-32zM160 416c0-17.7 14.3-32 32-32H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H192c-17.7 0-32-14.3-32-32zM48 368a48 48 0 1 1 0 96 48 48 0 1 1 0-96z"/></svg>                    </span> 
-                    <span class="sidebar-text">Amministrazione</span>
-                  </span>
-                  <span class="link-arrow">
-                    <svg class="icon icon-sm" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                  </span>
-                </span>
-                <div class="multi-level collapse {% if 'amministrazione' in segment %} show {% endif %}"
-                  role="list" id="submenu-app" aria-expanded="false">
-                  <ul class="flex-column nav">
-                    <li class="nav-item {% if 'aziende' in segment %} active {% endif %}">
-                      <a class="nav-link collapsed d-flex justify-content-between align-items-center"
-                          data-bs-toggle="collapse" data-bs-target="#submenu-aziende">
-                          <span>
-                              <span class="sidebar-icon">
-                                  <!-- Mi serve un'icona di un'azienda-->
-                                  <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512">
-                                    <style>svg{fill:#ffffff}</style>
-                                    <path d="M320 0h-64v192h64V0zm-64 256v-64h-64v64H64v192h192V256zm0 0h192v192H256V256zm320 192h-64v64h-64v-64h-64v64h-64v-64h-64v64h-64v-64h-64v64h-64v-64H64v64H0V64h640v384zm0-448H0v32h640V0z"/>
-                                </svg>                              </span> 
-                              <span class="sidebar-text">Aziende</span>
-                          </span>
-                          <span class="link-arrow">
-                            <svg class="icon icon-sm" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                          </span>
-                      </a>
-                      <div class="multi-level collapse {% if 'aziende' in segment %} show {% endif %}"
-                          role="list" id="submenu-aziende" aria-expanded="false">
-                          <ul class="flex-column nav">
-                              <li class="nav-item {% if 'aggiungi_azienda' in segment %} active {% endif %}">
-                                  <a class="nav-link" style="font-size: smaller"; href="{% url 'aggiungi_azienda' %}">
-                                    <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
-                                      <span class="sidebar-text">Aggiungi Azienda</span>
-                                  </a>
-                              </li>
-                              <li class="nav-item {% if 'lista_aziende' in segment %} active {% endif %}">
-                                  <a class="nav-link" style="font-size: smaller"href="{% url 'aziende' %}">
-                                    <i class="fa-solid fa-list" style="color: #ffffff;"></i>
-                                      <span class="sidebar-text">Lista Aziende</span>
-                                  </a>
-                              </li>
-                          </ul>
-                      </div>
-                  </li>
-                    <li class="nav-item">
-                      <span
-                      class="nav-link collapsed d-flex justify-content-between align-items-center"
-                      data-bs-toggle="collapse" data-bs-target="#submenu-app2">
-                      <span>
-                        <span class="sidebar-icon">
-                          <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#ffffff}</style><path d="M144 0a80 80 0 1 1 0 160A80 80 0 1 1 144 0zM512 0a80 80 0 1 1 0 160A80 80 0 1 1 512 0zM0 298.7C0 239.8 47.8 192 106.7 192h42.7c15.9 0 31 3.5 44.6 9.7c-1.3 7.2-1.9 14.7-1.9 22.3c0 38.2 16.8 72.5 43.3 96c-.2 0-.4 0-.7 0H21.3C9.6 320 0 310.4 0 298.7zM405.3 320c-.2 0-.4 0-.7 0c26.6-23.5 43.3-57.8 43.3-96c0-7.6-.7-15-1.9-22.3c13.6-6.3 28.7-9.7 44.6-9.7h42.7C592.2 192 640 239.8 640 298.7c0 11.8-9.6 21.3-21.3 21.3H405.3zM224 224a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zM128 485.3C128 411.7 187.7 352 261.3 352H378.7C452.3 352 512 411.7 512 485.3c0 14.7-11.9 26.7-26.7 26.7H154.7c-14.7 0-26.7-11.9-26.7-26.7z"/></svg></span> 
-                        <span class="sidebar-text">Utenti</span>
-                      </span>
-                      <span class="link-arrow">
-                        <svg class="icon icon-sm" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                      </span>
-                    </span>
-                    <div class="multi-level collapse {% if 'utenti' in segment %} show {% endif %}"
-                      role="list" id="submenu-app2" aria-expanded="false">
-                      <ul class="flex-column nav">
-                        <li class="nav-item {% if 'utenti-aggiungi' in segment %} active {% endif %}">
-                          <a class="nav-link" style="font-size: smaller;" href="{% url 'aggiungi_utente' %}">
-                            <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
-                            <span class="sidebar-text">Aggiungi utente</span>
-                          </a>
-                        </li>
-                        <li class="nav-item {% if 'utenti-lista' in segment %} active {% endif %}">
-                          <a class="nav-link" style="font-size: smaller;" href="{% url 'lista_utenti' %}">
-                            <i class="fa-solid fa-list" style="color: #ffffff;"></i>
-                            <span class="sidebar-text">Lista utenti</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                    </li>
-                    <li class="nav-item">
-                      <span
-                        class="nav-link collapsed d-flex justify-content-between align-items-center"
-                        data-bs-toggle="collapse" data-bs-target="#submenu-video-courses">
-                        <span>
-                          <span class="sidebar-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#ffffff}</style><path d="M192 96a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm-8 384V352h16V480c0 17.7 14.3 32 32 32s32-14.3 32-32V192h56 64 16c17.7 0 32-14.3 32-32s-14.3-32-32-32H384V64H576V256H384V224H320v48c0 26.5 21.5 48 48 48H592c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H368c-26.5 0-48 21.5-48 48v80H243.1 177.1c-33.7 0-64.9 17.7-82.3 46.6l-58.3 97c-9.1 15.1-4.2 34.8 10.9 43.9s34.8 4.2 43.9-10.9L120 256.9V480c0 17.7 14.3 32 32 32s32-14.3 32-32z"/></svg>
-                          </span> 
-                          <span class="sidebar-text">Corsi</span>
-                        </span>
-                        <span class="link-arrow">
-                          <svg class="icon icon-sm" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                          </svg>
-                        </span>
-                      </span>
-                      <div class="multi-level collapse"
-                        role="list" id="submenu-video-courses" aria-expanded="false">
-                        <ul class="flex-column nav">
-                          <li class="nav-item">
-                            <a class="nav-link" href="{% url 'aggiungi_corso' %}">
-                              <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
-                              <span class="sidebar-text">Aggiungi corso</span>
-                            </a>
-                          </li>
-                          <li class="nav-item">
-                            <a class="nav-link" href="{% url 'caricavideocorsi' %}">
-                              <i class="fa-solid fa-plus" style="color: #ffffff;"></i>
-                              <span class="sidebar-text">Carica video</span>
-                            </a>
-                          </li>
-                          <li class="nav-item">
-                            <a class="nav-link" href="{% url 'utente_corsi' %}">
-                              <i class="fa-solid fa-list" style="color: #ffffff;"></i>
-                              <span class="sidebar-text">Lista corsi</span>
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    </li>
-                    <!-- <li class="nav-item {% if 'videocorsi' in segment %} active {% endif %}">
-                      <a class="nav-link" href="{% url 'utente_corsi' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#ffffff}</style><path d="M192 96a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm-8 384V352h16V480c0 17.7 14.3 32 32 32s32-14.3 32-32V192h56 64 16c17.7 0 32-14.3 32-32s-14.3-32-32-32H384V64H576V256H384V224H320v48c0 26.5 21.5 48 48 48H592c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H368c-26.5 0-48 21.5-48 48v80H243.1 177.1c-33.7 0-64.9 17.7-82.3 46.6l-58.3 97c-9.1 15.1-4.2 34.8 10.9 43.9s34.8 4.2 43.9-10.9L120 256.9V480c0 17.7 14.3 32 32 32s32-14.3 32-32z"/></svg>
-                        <span class="sidebar-text">Video corsi</span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if 'uploadcorsi' in segment %} active {% endif %}">
-                      <a class="nav-link" href="{% url 'caricavideocorsi' %}">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#fcfcfc}</style><path d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128zM559.1 99.8c10.4 5.6 16.9 16.4 16.9 28.2V384c0 11.8-6.5 22.6-16.9 28.2s-23 5-32.9-1.6l-96-64L416 337.1V320 192 174.9l14.2-9.5 96-64c9.8-6.5 22.4-7.2 32.9-1.6z"/></svg>
-                        <span class="sidebar-text">Carica video corso</span>
-                      </a>
-                    </li> -->
-                    <li class="nav-item {% if 'mail' in segment %} active {% endif %}">
-                      <a href="{% url 'sent_mail_list' %}" class="nav-link">
-                        <span class="sidebar-icon">
-                          <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#ffffff}</style><path d="M624 64H16C7.2 64 0 71.2 0 80v352c0 8.8 7.2 16 16 16h608c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16zm-8 352H24V96l280 192l280-192v320zm-280-96L24 128h592l-296 192z"/></svg>
-                        </span>
-                        <span class="sidebar-text">Mail</span>
-                      </a>
-                  </li>
-                  </ul>
-                </div>
-              <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
-              {% else %}
-              <!-- su l'utente è superuser non deve vedere queste parti -->
-              {% if not utente_corsi.is_superuser %}
-              <li class="nav-item {% if 'utente_profilo' in segment %} active {% endif %}">
-                <a href="{% url 'utente_profilo' request.user.customuser.id %}" class="nav-link">
-                  <span class="sidebar-icon mr-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#ffffff}</style><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/></svg>                  </span>
-                  <span class="sidebar-text">Profilo</span>
-                </a>
-              </li>
-              <li class="nav-item {% if 'utente_corsi' in segment %} active {% endif %}">
-                <a href="{% url 'utente_corsi' %}" class="nav-link">
-                  <span class="sidebar-icon mr-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#ffffff}</style><path d="M337.8 5.4C327-1.8 313-1.8 302.2 5.4L166.3 96H48C21.5 96 0 117.5 0 144V464c0 26.5 21.5 48 48 48H592c26.5 0 48-21.5 48-48V144c0-26.5-21.5-48-48-48H473.7L337.8 5.4zM256 416c0-35.3 28.7-64 64-64s64 28.7 64 64v96H256V416zM96 192h32c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H96c-8.8 0-16-7.2-16-16V208c0-8.8 7.2-16 16-16zm400 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H512c-8.8 0-16-7.2-16-16V208zM96 320h32c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H96c-8.8 0-16-7.2-16-16V336c0-8.8 7.2-16 16-16zm400 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v64c0 8.8-7.2 16-16 16H512c-8.8 0-16-7.2-16-16V336zM232 176a88 88 0 1 1 176 0 88 88 0 1 1 -176 0zm88-48c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H336V144c0-8.8-7.2-16-16-16z"/></svg>                  </span>
-                  <span class="sidebar-text">I miei corsi</span>
-                </a>
-              </li>
-              <li class="nav-item {% if 'utente_attestati' in segment %} active {% endif %}">
-                <a href="{% url 'utente_attestati' %}" class="nav-link">
-                  <span class="sidebar-icon mr-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 640 512"><style>svg{fill:#ffffff}</style><path d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zm384 64H256V0L384 128z"/></svg>                  </span>
-                  <span class="sidebar-text">Attestati</span>
-                </a>
-              </li>
-              {% endif %}
-              {% endif %}
+<nav id="sidebarMenu" class="sidebar d-lg-block text-white collapse vl-sidebar-shell" data-simplebar>
+  <div class="sidebar-inner px-4 pt-3">
+    <a href="{% url 'home' %}" class="text-decoration-none">
+      <div class="vl-brand">
+        <span class="vl-brand-badge">VL</span>
+        <div class="vl-brand-copy">
+          <small>Learning Hub</small>
+          <strong>VideoLearning</strong>
+        </div>
+      </div>
+    </a>
 
-              
-              <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
-              
-              <li class="nav-item {% if 'supporto' in segment %} active {% endif %}">
-                <a href="{% url 'supporto' %}" class="nav-link d-flex align-items-center">
-                  <span class="sidebar-icon">
-                    <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path></svg>
-                  </span>
-                  <span class="sidebar-text">Supporto</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </nav>
+    <div class="vl-user-card">
+      <div class="d-flex align-items-center">
+        <img src="/static/assets/img/team/user-placeholder.jpg" class="avatar rounded-circle me-3" alt="User avatar">
+        <div>
+          <small>Sessione attiva</small>
+          <div class="fw-bold text-white">{{ request.user.username }}</div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="nav flex-column pt-2 pt-md-0">
+      {% if user.is_superuser %}
+      <li class="nav-item {% if 'dashboard' in segment %}active{% endif %}">
+        <a href="{% url 'amministrazione' %}" class="nav-link">
+          <span class="sidebar-icon"><i class="fa-solid fa-chart-line"></i></span>
+          <span class="sidebar-text">Dashboard</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <span class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#submenu-admin">
+          <span>
+            <span class="sidebar-icon"><i class="fa-solid fa-building"></i></span>
+            <span class="sidebar-text">Aziende</span>
+          </span>
+          <span class="link-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+        </span>
+        <div class="multi-level collapse {% if 'aziende' in segment %}show{% endif %}" id="submenu-admin">
+          <ul class="flex-column nav">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'aggiungi_azienda' %}">
+                <span class="sidebar-text">Nuova azienda</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'aziende' %}">
+                <span class="sidebar-text">Gestisci aziende</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <span class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#submenu-users">
+          <span>
+            <span class="sidebar-icon"><i class="fa-solid fa-users"></i></span>
+            <span class="sidebar-text">Utenti</span>
+          </span>
+          <span class="link-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+        </span>
+        <div class="multi-level collapse {% if 'utenti' in segment %}show{% endif %}" id="submenu-users">
+          <ul class="flex-column nav">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'aggiungi_utente' %}">
+                <span class="sidebar-text">Nuovo utente</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'lista_utenti' %}">
+                <span class="sidebar-text">Lista utenti</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <span class="nav-link collapsed d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#submenu-courses">
+          <span>
+            <span class="sidebar-icon"><i class="fa-solid fa-book-open"></i></span>
+            <span class="sidebar-text">Corsi</span>
+          </span>
+          <span class="link-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+        </span>
+        <div class="multi-level collapse" id="submenu-courses">
+          <ul class="flex-column nav">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'aggiungi_corso' %}">
+                <span class="sidebar-text">Nuovo corso</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'caricavideocorsi' %}">
+                <span class="sidebar-text">Carica video</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'utente_corsi' %}">
+                <span class="sidebar-text">Catalogo corsi</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="nav-item {% if 'mail' in segment %}active{% endif %}">
+        <a href="{% url 'sent_mail_list' %}" class="nav-link">
+          <span class="sidebar-icon"><i class="fa-solid fa-envelope"></i></span>
+          <span class="sidebar-text">Mail</span>
+        </a>
+      </li>
+      {% else %}
+      <li class="nav-item {% if 'utente_profilo' in segment %}active{% endif %}">
+        <a href="{% url 'utente_profilo' request.user.customuser.id %}" class="nav-link">
+          <span class="sidebar-icon"><i class="fa-solid fa-user"></i></span>
+          <span class="sidebar-text">Profilo</span>
+        </a>
+      </li>
+      <li class="nav-item {% if 'utente_corsi' in segment %}active{% endif %}">
+        <a href="{% url 'utente_corsi' %}" class="nav-link">
+          <span class="sidebar-icon"><i class="fa-solid fa-film"></i></span>
+          <span class="sidebar-text">I miei corsi</span>
+        </a>
+      </li>
+      <li class="nav-item {% if 'utente_attestati' in segment %}active{% endif %}">
+        <a href="{% url 'utente_attestati' %}" class="nav-link">
+          <span class="sidebar-icon"><i class="fa-solid fa-certificate"></i></span>
+          <span class="sidebar-text">Attestati</span>
+        </a>
+      </li>
+      {% endif %}
+
+      <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
+
+      <li class="nav-item {% if 'supporto' in segment %}active{% endif %}">
+        <a href="{% url 'supporto' %}" class="nav-link">
+          <span class="sidebar-icon"><i class="fa-solid fa-headset"></i></span>
+          <span class="sidebar-text">Supporto</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

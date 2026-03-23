@@ -1,36 +1,60 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Aggiungi corso {% endblock %}
+{% block title %} Aggiungi Corso {% endblock %}
 
 {% block content %}
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">Course creation</div>
+        <h1 class="mb-3">Crea un nuovo corso</h1>
+        <p class="text-muted mb-0">
+          Definisci il titolo e le aziende che potranno ricevere il corso nel loro catalogo formativo.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <a href="{% url 'amministrazione' %}" class="btn btn-secondary">Torna alla dashboard</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-<div class="py-4">
-    <form method="post" enctype="multipart/form-data">
+<section class="row g-4">
+  <div class="col-12 col-xl-7">
+    <div class="vl-form-card h-100">
+      <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="mb-3">
-            <label for="titolo" class="form-label">Titolo</label>
-            <input type="text" name="titolo" id="titolo" class="form-control" required>
+          <label for="titolo" class="form-label">Titolo del corso</label>
+          <input type="text" name="titolo" id="titolo" class="form-control" required>
         </div>
         <div class="mb-3">
-            <label class="form-label">Aziende</label>
-            {% for azienda in aziende %}
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="aziende" id="azienda{{azienda.id}}" value="{{azienda.id}}">
-                <label class="form-check-label" for="azienda{{azienda.id}}">
-                    {{azienda.nome}}
-                </label>
-            </div>
-            {% endfor %}
+          <label for="video_file" class="form-label">File video iniziale</label>
+          <input type="file" name="video_file" id="video_file" class="form-control">
         </div>
-        <div class="mb-3">
-            <label for="video_file" class="form-label">File Video</label>
-            <input type="file" name="video_file" id="video_file" class="form-control-file">
+        <div class="vl-actions mt-4">
+          <button class="btn btn-primary" type="submit">Salva corso</button>
+          <a href="{% url 'amministrazione' %}" class="btn btn-secondary">Indietro</a>
         </div>
-        <div class="d-flex justify-content-start">
-            <button class="btn btn-primary me-2" type="submit">Salva</button>
-            <a href="{% url 'amministrazione' %}" class="btn btn-secondary me-2">Indietro</a>
-        </div>
-    </form>
-</div>
+      </form>
+    </div>
+  </div>
 
+  <div class="col-12 col-xl-5">
+    <div class="vl-form-card h-100">
+      <div class="vl-kicker text-muted mb-2">Distribuzione</div>
+      <h2 class="mb-3">Aziende coinvolte</h2>
+      <p class="text-muted">Seleziona una o piu aziende che dovranno vedere il corso dopo la pubblicazione.</p>
+      <div class="d-grid gap-2">
+        {% for azienda in aziende %}
+        <label class="p-3 rounded-4 border bg-white d-flex align-items-center gap-3">
+          <input class="form-check-input mt-0" type="checkbox" name="aziende" id="azienda{{azienda.id}}" value="{{azienda.id}}">
+          <span>{{azienda.nome}}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock content %}

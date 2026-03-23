@@ -32,13 +32,12 @@ def _send(mail):
         
     subject = mail.subject
     try:
-        json_message = mail.json_message.replace("'",'"')
-        print(json_message)
-        json_message = json.loads(json_message)
-    except:
+        raw_json_message = mail.json_message or '{}'
+        json_message = json.loads(raw_json_message.replace("'", '"'))
+    except (TypeError, json.JSONDecodeError):
         import traceback
         traceback.print_exc()
-        json_message = eval(mail.json_message)
+        json_message = {}
 
     if settings.DEBUG_EMAIL:
         json_message['extra_info'] = 'to=' + ';'.join(to) + '   cc=' + ';'.join(cc)+ '   bcc=' + ';'.join(bcc)

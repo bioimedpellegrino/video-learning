@@ -1,0 +1,176 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Modifica Modulo {% endblock %}
+
+{% block stylesheets %}
+{{ block.super }}
+<style>
+  .vl-form-card {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(19, 33, 47, 0.08);
+    border-radius: 24px;
+    padding: 1.5rem;
+    box-shadow: 0 24px 60px rgba(17, 32, 49, 0.08);
+  }
+
+  .vl-preview-card {
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(19, 33, 47, 0.08);
+    border-radius: 20px;
+    padding: 1.2rem;
+    height: 100%;
+  }
+
+  .vl-preview-poster {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 18px;
+    border: 1px solid rgba(19, 33, 47, 0.08);
+    margin-bottom: 1rem;
+  }
+
+  .vl-file-meta {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .vl-file-meta strong {
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  .vl-file-meta small,
+  .vl-helper {
+    color: #5b6876;
+  }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">Module editor</div>
+        <h1 class="mb-3">Modifica il modulo "{{ videocorso.titolo }}"</h1>
+        <p class="text-muted mb-0">
+          Aggiorna i contenuti del modulo senza rientrare nella configurazione completa del corso.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <span class="vl-chip">{{ corso.titolo }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags|default:'info' }} mt-3" role="alert">
+    {{ message }}
+  </div>
+  {% endfor %}
+{% endif %}
+
+<section class="row g-4">
+  <div class="col-12 col-xl-8">
+    <div class="vl-form-card h-100">
+      <div class="vl-kicker text-muted mb-2">Dati modulo</div>
+      <h2 class="mb-4">Contenuto e sorgenti video</h2>
+
+      <form action="{% url 'modifica_modulo' videocorso.id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label for="titolo" class="form-label">Titolo modulo</label>
+            <input type="text" name="titolo" id="titolo" class="form-control" value="{{ videocorso.titolo }}" required>
+          </div>
+          <div class="col-md-4">
+            <label for="ordine" class="form-label">Ordine</label>
+            <input type="number" name="ordine" id="ordine" class="form-control" value="{{ videocorso.ordine }}" min="1" required>
+          </div>
+          <div class="col-12">
+            <label for="descrizione" class="form-label">Descrizione</label>
+            <textarea name="descrizione" id="descrizione" class="form-control" rows="5">{{ videocorso.descrizione|default:'' }}</textarea>
+          </div>
+          <div class="col-md-6">
+            <label for="video_file" class="form-label">Nuovo file video</label>
+            <input type="file" name="video_file" id="video_file" class="form-control" accept="video/mp4,video/webm,video/ogg">
+            <div class="vl-helper mt-2">Carica un file solo se vuoi sostituire il video attuale.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="poster_file" class="form-label">Nuovo poster</label>
+            <input type="file" name="poster_file" id="poster_file" class="form-control" accept="image/*">
+            <div class="vl-helper mt-2">Il poster attuale resta invariato se non ne carichi uno nuovo.</div>
+          </div>
+          <div class="col-12">
+            <label for="external_url" class="form-label">URL video esterno</label>
+            <input
+              type="text"
+              name="external_url"
+              id="external_url"
+              class="form-control"
+              value="{{ videocorso.external_url|default:'' }}"
+              placeholder="https://..."
+            >
+            <div class="vl-helper mt-2">Puoi usare un URL CDN o streaming; se non lo modifichi, quello salvato resta attivo.</div>
+          </div>
+        </div>
+
+        <div class="vl-actions mt-4">
+          <button class="btn btn-primary" type="submit">Salva modifiche</button>
+          <a href="{% url 'configura_moduli' corso.id %}" class="btn btn-secondary">Torna ai moduli</a>
+          <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-light">Vai al corso</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-4">
+    <div class="vl-preview-card">
+      <div class="vl-kicker text-muted mb-2">Anteprima</div>
+      <h2 class="mb-3">Stato attuale del modulo</h2>
+
+      {% if videocorso.poster_file %}
+      <img src="{{ videocorso.poster_file.url }}" alt="Poster modulo" class="vl-preview-poster">
+      {% endif %}
+
+      <div class="vl-file-meta">
+        <div>
+          <strong>Titolo corrente</strong>
+          <small>{{ videocorso.titolo }}</small>
+        </div>
+        <div>
+          <strong>Descrizione</strong>
+          <small>{{ videocorso.descrizione|default:"Nessuna descrizione disponibile." }}</small>
+        </div>
+        <div>
+          <strong>Sorgente file</strong>
+          <small>
+            {% if videocorso.video_file %}
+            {{ videocorso.video_file.name }}
+            {% else %}
+            Nessun file caricato
+            {% endif %}
+          </small>
+        </div>
+        <div>
+          <strong>URL esterno</strong>
+          <small>
+            {% if videocorso.external_url %}
+            <a href="{{ videocorso.external_url }}" target="_blank" rel="noopener noreferrer">{{ videocorso.external_url }}</a>
+            {% else %}
+            Nessun URL esterno configurato
+            {% endif %}
+          </small>
+        </div>
+        <div>
+          <strong>Corso associato</strong>
+          <small>{{ corso.titolo }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

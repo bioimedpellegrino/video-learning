@@ -1,58 +1,125 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Video corsi {% endblock %} 
-
-<!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block title %} Video Corso {% endblock %}
 
 {% block content %}
-  <div class="d-flex justify-content-center mt-5">
-    <h3>{{video_corso.titolo}}</h3>
-  </div>
-
-  <div class="d-flex justify-content-center mt-5">
-    <video
-    id="my-video"
-    class="video-js"
-    preload="auto"
-    width="1280"
-    height="720"
-    poster="{% if video_corso.poster_file %}{{video_corso.poster_file.url}}{% else %}https://www.ptsclas.com/wp-content/uploads/2020/06/What-is-eLearning.jpg {% endif %}"
-    data-setup="{}"
-    >
-    <source src="{{video_corso.external_url}}" type="video/mp4" />
-    <p class="vjs-no-js">
-      Devi abilitare javascript per vedere questo video
-      <a href="https://videojs.com/html5-video-support/" target="_blank"
-        >supports HTML5 video</a
-      >
-    </p>
-    </video>
-  </div>
-
-  <div class="d-flex justify-content-center mt-5">
-    <span id="tempoTrascorso">--:--</span> / <span id="tempoTotale">--:--</span>
-  </div>
-
-  <div class="d-flex justify-content-around mt-5">
-    <button class="btn btn-secondary" id="backButton">Torna indietro di 10 secondi</button>
-    <button class="btn btn-primary" id="playButton" type="button">
-      <i class="fa-solid fa-play" style="color: #ffffff;"></i> <i class="fa-solid fa-pause" style="color: #ffffff;"></i> Riproduci / Interrompi
-    </button>
-  </div>
-  <div class="d-flex justify-content-center mt-5">
-    <a href="{% url 'videocorsi' corso.id%}" class="btn btn-secondary me-2">Indietro</a>
-  </div>
-  <div class="p-5">
-    <div class="mt-5 mb-3">
-      <span class="h6 fw-bold">Descrizione</span>
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">Modulo in corso</div>
+        <h1 class="mb-3">{{ video_corso.titolo }}</h1>
+        <p class="text-muted mb-0">
+          {{ corso.titolo }}{% if video_corso.descrizione %} · {{ video_corso.descrizione|truncatechars:150 }}{% endif %}
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <span class="vl-chip">
+          {% if stato_video and stato_video.completato %}
+          Completato
+          {% elif stato_video and stato_video.iniziato %}
+          In lavorazione
+          {% else %}
+          Non iniziato
+          {% endif %}
+        </span>
+      </div>
     </div>
-    <p class="lead" id="videoDescrizione">{{video_corso.descrizione}}</p>
   </div>
-  
+</section>
+
+<section class="vl-learning-shell">
+  <div class="vl-learning-grid">
+    <div class="vl-video-player-card">
+      <div class="vl-video-stage">
+        <video
+          id="my-video"
+          class="video-js"
+          preload="auto"
+          width="1280"
+          height="720"
+          poster="{% if video_corso.poster_file %}{{ video_corso.poster_file.url }}{% else %}https://www.ptsclas.com/wp-content/uploads/2020/06/What-is-eLearning.jpg{% endif %}"
+          data-setup="{}"
+        >
+          <source src="{% if video_corso.external_url %}{{ video_corso.external_url }}{% elif video_corso.video_file %}{{ video_corso.video_file.url }}{% endif %}" type="video/mp4" />
+          <p class="vjs-no-js">
+            Devi abilitare javascript per vedere questo video
+            <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+          </p>
+        </video>
+      </div>
+
+      <div class="vl-video-meta">
+        <div>
+          <div class="vl-kicker text-muted mb-2">Avanzamento</div>
+          <div class="d-flex align-items-center gap-3">
+            <strong id="tempoTrascorso">--:--</strong>
+            <span class="text-muted">di</span>
+            <strong id="tempoTotale">--:--</strong>
+          </div>
+        </div>
+        <div class="text-lg-end">
+          <div class="vl-kicker text-muted mb-2">Progresso salvato</div>
+          <strong>
+            {% if stato_video %}
+            {{ stato_video.percentuale_completamento }}%
+            {% else %}
+            0%
+            {% endif %}
+          </strong>
+        </div>
+      </div>
+
+      <div class="vl-actions mt-4">
+        <button class="btn btn-secondary" id="backButton">Indietro 10 secondi</button>
+        <button class="btn btn-primary" id="playButton" type="button">
+          <i class="fa-solid fa-play me-2"></i>Riproduci o metti in pausa
+        </button>
+        <a href="{% url 'videocorsi' corso.id %}" class="btn btn-secondary">Torna al corso</a>
+      </div>
+    </div>
+
+    <aside class="vl-video-sidebar">
+      <div class="vl-side-card">
+        <div class="vl-kicker text-muted mb-2">Corso</div>
+        <h3 class="mb-3">{{ corso.titolo }}</h3>
+        <div class="vl-progress mb-3">
+          <span style="width:{% if stato_video %}{{ stato_video.percentuale_completamento }}{% else %}0{% endif %}%;"></span>
+        </div>
+        <p class="text-muted mb-0">
+          Continua il modulo corrente oppure scorri la sequenza delle lezioni per capire cosa viene dopo.
+        </p>
+      </div>
+
+      <div class="vl-side-card">
+        <div class="vl-kicker text-muted mb-2">Programma</div>
+        <h3 class="mb-3">Moduli del corso</h3>
+        <div class="vl-lesson-list">
+          {% for lesson in corso.video_corsi.all %}
+          <div class="vl-lesson-item {% if lesson.id == video_corso.id %}border-success{% endif %}">
+            <strong>{{ lesson.ordine }}. {{ lesson.titolo }}</strong>
+            <small>
+              {% if lesson.id == video_corso.id %}
+              Modulo attuale
+              {% else %}
+              Modulo successivo o precedente
+              {% endif %}
+            </small>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="vl-side-card">
+        <div class="vl-kicker text-muted mb-2">Descrizione</div>
+        <h3 class="mb-3">Contenuto del modulo</h3>
+        <p class="text-muted mb-0" id="videoDescrizione">{{ video_corso.descrizione|default:"Nessuna descrizione disponibile per questo modulo." }}</p>
+      </div>
+    </aside>
+  </div>
+</section>
 {% endblock content %}
 
-<!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script>
   const VIDEO_ID = {{video_corso.pk|safe}};
@@ -64,5 +131,4 @@
 </script>
 
 <script src="/static/assets/js/video_controller.js"></script>
-
 {% endblock javascripts %}

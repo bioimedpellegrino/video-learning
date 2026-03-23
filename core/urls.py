@@ -8,8 +8,10 @@ from django.urls import path, include, re_path
 from django.conf.urls.static import static
 from django.conf import settings
 from apps.home import views
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    path('admin', RedirectView.as_view(url='/admin/', permanent=False)),
     path('admin/', admin.site.urls),          # Django admin route
     path("", include("apps.authentication.urls")), # Auth routes - login / register
     path("", include("apps.home.urls")),             # UI Kits Html files

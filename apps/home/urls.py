@@ -25,6 +25,7 @@ urlpatterns = [
     path("amministrazione/mail/<int:id>/", SentMailView.as_view(), name="sent_mail_detail"),
     path("amministrazione/corso/<int:id_corso>/configura_moduli", ConfiguraModuliView.as_view(), name="configura_moduli"),
     path("amministrazione/corso/<int:id_corso>/crea_quiz", CreaQuizView.as_view(), name="crea_quiz"),
+    path("amministrazione/modulo/<int:id_modulo>/", ModificaModuloView.as_view(), name="modifica_modulo"),
 
     # Pagine utente
     path("utente/pagina_profilo/<int:id_utente>", ProfiloView.as_view(), name="utente_profilo"),

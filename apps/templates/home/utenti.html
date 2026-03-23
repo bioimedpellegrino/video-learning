@@ -1,49 +1,73 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Utenti {% endblock %} 
-
-<!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block title %} Utenti {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-    <div class="d-block mb-4 mb-md-0">
-        <h2 class="h4">Lista utenti</h2>
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">People</div>
+        <h1 class="mb-3">Utenti della piattaforma</h1>
+        <p class="text-muted mb-0">
+          Consulta il parco utenti attivo, le aziende di appartenenza e accedi rapidamente ai profili.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <a href="{% url 'aggiungi_utente' %}" class="btn btn-primary">Aggiungi utente</a>
+      </div>
     </div>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <button type="button" class="btn btn-block btn-gray-800 mb-3" data-bs-toggle="modal" data-bs-target="#aggiungiUtente">Aggiungi utente</button>
+  </div>
+</section>
+
+<section class="mb-4">
+  <div class="vl-stat-grid">
+    <article class="vl-stat-card">
+      <div class="vl-stat-label">Utenti visibili</div>
+      <div class="vl-stat-value">{{ utenti|length }}</div>
+    </article>
+    <article class="vl-stat-card">
+      <div class="vl-stat-label">Utenti staff</div>
+      <div class="vl-stat-value">
+        {% for utente in utenti %}{% if utente.user.is_staff %}{{ forloop.counter }}{% endif %}{% empty %}0{% endfor %}
+      </div>
+    </article>
+    <article class="vl-stat-card">
+      <div class="vl-stat-label">Copertura aziende</div>
+      <div class="vl-stat-value">Attiva</div>
+    </article>
+  </div>
+</section>
+
+<section class="vl-panel">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <div class="vl-kicker text-muted mb-2">Directory</div>
+      <h2 class="mb-0">Lista utenti</h2>
     </div>
-</div>
+  </div>
 
-<div class="card card-body border-0 shadow table-wrapper table-responsive table-responsive-md">
-    <table style="min-height: 20vh;" class="table table-hover align-items-center">
-        <thead class="align-items-center">
-            <th class="border-gray-200">ID</th>
-            <th class="border-gray-200">Nome</th>
-            <th class="border-gray-200 w-25">Email</th>
-            <th class="border-gray-200 w-25">Azienda</th>
-            <th class="border-gray-200 w-25">Azioni</th>
-        </thead>
-        <tbody>
-            {% for utente in utenti %}
-            <tr>
-                <td>{{utente.id}}</td>
-                <td><b>{{utente.user.first_name}} {{utente.user.last_name}}</b></td>
-                <td>{{utente.user.email}}</td>
-                <td>{{utente.azienda}}</td>
-                <td>
-                    <!-- Actions go here -->
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<!-- Modals go here -->
-
+  <div class="vl-simple-list">
+    {% for utente in utenti %}
+    <div class="vl-simple-row">
+      <div>
+        <strong>{{ utente.user.first_name }} {{ utente.user.last_name }}</strong>
+        <small>{{ utente.user.email }}{% if utente.azienda %} · {{ utente.azienda }}{% endif %}</small>
+      </div>
+      <div class="d-flex gap-2">
+        {% if utente.user.is_staff %}
+        <span class="vl-chip">Staff</span>
+        {% endif %}
+        <a href="{% url 'utente_profilo' utente.id %}" class="btn btn-sm btn-secondary">Profilo</a>
+      </div>
+    </div>
+    {% empty %}
+    <div class="vl-side-card">
+      <h3 class="h4 mb-3">Nessun utente disponibile</h3>
+      <p class="text-muted mb-3">Aggiungi il primo utente per iniziare a distribuire i corsi.</p>
+      <a href="{% url 'aggiungi_utente' %}" class="btn btn-primary">Crea utente</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
 {% endblock content %}
-
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}
-{% endblock javascripts %}

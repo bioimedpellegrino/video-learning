@@ -3,30 +3,65 @@
 {% block title %} Quiz {% endblock %}
 
 {% block content %}
-<h1>{{ quiz.titolo }}</h1>
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">Final assessment</div>
+        <h1 class="mb-3">{% if quiz %}{{ quiz.titolo }}{% else %}Quiz finale{% endif %}</h1>
+        <p class="text-muted mb-0">
+          Verifica l'apprendimento del corso {{ corso.titolo }} e sblocca l'attestato al completamento.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        {% if quiz %}
+        <span class="vl-chip">{{ quiz.domande.count }} domande</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
 
 {% if alert %}
-<div class="alert alert-{{ alert.type }}" role="alert">
-   {{alert}}
-</div>
+<section class="mb-4">
+  <div class="alert alert-warning border-0 shadow-sm" role="alert">
+    {{ alert }}
+  </div>
+</section>
 {% endif %}
 
-<form method="post">
-    {% csrf_token %}
+{% if quiz %}
+<form method="post" class="vl-panel">
+  {% csrf_token %}
+  <div class="vl-simple-list">
     {% for domanda in quiz.domande.all %}
-    <div class="mb-3 domanda">
-        <label class="domanda-label">{{ domanda.testo }}</label>
+    <div class="vl-side-card">
+      <div class="vl-kicker text-muted mb-2">Domanda {{ forloop.counter }}</div>
+      <h3 class="h4 mb-3">{{ domanda.testo }}</h3>
+      <div class="d-grid gap-2">
         {% for opzione in domanda.opzioni.all %}
-            <div class="form-check opzione">
-                <input class="form-check-input" type="radio" name="risposta_{{ domanda.id }}" id="opzione_{{ opzione.id }}" value="{{ opzione.id }}" required>
-                <label class="form-check-label" for="opzione_{{ opzione.id }}">
-                    {{ opzione.testo_opzione }}
-                </label>
-            </div>
+        <label class="p-3 rounded-4 border bg-white d-flex align-items-center gap-3">
+          <input class="form-check-input mt-0" type="radio" name="risposta_{{ domanda.id }}" id="opzione_{{ opzione.id }}" value="{{ opzione.id }}" required>
+          <span>{{ opzione.testo_opzione }}</span>
+        </label>
         {% endfor %}
+      </div>
     </div>
-{% endfor %}
-    <button type="submit" class="btn btn-success">Invia</button>
-    <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary">Indietro</a>
+    {% endfor %}
+  </div>
+
+  <div class="vl-actions mt-4">
+    <button type="submit" class="btn btn-primary">Invia risposte</button>
+    <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary">Torna al corso</a>
+  </div>
 </form>
+{% else %}
+<section class="vl-panel">
+  <div class="vl-side-card">
+    <h3 class="h4 mb-3">Quiz non ancora disponibile</h3>
+    <p class="text-muted mb-3">Questo corso non ha ancora una valutazione finale configurata.</p>
+    <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary">Torna al corso</a>
+  </div>
+</section>
+{% endif %}
 {% endblock content %}

@@ -1,90 +1,106 @@
 {% extends "layouts/base.html" %}
 
-{% load static %}
-
 {% block title %} Crea Quiz {% endblock %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="{% static 'home/css/aggiungi_azienda.css' %}">
+{{ block.super }}
+<style>
+  .vl-quiz-card {
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(19, 33, 47, 0.08);
+    border-radius: 24px;
+    padding: 1.4rem;
+    box-shadow: 0 24px 60px rgba(17, 32, 49, 0.08);
+    margin-bottom: 1rem;
+  }
+
+  .vl-question-remove {
+    margin-top: 1rem;
+  }
+</style>
 {% endblock stylesheets %}
 
 {% block content %}
-<h1>Crea Quiz per {{ corso.titolo }}</h1>
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">Quiz builder</div>
+        <h1 class="mb-3">Crea il quiz finale di {{ corso.titolo }}</h1>
+        <p class="text-muted mb-0">
+          Definisci titolo, domande e risposte corrette per la valutazione conclusiva del percorso.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary">Torna al corso</a>
+      </div>
+    </div>
+  </div>
+</section>
 
 <form method="post">
-    {% csrf_token %}
-    <div class="quiz-form">
-        <div class="mb-3">
-            <label for="titolo_quiz" class="form-label">Titolo Quiz</label>
-            <input type="text" class="form-control" id="titolo_quiz" name="titolo_quiz" required>
-        </div>
+  {% csrf_token %}
+  <section class="vl-form-card mb-4">
+    <div class="vl-kicker text-muted mb-2">Impostazioni</div>
+    <h2 class="mb-4">Titolo del quiz</h2>
+    <input type="text" class="form-control" id="titolo_quiz" name="titolo_quiz" required placeholder="Es. Valutazione finale sicurezza">
+  </section>
 
-        <div id="domande-container">
-            <!-- Qui vengono aggiunte le domande -->
-        </div>
+  <div id="domande-container"></div>
 
-        <button type="button" class="btn btn-primary" onclick="aggiungiDomanda()">Aggiungi Domanda</button>
-        <button type="submit" class="btn btn-success">Salva Quiz</button>
-        <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary">Indietro</a>
+  <section class="vl-panel">
+    <div class="vl-actions">
+      <button type="button" class="btn btn-secondary" onclick="aggiungiDomanda()">Aggiungi domanda</button>
+      <button type="submit" class="btn btn-primary">Salva quiz</button>
+      <a href="{% url 'utente_corso_dettaglio' corso.id %}" class="btn btn-secondary">Indietro</a>
     </div>
+  </section>
 </form>
 {% endblock content %}
 
 {% block javascripts %}
 <script>
-    let domandaId = 0;
+function aggiungiDomanda() {
+  const container = document.getElementById('domande-container');
+  const domandaId = container.getElementsByClassName('domanda').length + 1;
+  const domandaDiv = document.createElement('div');
+  domandaDiv.className = 'vl-quiz-card domanda';
+  domandaDiv.id = 'domanda_' + domandaId;
+  domandaDiv.innerHTML = `
+    <div class="vl-kicker text-muted mb-2">Domanda ${domandaId}</div>
+    <h3 class="h4 mb-3">Testo domanda</h3>
+    <input type="text" class="form-control mb-4" name="domanda_${domandaId}" required>
+    ${creaOpzioniRisposta(domandaId)}
+    <button type="button" class="btn btn-secondary vl-question-remove" onclick="rimuoviDomanda(${domandaId})">Rimuovi domanda</button>
+  `;
+  container.appendChild(domandaDiv);
+}
 
-    function aggiungiDomanda() {
-    const container = document.getElementById('domande-container');
+function rimuoviDomanda(id) {
+  const domandaDaRimuovere = document.getElementById('domanda_' + id);
+  domandaDaRimuovere.remove();
+  const domande = document.getElementsByClassName('domanda');
+  for (let i = 0; i < domande.length; i++) {
+    domande[i].id = 'domanda_' + (i + 1);
+    domande[i].querySelector('.vl-kicker').textContent = 'Domanda ' + (i + 1);
+  }
+}
 
-    // Calcola l'ID della domanda in base al numero di domande attualmente presenti
-    const domandaId = container.getElementsByClassName('domanda').length + 1;
-
-    // Crea un nuovo elemento div
-    const domandaDiv = document.createElement('div');
-    domandaDiv.className = 'mb-3 domanda';
-    domandaDiv.id = 'domanda_' + domandaId;
-
-    // Imposta l'HTML interno del div
-    domandaDiv.innerHTML = `
-        <label>Domanda ${domandaId}</label>
-        <input type="text" class="form-control mb-2" name="domanda_${domandaId}" required>
-        ${creaOpzioniRisposta(domandaId)}
-        <button type="button" class="btn btn-danger" onclick="rimuoviDomanda(${domandaId})">Rimuovi Domanda</button>
+function creaOpzioniRisposta(domandaId) {
+  let opzioniHtml = '<div class="d-grid gap-3">';
+  for (let i = 1; i <= 4; i++) {
+    opzioniHtml += `
+      <label class="p-3 rounded-4 border bg-white d-flex align-items-center gap-3">
+        <input class="form-check-input mt-0" type="radio" name="risposta_corretta_${domandaId}" id="opzione_${domandaId}_${i}" value="opzione_${i}" required>
+        <span class="fw-semibold">Opzione ${i}</span>
+        <input type="text" class="form-control" name="opzione_${domandaId}_${i}" required>
+      </label>
     `;
+  }
+  opzioniHtml += '</div>';
+  return opzioniHtml;
+}
 
-    // Aggiungi il div al container
-    container.appendChild(domandaDiv);
-    }
-
-    function rimuoviDomanda(id) {
-        const domandaDaRimuovere = document.getElementById('domanda_' + id);
-        domandaDaRimuovere.remove();
-
-        // Aggiorna gli ID e le etichette delle domande rimanenti
-        const domande = document.getElementsByClassName('domanda');
-        for (let i = 0; i < domande.length; i++) {
-            domande[i].id = 'domanda_' + (i + 1);
-            domande[i].getElementsByTagName('label')[0].textContent = 'Domanda ' + (i + 1);
-        }
-    }
-
-    function creaOpzioniRisposta(domandaId) {
-        let opzioniHtml = '';
-        for (let i = 1; i <= 4; i++) {
-            opzioniHtml += `
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="risposta_corretta_${domandaId}" id="opzione_${domandaId}_${i}" value="opzione_${i}" required>
-                    <label class="form-check-label" for="opzione_${domandaId}_${i}">
-                        Opzione ${i}: <input type="text" name="opzione_${domandaId}_${i}" required>
-                    </label>
-                </div>
-            `;
-        }
-        return opzioniHtml;
-    }
-
-    // Aggiungi una prima domanda per impostazione predefinita
-    aggiungiDomanda();
+aggiungiDomanda();
 </script>
 {% endblock javascripts %}

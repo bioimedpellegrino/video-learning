@@ -1,25 +1,52 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Attestati {% endblock %} 
-
-<!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block title %} Attestati {% endblock %}
 
 {% block content %}
-    <h1>Attestati ottenuti</h1>
-    <ul>
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">Certificates</div>
+        <h1 class="mb-3">Attestati ottenuti</h1>
+        <p class="text-muted mb-0">
+          Qui trovi gli attestati generati dopo il completamento con successo dei corsi e dei quiz finali.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <span class="vl-chip">{{ ultimi_attestati|length }} attestati</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="vl-panel">
+  <div class="vl-course-grid">
     {% for corso, attestato in ultimi_attestati.items %}
-        <li>
-            <h2>{{ corso.titolo }}</h2>
-            <p>Data di consegna: {{ attestato.data_conseguimento }}</p>
-        </li>
+    <article class="vl-course-card">
+      <div class="vl-course-card-top">
+        <div>
+          <div class="vl-kicker text-muted mb-2">Attestato</div>
+          <h3 class="vl-course-title">{{ corso.titolo }}</h3>
+          <div class="vl-course-meta">Conseguito il {{ attestato.data_conseguimento|date:"d/m/Y" }}</div>
+        </div>
+        <span class="vl-chip">PDF</span>
+      </div>
+      <p class="text-muted mb-0">
+        Ultima versione disponibile dell'attestato di completamento per questo percorso.
+      </p>
+      <div class="vl-actions">
+        <a href="{% url 'scarica_attestato' corso.id %}" class="btn btn-primary">Scarica attestato</a>
+      </div>
+    </article>
     {% empty %}
-        <li>Nessun attestato ottenuto.</li>
+    <div class="vl-side-card">
+      <h3 class="h4 mb-3">Nessun attestato disponibile</h3>
+      <p class="text-muted mb-0">
+        Completa i corsi e supera i quiz finali per vedere qui i tuoi certificati.
+      </p>
+    </div>
     {% endfor %}
-    </ul>
+  </div>
+</section>
 {% endblock content %}
-
-<!-- Specific Page JS goes HERE  -->
-{% block javascripts %}
-
-{% endblock javascripts %}

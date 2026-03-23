@@ -1,118 +1,291 @@
 {% extends "layouts/base.html" %}
 
-{% load static %}
+{% block title %} Dettagli Azienda {% endblock %}
 
-{% block title %} Dettagli Azienda {% endblock %} 
-
-<!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
-<link rel="stylesheet" href="{% static 'home/css/aggiungi_azienda.css' %}">{% endblock stylesheets %}
+{{ block.super }}
+<style>
+  .vl-transfer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 88px minmax(0, 1fr);
+    gap: 1.1rem;
+    align-items: stretch;
+  }
+
+  .vl-transfer-panel {
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(19, 33, 47, 0.08);
+    border-radius: 24px;
+    padding: 1.25rem;
+    box-shadow: 0 24px 60px rgba(17, 32, 49, 0.08);
+  }
+
+  .vl-transfer-panel h3 {
+    margin-bottom: 0.35rem;
+  }
+
+  .vl-transfer-help {
+    color: var(--vl-text-soft);
+    font-size: 0.92rem;
+    margin-bottom: 1rem;
+  }
+
+  .vl-filter-input {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid rgba(19, 33, 47, 0.12);
+    padding: 0.8rem 0.95rem;
+    margin-bottom: 0.85rem;
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  .vl-transfer-select {
+    width: 100%;
+    min-height: 280px;
+    border-radius: 18px;
+    border: 1px solid rgba(19, 33, 47, 0.12);
+    background: #fff;
+    padding: 0.65rem;
+  }
+
+  .vl-transfer-select option {
+    padding: 0.7rem 0.8rem;
+    border-radius: 12px;
+    margin-bottom: 0.25rem;
+  }
+
+  .vl-transfer-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.9rem;
+  }
+
+  .vl-transfer-btn {
+    width: 88px;
+    height: 88px;
+    border: 0;
+    border-radius: 24px;
+    background: linear-gradient(135deg, var(--vl-primary), #49b97d);
+    color: #fff;
+    box-shadow: 0 18px 36px rgba(31, 143, 95, 0.22);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.65rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .vl-transfer-btn:hover,
+  .vl-transfer-btn:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 40px rgba(31, 143, 95, 0.28);
+  }
+
+  .vl-transfer-btn span {
+    display: block;
+    line-height: 1;
+  }
+
+  .vl-user-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1rem;
+  }
+
+  .vl-user-card-mini {
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(19, 33, 47, 0.08);
+    border-radius: 20px;
+    padding: 1rem 1.1rem;
+  }
+
+  .vl-user-table .table {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 991.98px) {
+    .vl-transfer-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .vl-transfer-actions {
+      flex-direction: row;
+    }
+
+    .vl-transfer-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      font-size: 1.25rem;
+    }
+  }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
-<h1>{{ azienda.nome }}</h1>
-
-<div class="table-responsive">
-    <table class="table align-items-center table-flush">
-        <thead class="thead-light">
-            <tr>
-                <th class="border-bottom" scope="col">Nome</th>
-                <th class="border-bottom" scope="col">Cognome</th>
-                <th class="border-bottom" scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for utente in utenti_azienda %}
-                <tr>
-                    <th class="text-gray-900" scope="row">
-                        {{ utente.user.first_name }}
-                    </th>
-                    <td class="fw-bolder text-gray-500">
-                        {{ utente.user.last_name }}
-                    </td>
-                    <td class="fw-bolder text-gray-500">
-                        <a href="{% url 'utente_profilo' utente.id %}" class="btn btn-primary">Visualizza profilo</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-<form id="form" method="post">
-    {% csrf_token %}
-    <div id="associazione-utenti-wrapper">
-        <div class="multi-select-box">
-            <div class="available-items">
-                <h3>Utenti disponibili</h3>
-                <input type="text" id="search-available" placeholder="Cerca..." onkeyup="filterOptions('available')">
-                <select id="available-utenti" name="utenti_disponibili" multiple>
-                    {% for utente in utenti_no_azienda %}
-                        <option value="{{ utente.id }}">{{ utente.user.first_name }} {{ utente.user.last_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="actions">
-                <button class="btn-action" type="button" onclick="moveSelected('available', 'chosen')"> > </button>
-                <button class="btn-action" type="button" onclick="moveSelected('chosen', 'available')"> < </button>
-            </div>
-            <div class="chosen-items">
-                <h3>Utenti associati</h3>
-                <input type="text" id="search-chosen" placeholder="Cerca..." onkeyup="filterOptions('chosen')">
-                <select id="chosen-utenti" name="utenti_associati" multiple>
-                    {% for utente in utenti_azienda %}
-                        <option value="{{ utente.id }}">{{ utente.user.first_name }} {{ utente.user.last_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        <div class="form-actions">
-            <button class="btn btn-primary me-2" type="submit" onclick="submitForm()">Salva</button>
-            <a href="{% url 'aziende' %}" class="btn btn-secondary me-2">Indietro</a>
-        </div>
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">Organization detail</div>
+        <h1 class="mb-3">{{ azienda.nome }}</h1>
+        <p class="text-muted mb-0">
+          Gestisci gli utenti già assegnati all'azienda e sposta rapidamente i profili disponibili da una colonna all'altra.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <span class="vl-chip">{{ utenti_azienda|length }} utenti associati</span>
+      </div>
     </div>
+  </div>
+</section>
+
+<section class="mb-4">
+  <div class="vl-user-summary">
+    <article class="vl-user-card-mini">
+      <div class="vl-stat-label">Utenti associati</div>
+      <div class="vl-stat-value">{{ utenti_azienda|length }}</div>
+    </article>
+    <article class="vl-user-card-mini">
+      <div class="vl-stat-label">Disponibili da assegnare</div>
+      <div class="vl-stat-value">{{ utenti_no_azienda|length }}</div>
+    </article>
+  </div>
+</section>
+
+<section class="vl-panel mb-4 vl-user-table">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <div class="vl-kicker text-muted mb-2">Team</div>
+      <h2 class="mb-0">Utenti gia presenti</h2>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table align-items-center table-flush">
+      <thead class="thead-light">
+        <tr>
+          <th class="border-bottom" scope="col">Nome</th>
+          <th class="border-bottom" scope="col">Cognome</th>
+          <th class="border-bottom" scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for utente in utenti_azienda %}
+        <tr>
+          <th class="text-gray-900" scope="row">{{ utente.user.first_name }}</th>
+          <td class="fw-bolder text-gray-500">{{ utente.user.last_name }}</td>
+          <td class="text-end">
+            <a href="{% url 'utente_profilo' utente.id %}" class="btn btn-primary">Visualizza profilo</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="text-muted py-4">Nessun utente ancora associato a questa azienda.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<form id="company-users-form" method="post">
+  {% csrf_token %}
+  <section class="vl-transfer-grid">
+    <article class="vl-transfer-panel">
+      <div class="vl-kicker mb-2">Disponibili</div>
+      <h3>Utenti da aggiungere</h3>
+      <p class="vl-transfer-help">Seleziona uno o piu utenti e usa la freccia per associarli all'azienda.</p>
+      <input type="text" id="search-available" class="vl-filter-input" placeholder="Cerca utenti disponibili...">
+      <select id="available-utenti" name="utenti_disponibili" class="vl-transfer-select" multiple>
+        {% for utente in utenti_no_azienda %}
+        <option value="{{ utente.id }}">{{ utente.user.first_name }} {{ utente.user.last_name }}</option>
+        {% endfor %}
+      </select>
+    </article>
+
+    <div class="vl-transfer-actions">
+      <button class="vl-transfer-btn" type="button" id="move-right" aria-label="Aggiungi utente">
+        <span>&rsaquo;</span>
+      </button>
+      <button class="vl-transfer-btn" type="button" id="move-left" aria-label="Rimuovi utente">
+        <span>&lsaquo;</span>
+      </button>
+    </div>
+
+    <article class="vl-transfer-panel">
+      <div class="vl-kicker mb-2">Associati</div>
+      <h3>Utenti dell'azienda</h3>
+      <p class="vl-transfer-help">Mantieni qui gli utenti che devono restare collegati a {{ azienda.nome }}.</p>
+      <input type="text" id="search-chosen" class="vl-filter-input" placeholder="Cerca utenti associati...">
+      <select id="chosen-utenti" name="utenti_associati" class="vl-transfer-select" multiple>
+        {% for utente in utenti_azienda %}
+        <option value="{{ utente.id }}">{{ utente.user.first_name }} {{ utente.user.last_name }}</option>
+        {% endfor %}
+      </select>
+    </article>
+  </section>
+
+  <section class="vl-panel mt-4">
+    <div class="vl-actions">
+      <button class="btn btn-primary" type="button" id="save-company-users">Salva</button>
+      <a href="{% url 'aziende' %}" class="btn btn-secondary">Indietro</a>
+    </div>
+  </section>
 </form>
-
-
 {% endblock content %}
 
-<!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
 <script>
-    function filterOptions(side) {
-        var input, filter, select, options, i;
-        input = document.getElementById("search-" + side);
-        filter = input.value.toUpperCase();
-        select = document.getElementById(side + "-utenti");
-        options = select.getElementsByTagName("option");
-        for (i = 0; i < options.length; i++) {
-            if (options[i].text.toUpperCase().indexOf(filter) > -1) {
-                options[i].style.display = "";
-            } else {
-                options[i].style.display = "none";
-            }
-        }
-    }
-    
-    function moveSelected(from, to) {
-        var fromSelect, toSelect, options, i;
-        fromSelect = document.getElementById(from + "-utenti");
-        toSelect = document.getElementById(to + "-utenti");
-        options = fromSelect.getElementsByTagName("option");
-        for (i = options.length - 1; i >= 0; i--) {
-            if (options[i].selected) {
-                toSelect.appendChild(options[i]);
-            }
-        }
-    }
+  function filterOptions(inputId, selectId) {
+    const input = document.getElementById(inputId);
+    const select = document.getElementById(selectId);
+    const filter = input.value.trim().toUpperCase();
 
-    function submitForm() {
-        var select, options, i;
-        select = document.getElementById("chosen-utenti");
-        options = select.getElementsByTagName("option");
-        for (i = 0; i < options.length; i++) {
-            options[i].selected = true;
-        }
-        document.getElementById("form").submit();
-    }
+    Array.from(select.options).forEach((option) => {
+      option.hidden = filter && !option.text.toUpperCase().includes(filter);
+    });
+  }
+
+  function moveSelected(fromId, toId) {
+    const fromSelect = document.getElementById(fromId);
+    const toSelect = document.getElementById(toId);
+
+    Array.from(fromSelect.selectedOptions).forEach((option) => {
+      option.hidden = false;
+      toSelect.appendChild(option);
+    });
+  }
+
+  function selectAllOptions(selectId) {
+    const select = document.getElementById(selectId);
+    Array.from(select.options).forEach((option) => {
+      option.selected = true;
+      option.hidden = false;
+    });
+  }
+
+  document.getElementById('search-available').addEventListener('input', function () {
+    filterOptions('search-available', 'available-utenti');
+  });
+
+  document.getElementById('search-chosen').addEventListener('input', function () {
+    filterOptions('search-chosen', 'chosen-utenti');
+  });
+
+  document.getElementById('move-right').addEventListener('click', function () {
+    moveSelected('available-utenti', 'chosen-utenti');
+  });
+
+  document.getElementById('move-left').addEventListener('click', function () {
+    moveSelected('chosen-utenti', 'available-utenti');
+  });
+
+  document.getElementById('save-company-users').addEventListener('click', function () {
+    selectAllOptions('chosen-utenti');
+    selectAllOptions('available-utenti');
+    document.getElementById('company-users-form').submit();
+  });
 </script>
 {% endblock javascripts %}

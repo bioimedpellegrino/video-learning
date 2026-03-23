@@ -1,75 +1,85 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Aggiungi utente {% endblock %}
-
-{% block stylesheets %}{% endblock stylesheets %}
+{% block title %} Aggiungi Utente {% endblock %}
 
 {% block content %}
+<section class="vl-page-header">
+  <div class="vl-hero">
+    <div class="row align-items-end g-4">
+      <div class="col-12 col-lg-8">
+        <div class="vl-kicker mb-2">People onboarding</div>
+        <h1 class="mb-3">Crea un nuovo utente</h1>
+        <p class="text-muted mb-0">
+          Inserisci i dati principali del profilo e assegnalo subito a un'azienda o al ruolo staff.
+        </p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <a href="{% url 'amministrazione' %}" class="btn btn-secondary">Torna alla dashboard</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-<div class="py-4">
-    {% if message %}
-    <div class="alert {{message_class}} mt-3" role="alert">
-        {{ message }}
-    </div>
-    {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" name="username" id="username" class="form-control form-control-sm" required>
-            </div>
-            <div class="col-md-6">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" name="password" id="password" class="form-control form-control-sm" required>                
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="nome" class="form-label">Nome</label>
-                <input type="text" name="nome" id="nome" class="form-control form-control-sm" required>
-            </div>
-            <div class="col-md-6">
-                <label for="cognome" class="form-label">Cognome</label>
-                <input type="text" name="cognome" id="cognome" class="form-control form-control-sm" required>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="phone" class="form-label">Numero di telefono</label>
-                <input type="phone" name="phone" id="phone" class="form-control form-control-sm" required>
-            </div>
-            <div class="col-md-6">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" name="email" id="email" class="form-control form-control-sm" required>
-            </div>
-        </div>
-        <div class="row mb-5">
-            <div class="col-md-6">
-                <label for="azienda" class="form-label">Azienda</label>
-                <select name="azienda" id="azienda" class="form-control form-control-sm" required>
-                    {% for azienda in aziende %}
-                    <option value="{{azienda.id}}">{{azienda.nome}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-6 d-flex align-items-end">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="is_staff" id="is_staff">
-                    <label class="form-check-label" for="is_staff">E' un utente che fa parte dello staff?</label>
-                </div>
-            </div>
-        </div>
-        <div class="d-flex justify-content-start">
-            <button class="btn btn-primary me-2" type="submit">Salva</button>
-            <a href="{% url 'amministrazione' %}" class="btn btn-secondary me-2">Indietro</a>
-        </div>
-    </form>
-    {% if form.errors %}
-    <div class="alert alert-danger mt-3" role="alert">
-        {{ form.errors }}
-    </div>
-    {% endif %}
+{% if message %}
+<div class="alert {{message_class}} mt-3" role="alert">
+  {{ message }}
 </div>
+{% endif %}
 
+<section class="vl-form-card">
+  <form method="post">
+    {% csrf_token %}
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" name="username" id="username" class="form-control" required>
+      </div>
+      <div class="col-md-6">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" name="password" id="password" class="form-control" required>
+      </div>
+      <div class="col-md-6">
+        <label for="nome" class="form-label">Nome</label>
+        <input type="text" name="nome" id="nome" class="form-control" required>
+      </div>
+      <div class="col-md-6">
+        <label for="cognome" class="form-label">Cognome</label>
+        <input type="text" name="cognome" id="cognome" class="form-control" required>
+      </div>
+      <div class="col-md-6">
+        <label for="phone" class="form-label">Telefono</label>
+        <input type="text" name="phone" id="phone" class="form-control" required>
+      </div>
+      <div class="col-md-6">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" name="email" id="email" class="form-control" required>
+      </div>
+      <div class="col-md-6">
+        <label for="azienda" class="form-label">Azienda</label>
+        <select name="azienda" id="azienda" class="form-control" required>
+          {% for azienda in aziende %}
+          <option value="{{azienda.id}}">{{azienda.nome}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6 d-flex align-items-end">
+        <div class="form-check form-switch fs-5">
+          <input class="form-check-input" type="checkbox" name="is_staff" id="is_staff">
+          <label class="form-check-label" for="is_staff">Utente staff o docente</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="vl-actions mt-4">
+      <button class="btn btn-primary" type="submit">Salva utente</button>
+      <a href="{% url 'amministrazione' %}" class="btn btn-secondary">Indietro</a>
+    </div>
+  </form>
+
+  {% if form.errors %}
+  <div class="alert alert-danger mt-3" role="alert">
+    {{ form.errors }}
+  </div>
+  {% endif %}
+</section>
 {% endblock content %}

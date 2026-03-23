@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.contrib.auth.models import User  
-from django.db.models import JSONField
+from .fields import JSONTextField
 class Azienda(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID")
     nome = models.CharField(max_length=255, verbose_name="Nome Azienda")
@@ -175,7 +175,7 @@ class QuizAttempt(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
-    risultati = JSONField(default=dict)
+    risultati = JSONTextField(default=dict)
 
     def __str__(self):
         return f"{self.user} - {self.quiz.corso}"
